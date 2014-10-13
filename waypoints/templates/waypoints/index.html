@@ -1,0 +1,34 @@
+{% extends "waypoints/base.html" %}
+{% load staticfiles %}
+{% block container %}
+<br/><br/><br/>
+<h2>Heritage Cycle Route South Waypoints</h2>
+    <div id="list">
+    {% if waypoints_list %}
+        <ul class="list-group">
+        {% for waypoint in waypoints_list %}
+            <!--<li><a id="{{ waypoint.fid }}" href="{% url 'waypoints:edit'  waypoint.fid %}">{{ waypoint.name }}</a></li>-->
+            <li class="list-group-item" id="{{ waypoint.fid }}"><a id="{{ waypoint.fid }}" href="#">{{ waypoint.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No waypoints are available.</p>
+    {% endif %}
+    </div>
+    <div id="map"></div>
+    <div id="info" class="info"></div>
+{% endblock %}
+{% block corejs %}
+{{ block.super }}
+<script src="{% static "waypoints/js/IndexMap.js" %}" type="text/javascript" defer></script>
+
+<!-- load map -->
+<script type="text/javascript">
+    var indexMap;
+    $(document).ready(function() {
+        indexMap = new IndexMap();
+        indexMap.main();
+    });
+</script>
+
+{% endblock %}
