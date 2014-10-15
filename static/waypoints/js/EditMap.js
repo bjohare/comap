@@ -87,7 +87,7 @@ var EditMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "http://wordpress/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
                     featureType: ["heritage_cycle_route_south"]}),
                 box: false,
         });
@@ -96,7 +96,7 @@ var EditMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "http://wordpress/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
                     featureType: ["heritage_cycle_route_south_waypoints"]}),
                 box: false,
                 styleMap: pointStyles,

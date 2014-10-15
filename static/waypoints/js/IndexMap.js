@@ -73,7 +73,7 @@ var IndexMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "http://wordpress/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
                     featureType: ["heritage_cycle_route_south"]}),
                 box: false,
                 style: new OpenLayers.Style({'strokeWidth': 5, 'strokeColor': '#980000'}),
@@ -84,7 +84,7 @@ var IndexMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "http://wordpress/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
                     featureType: ["heritage_cycle_route_south_waypoints"]}),
                 box: false,
                 styleMap: pointStyles
@@ -110,7 +110,7 @@ var IndexMap = OpenLayers.Class({
             
         var infoctl = new OpenLayers.Control.GetFeature({
                 protocol: OpenLayers.Protocol.WFS({
-                    url: "http://wordpress/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
                     featureType: "heritage_cycle_route_south_waypoints",
                     featurePrefix: "ms",
                     maxFeatures: 10,
