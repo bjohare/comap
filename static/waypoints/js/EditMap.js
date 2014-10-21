@@ -96,7 +96,7 @@ var EditMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/",
                     featureType: ["heritage_cycle_route_south_waypoints"]}),
                 box: false,
                 styleMap: pointStyles,
@@ -110,10 +110,13 @@ var EditMap = OpenLayers.Class({
 						// update the long/lat values on the form
 						var lonlat = map.getLonLatFromPixel(evt.pixel);
 						lonlat.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
-						$('#lat').html('&nbsp;' + lonlat.lat.toPrecision(8));
-						$('#lng').html('&nbsp;' + lonlat.lon.toPrecision(8));
-						$('#latitude').val(lonlat.lat.toPrecision(8));
-						$('#longitude').val(lonlat.lon.toPrecision(8));
+						var lat = lonlat.lat.toPrecision(8);
+						var lon = lonlat.lon.toPrecision(8);
+						$('#lat').html('&nbsp;' + lat);
+						$('#lng').html('&nbsp;' + lon);
+						$('#latitude').val(lat);
+						$('#longitude').val(lon);
+						$('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
 					},
 					
                 },

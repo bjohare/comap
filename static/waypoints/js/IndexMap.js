@@ -73,7 +73,7 @@ var IndexMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/",
                     featureType: ["heritage_cycle_route_south"]}),
                 box: false,
                 style: new OpenLayers.Style({'strokeWidth': 5, 'strokeColor': '#980000'}),
@@ -84,13 +84,22 @@ var IndexMap = OpenLayers.Class({
                 srsName: "EPSG:4326",
                 strategies: [new OpenLayers.Strategy.BBOX()],
                 protocol: new OpenLayers.Protocol.WFS({
-                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/",
                     featureType: ["heritage_cycle_route_south_waypoints"]}),
                 box: false,
                 styleMap: pointStyles
             });
         map.addLayers([heritage_route, heritage_waypoints]);
         
+        var geojson = new OpenLayers.Layer.Vector("GeoJSON", {
+            strategies: [new OpenLayers.Strategy.Fixed()],
+            protocol: new OpenLayers.Protocol.HTTP({
+                url: "/comap/api/waypoints.json",
+                format: new OpenLayers.Format.GeoJSON(),
+            }),
+            styleMap: pointStyles
+        });
+        map.addLayers([geojson]);
         
         /* required to fire selection events on heritage_waypoints */
         var selectControl = new OpenLayers.Control.SelectFeature(heritage_waypoints);
@@ -110,7 +119,7 @@ var IndexMap = OpenLayers.Class({
             
         var infoctl = new OpenLayers.Control.GetFeature({
                 protocol: OpenLayers.Protocol.WFS({
-                    url: "/map/?map=/home/ubuntu/mapfiles/heritage-south-cycle-route.map",
+                    url: "/map/",
                     featureType: "heritage_cycle_route_south_waypoints",
                     featurePrefix: "ms",
                     maxFeatures: 10,
@@ -143,7 +152,9 @@ var IndexMap = OpenLayers.Class({
                 $('#info').append('<strong>Longitude:</strong> ' + attrs.longitude);
                 $('#info').append('<p>');
                 $('#info').append('<a href="/comap/waypoints/edit/' + attrs.fid + '/"><button><span class="glyphicon glyphicon-edit"></span> Edit this waypoint</button>');
-                $('#info').append('<a href="/comap/waypoints/delete/' + attrs.fid + '/">&nbsp;<button><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button>');
+                $('#info').append('<form method="post"> \
+                                  <a href="javascript:void(null)"' + attrs.fid + '/">&nbsp; \
+                                    <button onclick="showDialog()"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button>');
                 $('#info').append('</p>');
                 $('li[id=' + attrs.fid + ']').css('background-color','yellow').css('color', 'red');
                 
@@ -152,7 +163,7 @@ var IndexMap = OpenLayers.Class({
         /* feature unselection event handling */
         infoctl.events.register("featureunselected", this, function(e){
                 $('#info').empty();
-                $('#info').append('<span>Select waypoint name or a point on the map to get started...</span>');
+                $('#info').append('<span>Select a waypoint name from the list or a point on the map to get started...</span>');
                 $('li.list-group-item').css('background-color','white').css('color','#526325');
         });
         
