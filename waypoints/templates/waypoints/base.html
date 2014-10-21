@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
  <head>
-    {% load static %}
+    {% load staticfiles %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -55,6 +55,7 @@
             <ul class="dropdown-menu" role="menu">
             <li><a href="/comap/waypoints"><span class="glyphicon glyphicon-list"></span> List Waypoints</a></li>
             <li><a href="/comap/waypoints/gpx"><span class="glyphicon glyphicon-upload"></span> Upload GPX</a></li>
+            <li><a href="/comap/api/"><span class="glyphicon glyphicon-book"></span> Browse API</a></li>
           </ul>
           </ul>
         </div><!--/.nav-collapse -->
@@ -64,6 +65,10 @@
     
     <div class="container" id="container">
         {% block container %}{% endblock %}
+    </div>
+    
+    <div id="dialog-confirm" title="Really delete this waypoint?">
+        <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This waypoint will be permanently deleted and cannot be recovered. Are you sure?</p>
     </div>
     
     

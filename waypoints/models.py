@@ -225,3 +225,17 @@ class WaypointsSouthInfrastructure16062014(models.Model):
         managed = False
         db_table = 'waypoints_south_infrastructure_16_06_2014'
 
+class GeometryColumns(models.Model):
+    table_name = models.CharField(max_length=256, primary_key=True, db_column='f_table_name')
+    srid = models.IntegerField()
+    geom_type = models.CharField(max_length=30, db_column='type')
+    
+    class Meta:
+        managed = False
+        ordering = ['table_name']
+        db_table = 'geometry_columns'
+
+    
+    
+
+

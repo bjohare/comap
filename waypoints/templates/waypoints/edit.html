@@ -6,7 +6,7 @@
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <div id="edit">
-    <form id="waypointForm" action="{% url 'waypoints:edit' waypoint.fid %}" method="post"
+    <form id="waypointForm" action="{% url 'api:waypoints-detail' waypoint.fid %}" method="post"
           enctype="multipart/form-data" role="form">
     {% csrf_token %}
     <input type="hidden" id="fid" name="fid" value="{{ waypoint.fid }}"/>
@@ -39,12 +39,13 @@
         <input type="hidden" name="longitude" id="longitude" value="{{ waypoint.longitude }}"/>
         <span><strong>Elevation:</strong><span id="elev">&nbsp;{{ waypoint.elevation }}</span>
         <input type="hidden" id="elevation" name="elevation" value="{{ waypoint.elevation }}"/>
+        <input type="hidden" id="the_geom" name="the_geom" value="{{ waypoint.the_geom }}"/>
       </div>
     </div>
     
     <div class="form-group row pull-left">
         <div class="col-md-6">
-            <button id="save" type="submit" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-save"></span> Save waypoint</button>
+            <button id="save" type="submit" class="btn btn-sm btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> Save waypoint</button>
         </div>
     </div>
     
@@ -125,7 +126,7 @@
             $('#progressbar').css("display","none");
             console.log(data);
             console.log(status);
-            var attrs = xrh.responseJSON
+            var attrs = xrh.responseJSON.properties
             $('#form-group-name').removeClass('has-error');
             $('#info').removeClass('error');
             /* clear existing feature info and rebuild */

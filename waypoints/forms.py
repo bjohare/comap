@@ -21,6 +21,7 @@ class EditWaypointForm(forms.ModelForm):
 
     class Meta:
         model = HeritageWaypoints
+        fields = ['fid','name','description','latitude','longitude','elevation','image_path','the_geom','date']
         
     # stores the point geometry
     the_geom = models.PointField()

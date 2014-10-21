@@ -30,5 +30,22 @@
         indexMap.main();
     });
 </script>
+<script type="text/javascript">
+function showDialog() {
+    $( "#dialog-confirm" ).dialog({
+            resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+            "Delete all items": function() {
+                $( this ).dialog( "close" );
+        },
+            Cancel: function() {
+                $( this ).dialog( "close" );
+        }
+    }
+});
+};
+</script>
 
 {% endblock %}

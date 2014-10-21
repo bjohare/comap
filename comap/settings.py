@@ -24,6 +24,8 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+TEMPLATE_DIRS = ("api/templates/",)
+
 ALLOWED_HOSTS = []
 
 
@@ -40,11 +42,14 @@ DEFAULT_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'rest_framework',
+    'rest_framework_gis',
 )
 
 LOCAL_APPS = (
     'waypoints',
     'gpx',
+    'api',
 )
 
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -142,5 +147,10 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
+        'api': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },    
     }
 }
