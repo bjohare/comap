@@ -132,8 +132,7 @@ var EditMap = OpenLayers.Class({
 			var geom = e.feature.geometry;
 			console.log(e.feature);
 			var center = new OpenLayers.LonLat(geom.x, geom.y);
-			center.transform(new OpenLayers.Projection("EPSG:4326"), this.map.getProjectionObject());
-			this.map.setCenter(center,12);
+			this.map.setCenter(center,13);
 			selectControl.select(e.feature);
 		});
 		
