@@ -24,7 +24,10 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-TEMPLATE_DIRS = ("api/templates/",)
+
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates/'),
+    'api/templates/',)
 
 ALLOWED_HOSTS = []
 
@@ -113,6 +116,11 @@ USE_TZ = True
 STATIC_URL = '/comap/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+STATICFILES_DIRS = (
+    'gpx/static/gpx/',
+    'waypoints/static/waypoints/'
+)
+
 MEDIA_URL = '/comap/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -151,6 +159,11 @@ LOGGING = {
             'handlers': ['file'],
             'propagate': True,
             'level': 'DEBUG',
-        },    
+        },
+        'gpx': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        }, 
     }
 }

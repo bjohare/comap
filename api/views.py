@@ -20,7 +20,7 @@ from django.contrib.gis.geos import GEOSGeometry
 
 
 
-from waypoints.models import HeritageCycleRouteSouthWaypoints23062014 as HeritageWaypoints, GeometryColumns
+from waypoints.models import Waypoints as HeritageWaypoints, GeometryColumns
 from serializers import HeritageWaypointSerializer, LayersSerializer
 
 # Get an instance of a logger
