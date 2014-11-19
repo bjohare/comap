@@ -11,9 +11,8 @@ from django.views import generic
 
 from django import forms
 
-from waypoints.models import HeritageCycleRouteSouthWaypoints23062014 as HeritageWaypoints
-from waypoints.forms import EditWaypointForm, UploadGPXForm
-from waypoints.gpx import GPXProc as gpx
+from waypoints.models import Waypoints as HeritageWaypoints
+from waypoints.forms import EditWaypointForm
 
 # Geo related imports
 from osgeo import ogr
@@ -111,39 +110,5 @@ class EditView(generic.UpdateView):
         response["status"] = 400
         response["reason"] = 'Invalid Form'
         return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-        
 
-    
-class UploadGPXView(generic.FormView):
-    template_name = 'waypoints/gpx.html'
-    form_class = UploadGPXForm
-    success_url = '/waypoints/gpx/'
-    
-    def form_valid(self, form):
-        logger.debug('upload gpx form valid...')
-        logger.debug(form.cleaned_data)
-        path = ''
-        data_type = form.cleaned_data['data_type']
-        try:
-            gpxfile = form.files['gpxfile']
-            gpx_path = '/' + self.__module__.split('.')[0] + '/gpx/%s' % gpxfile.name
-            logger.debug(gpx_path)
-            path = comap.settings.MEDIA_ROOT + gpx_path
-            logger.debug('Storing gpxfile to: %s' % path)
-            with open(path, 'wb+') as destination:
-                for chunk in gpxfile.chunks():
-                    destination.write(chunk)
-        except Exception as e:
-            logger.error(e)
-            logger.debug('No gpx file uploaded')
-        gpx(path)
-        gpx.process_gpx()
-        
-        layer = None
-        response = {}
-        return HttpResponse(content='ok')
-    
-    def form_invalid(self, form):
-        logger.error('invalid form')
-        logger.error(form.errors)
-        return HttpResponse(content="not ok")
+

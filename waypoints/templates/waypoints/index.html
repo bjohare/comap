@@ -1,4 +1,4 @@
-{% extends "waypoints/base.html" %}
+{% extends "comap/base.html" %}
 {% load staticfiles %}
 {% block container %}
 <br/><br/><br/>
@@ -16,36 +16,96 @@
     {% endif %}
     </div>
     <div id="map"></div>
-    <div id="info" class="info"></div>
+    <div id="instructions" class="instructions"><span>Select a waypoint name from the list or a point on the map to get started...</span></div>
+    <div id="info" class="info">
+        <p><span class="name"></span></p>
+        <p><span class="image"></span></p>
+        <p><span class="description"></span></p>
+        <p><span><strong>Elevation: </strong></span><span class="elevation"></span></p>
+        <p><span><strong>Latitude: </strong></span><span class="latitude"></span></p>
+        <p><span><strong>Longitude: </strong></span><span class="longitude"></span></p>
+        <p><a class="editlink" href=""><button><span class="glyphicon glyphicon-edit"></span> Edit this waypoint</button></a>
+        <!--<a><button id="btnDelete"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button></a>-->
+        <form id="deleteForm" method="post" action="" role="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" value="DELETE" name="_method"/>
+            <a><button id="btnDelete" type="button"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button></a>
+        </form>
+        </p>
+    </div>
+    <div id="dialog-confirm" title="Really delete this waypoint?"></div>
 {% endblock %}
+
+
 {% block corejs %}
 {{ block.super }}
-<script src="{% static "waypoints/js/IndexMap.js" %}" type="text/javascript" defer></script>
-
 <!-- load map -->
+<script src="{% static "waypoints/js/IndexMap.js" %}" type="text/javascript" defer></script>
+<script src="{% static "waypoints/js/Layers.js"  %}" type="text/javascript" defer> </script>
+<script src="http://malsup.github.com/jquery.form.js"></script> 
 <script type="text/javascript">
     var indexMap;
+    var confirmDialog;
+    var deleteCancelled;
+    var deleteUrl;
     $(document).ready(function() {
         indexMap = new IndexMap();
         indexMap.main();
+        var options = {
+            dataType: 'json',
+            beforeSubmit: function(arr, $form, options) {
+                console.log('in before submit..');
+            },
+            success: function(data, status, xhr) {
+                console.log(status);
+                if (status == 'nocontent') {
+                    var layer = indexMap.map.getLayersByName('Heritage Route South Waypoints')[0]; 
+                    layer.refresh({force:true});    
+                    alert('Waypoint deleted.');
+                }
+            },
+            error: function(xhr, status, error){
+                var json = xhr.responseJSON
+                errors = json.errors;
+                console.log(errors);
+                /*
+                $('#info').addClass('error');
+                $('#info').append('<h3>Please correct these errors:</h3>');
+                $.each(errors, function(i, error){
+                    console.log(error);
+                    $('#form-group-' + error).addClass('has-error');
+                    $('#info').append('<p><strong>' + error + '</strong> is a required field.</h4>');
+                });
+                */
+            },
+        }
+        $('#deleteForm').ajaxForm(options);
+        $('#dialog-confirm').dialog({
+           resizable: false,
+           height:200,
+           width:400,
+           autoOpen: false,
+           modal: true,
+           buttons: {
+                "Delete": function() {
+                    $('#deleteForm').ajaxSubmit(options);
+                    $( this ).dialog( "close" );
+                    window.location.reload();
+                },
+                "Cancel": function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
     });
 </script>
-<script type="text/javascript">
-function showDialog() {
-    $( "#dialog-confirm" ).dialog({
-            resizable: false,
-        height:140,
-        modal: true,
-        buttons: {
-            "Delete all items": function() {
-                $( this ).dialog( "close" );
-        },
-            Cancel: function() {
-                $( this ).dialog( "close" );
-        }
-    }
-});
-};
+<script type="text/javascript" defer>
+    $('#btnDelete').click(function(e){
+        $('#dialog-confirm').html('<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"> \
+                                  </span>This waypoint will be permanently deleted and cannot be recovered. Are you sure?</p>');
+        $('#dialog-confirm').dialog('open');
+    });
+    
 </script>
 
 {% endblock %}

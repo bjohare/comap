@@ -91,7 +91,7 @@ var IndexMap = OpenLayers.Class({
             });
         map.addLayers([heritage_route, heritage_waypoints]);
         
-        var geojson = new OpenLayers.Layer.Vector("Waypoints", {
+        var geojson = new OpenLayers.Layer.Vector("GeoJSON", {
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
                 url: "/comap/api/waypoints.json",
@@ -99,7 +99,7 @@ var IndexMap = OpenLayers.Class({
             }),
             styleMap: pointStyles
         });
-        //map.addLayers([geojson]);
+        map.addLayers([geojson]);
         
         /* required to fire selection events on heritage_waypoints */
         var selectControl = new OpenLayers.Control.SelectFeature(heritage_waypoints);
@@ -138,14 +138,19 @@ var IndexMap = OpenLayers.Class({
                 var geom = feature.geometry;
                 attrs = feature.attributes;
                 
+                /* center the map on the selected waypoint */
+                var center = new OpenLayers.LonLat(geom.x, geom.y);
+                center.transform(new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject());
+                map.setCenter(center,13);
+                
                 $('#instructions').css('display','none');
                 $('#info').css('display','block');
                 $('#info').find('span.name').html('<h4>' + attrs.name + '</h4>');
                 $('#info').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
                 $('#info').find('span.description').html(attrs.description);
                 $('#info').find('span.elevation').html(attrs.elevation.split('.')[0] + ' metres');
-                $('#info').find('span.latitude').html(geom.y.toFixed(6));
-                $('#info').find('span.longitude').html(geom.x.toFixed(6));
+                $('#info').find('span.latitude').html(geom.y);
+                $('#info').find('span.longitude').html(geom.x);
                 $('#info').find('a.editlink').prop('href','/comap/waypoints/edit/' + attrs.fid);
                 /*$('#delete').prop('action','/comap/api/waypoints/' + attrs.fid);*/
                 
@@ -172,19 +177,17 @@ var IndexMap = OpenLayers.Class({
         map.addControl(new OpenLayers.Control.ScaleLine());
         map.addControl(new OpenLayers.Control.LayerSwitcher());
         
-        map.zoomToExtent(new OpenLayers.Bounds(-8.06,52.94,-7.92,53.01).transform("EPSG:4326", "EPSG:3857"));  
+        map.zoomToExtent(new OpenLayers.Bounds(-8.06,52.94,-7.92,53.01).transform("EPSG:4326", "EPSG:900913"));  
         heritage_waypoints.events.register('loadend', heritage_waypoints, function(evt){map.zoomToExtent(heritage_waypoints.getDataExtent())})
         
         /* handle feature selection via hyperlink */
         $("#list a").click(function(){
             var id = $(this).attr("id");
-            var feature = heritage_waypoints.getFeaturesByAttribute('fid', id)[0];
+            feature = heritage_waypoints.getFeaturesByAttribute('fid', id)[0];
             selectControl.unselectAll();
             selectControl.select(feature);
             infoctl.setModifiers(null); // throws null pointer if not set
-            var feat = feature.clone();
-            feat.geometry.transform('EPSG:3857','EPSG:4326');
-            infoctl.select([feat]); // use cloned feature here otherwise we get projection mess..
+            infoctl.select([feature]);
         });
         
         return map;
