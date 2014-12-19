@@ -31,6 +31,10 @@ TEMPLATE_DIRS = (
 
 ALLOWED_HOSTS = []
 
+# authentication related
+LOGIN_URL = '/comap/login/'
+LOGIN_REDIRECT_URL = '/comap/waypoints/'
+
 
 # Application definition
 
@@ -77,23 +81,13 @@ WSGI_APPLICATION = 'comap.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
+        'NAME': 'waymarkers',
         'OPTIONS': {
-            'options': '-c search_path=management,mapping,public'
+            'options': '-c search_path=waymarkers,public'
         },
         'USER': 'gis',
         'PASSWORD': 'al1ngton',
     },
-
-    'spatial': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
-        'OPTIONS': {
-            'options': '-c search_path=mapping,public'
-        },
-        'USER': 'gis',
-        'PASSWORD':'al1ngt0n',
-    }
 }
 
 # Internationalization
@@ -107,7 +101,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

@@ -8,6 +8,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.core.files.storage import FileSystemStorage
 from django.views import generic
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from django import forms
 
@@ -26,6 +28,11 @@ class UploadGPXView(generic.FormView):
     template_name = 'gpx/gpx.html'
     form_class = UploadGPXForm
     success_url = '/gpx/add/'
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(UploadGPXView, self).dispatch(*args, **kwargs)
+    
     
     def form_valid(self, form):
         logger.debug('upload gpx form valid...')

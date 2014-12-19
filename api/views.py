@@ -7,6 +7,8 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import status
+from rest_framework import renderers
+from rest_framework.reverse import reverse
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import link
@@ -18,10 +20,16 @@ import django.contrib.gis
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
 
+from gpx.models import Route
+
+from rest_framework.decorators import api_view
 
 
-from waypoints.models import Waypoints as HeritageWaypoints, GeometryColumns
-from serializers import HeritageWaypointSerializer, LayersSerializer
+
+
+
+from waypoints.models import Waypoints
+from serializers import WaypointSerializer, RouteSerializer
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -42,9 +50,10 @@ class WaypointViewset(viewsets.ModelViewSet):
     """
     Viewset for handling api operations on Waypoints
     """
-    queryset = HeritageWaypoints.objects.all()
-    serializer_class = HeritageWaypointSerializer
+    queryset = Waypoints.objects.all()
+    serializer_class = WaypointSerializer
     parser_classes = (FormParser, MultiPartParser)
+    permission_classes = (permissions.IsAuthenticated,)
     
     def update(self, request, pk=None, *args, **kwargs):
         
@@ -89,11 +98,31 @@ class WaypointViewset(viewsets.ModelViewSet):
         
 class ListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """A custom viewset providing just list behaviour"""
-    pass
+    
+    
 
+class RouteViewSet(viewsets.ModelViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+    parser_classes = (FormParser, MultiPartParser)
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    
 
+"""
 class LayersViewset(ListViewSet):
     queryset = GeometryColumns.objects.all()
     serializer_class = LayersSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+"""
     
-    
+
+
+
+
+
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+        'waypoints': reverse('waypoints-list', request=request, format=format),
+    })

@@ -1,17 +1,22 @@
-from rest_framework_gis import serializers
+from rest_framework_gis import serializers as geo_serializers
+from rest_framework import serializers
+
 from django.contrib.auth.models import User
-from waypoints.models import Waypoints as HeritageWaypoints, GeometryColumns
+from waypoints.models import Waypoints
+from gpx.models import Route
 
-class HeritageWaypointSerializer(serializers.GeoFeatureModelSerializer):
+class WaypointSerializer(geo_serializers.GeoFeatureModelSerializer):
     
     class Meta:
-        model = HeritageWaypoints
+        model = Waypoints
         geo_field = 'the_geom'
-        fields = ('fid','name','description','elevation','date','the_geom','image_path')
+        fields = ('fid','name','description','elevation','date','the_geom','image_path', 'owner')
+    
+    owner = serializers.Field(source='owner.username')
 
 
-class LayersSerializer(serializers.ModelSerializer):
+class RouteSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = GeometryColumns
-        fields = ('table_name','srid','geom_type')
+        model = Route
+        fields = ('fid','name','description','created','image_path','user','group')

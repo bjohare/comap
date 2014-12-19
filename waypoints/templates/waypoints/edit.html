@@ -23,7 +23,7 @@
             
         </div>
         <strong><label class="control-label" for="name">Edit waypoint location: </label></strong>
-        <div class="col-md=8" id="edit-map"></div>
+        <div class="col-md=6" id="edit-map"></div>
         
     </div>
     
@@ -35,7 +35,7 @@
       <div class="col-md-6" id="location">
         <span><strong>Latitude:</strong></span><span id="lat">&nbsp;</span><br/>
         <span><strong>Longitude:</strong><span id="lng">&nbsp;</span><br/>
-        <span><strong>Elevation:</strong><span id="elev">&nbsp;{{ waypoint.elevation }}</span>
+        <span><strong>Elevation:</strong><span id="elev">&nbsp;{{ waypoint.elevation }} metres</span>
         <input type="hidden" id="elevation" name="elevation" value="{{ waypoint.elevation }}"/>
         <input type="hidden" id="the_geom" name="the_geom" value="{{ waypoint.the_geom }}"/>
       </div>
@@ -73,7 +73,7 @@
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
-<script src="{% static "waypoints/js/EditMap.js" %}" type="text/javascript" defer></script>
+<script src="{% static "waypoints/js/EditMapJSON.js" %}" type="text/javascript" defer></script>
 <script src="{% static "waypoints/js/Layers.js" %}" type="text/javascript" defer></script>
 <script src="{% static "waypoints/js/Config.js" %}" type="text/javascript" defer></script>
 <script src="{% static "js/tinymce/js/tinymce/jquery.tinymce.min.js" %}" type="text/javascript"></script>

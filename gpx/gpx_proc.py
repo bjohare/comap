@@ -16,9 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-import gpsbabel, logging, os
+import gpsbabel, logging, os, pprint
 from osgeo import ogr
+from models import TrackPoint
 from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.gdal import OGRGeometry
 
 
 # Get an instance of a logger
@@ -30,22 +33,27 @@ class GPXProc(object):
         logger.debug(os.getcwd())
         self.gpx_path = gpx_path
         logger.debug(self.gpx_path)
-        driver = ogr.GetDriverByName('GPX')
-        self.ds = driver.Open(self.gpx_path)
+       
+        self.driver = ogr.GetDriverByName('GPX')
+        self.ds = self.driver.Open(self.gpx_path)
+       
         logger.debug('Opening GPX file for reading: %s' % self.ds.name)
+        
 
     def process_gpx(self):
-        logger.debug('Processing gpxfile: %s' % self.gpx_path)
-        layer = None
-        for lyr in self.ds:
-            logger.debug('Layer "%s": %i %ss' % (lyr.name, len(lyr), lyr.geom_type.name))
-            if lyr.name == data_type:
-                layer = lyr
-                logger.debug('Processing layer: %s' % layer.name)
-                break
-            else:
-                continue
-        if layer == None:
-            logger.debug("Couldn't find layer matching requested data type. Aborting.")
-    
-            
+        track_points = self.ds.GetLayerByName('track_points')
+        count = 0
+        for i in range(track_points.GetFeatureCount()):
+            feature = track_points.GetFeature(i)
+            ele = feature.GetField('ele')
+            time = feature.GetField('time')
+            ts = time.replace('/', '-')
+            geom = feature.GetGeometryRef().ExportToWkt()
+            point = GEOSGeometry(geom)
+            tp = TrackPoint(ele=ele, time=ts, the_geom=point, user_id=4, route_id=1, group_id=1)
+            tp.save()
+            logging.debug("Saved TP: %s" % tp)
+            count = count + 1
+        self.driver = None     
+        logging.debug('Saved %d track_points' % count)
+          

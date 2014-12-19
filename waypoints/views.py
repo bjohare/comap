@@ -19,6 +19,8 @@ from osgeo import ogr
 import django.contrib.gis
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from datetime import datetime
 
@@ -27,6 +29,10 @@ from datetime import datetime
 class IndexView(generic.ListView):
     template_name = 'waypoints/index.html'
     context_object_name = 'waypoints_list'
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(IndexView, self).dispatch(*args, **kwargs)
     
     def get_queryset(self):
         return HeritageWaypoints.objects.order_by('name')
@@ -37,6 +43,14 @@ class EditView(generic.UpdateView):
     form_class = EditWaypointForm
     context_object_name = 'waypoint'
     template_name = 'waypoints/edit.html'
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(EditView, self).dispatch(*args, **kwargs)
+    
+    def pre_save(self, obj):
+        obj.owner = self.request.user
+        logger.debug(obj.owner)
     
     def get_object(self, queryset=None):
         obj = HeritageWaypoints.objects.get(fid=self.kwargs['fid'])
@@ -57,11 +71,12 @@ class EditView(generic.UpdateView):
         point = GEOSGeometry('POINT( ' + str(longitude) + ' ' + str(latitude) + ')') 
         waypoint.name = name
         waypoint.description = description
-        waypoint.elevation = elevation
+        waypoint.elevation = int(elevation)
         waypoint.date = date
         waypoint.latitude = latitude
         waypoint.longitude = longitude
         waypoint.the_geom = point
+        waypoint.owner = self.request.user
         try:
             filedata = form.files['file']
             waypoint.image_path = '/' + self.__module__.split('.')[0] + '/heritage/%s' % filedata.name
@@ -95,6 +110,7 @@ class EditView(generic.UpdateView):
         response["longitude"] = waypoint.longitude
         response["latitude"] = waypoint.latitude
         response["date"] = waypoint.date
+        response["owner"] = waypoint.owner
         
             
         return HttpResponse(json.dumps(response), content_type="application/json", status=200)
