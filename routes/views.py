@@ -1,4 +1,5 @@
 import logging, json, comap, os, pwd
+from datetime import datetime
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -37,13 +38,11 @@ class RouteAddView(generic.FormView):
     
     def form_valid(self, form):
         logger.debug('Route creation form is valid...')
-        logger.debug('User is %s' % self.request.user)
-        logger.debug(form.cleaned_data)
         gpx_path = ''
         user = self.request.user
         group = user.groups.get() 
         group_name = group.name.replace(" ", "_").lower()
-        logger.debug('Group is: %s', group_name)
+        logger.debug("User is: {0}, Group is: {1}".format(user.username, group_name))
         try:
             gpxfile = form.files['gpxfile']
             gpx_group_path = comap.settings.GPX_ROOT + self.__module__.split('.')[0] + '/' + group_name
@@ -66,9 +65,31 @@ class RouteAddView(generic.FormView):
         except Exception as e:
             logger.error(e)
             logger.debug('No gpx file uploaded')
-        # create route here
-        route = Route.objects.create(name='Mountain Walk', description='A Mountain Walk',
-                                     created='2012-05-20 14:10:31', image_path='/image.jpg', user_id=user.id, group_id=group.id)
+        # create route now
+        route_name = form.cleaned_data['name']
+        route_description = form.cleaned_data['description']
+        created = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        route_image_path = ''
+        """
+        try:
+            filedata = form.files['image']
+            route_image_path = '/' + self.__module__.split('.')[0] + '/heritage/%s' % filedata.name
+            logger.debug(waypoint.image_path)
+            path = comap.settings.MEDIA_ROOT + waypoint.image_path
+            logger.debug('Storing image to: %s' % path)
+            with open(path, 'wb+') as destination:
+                for chunk in filedata.chunks():
+                    destination.write(chunk)
+                
+        except Exception as e:
+            #don't force image upload but use existing one if none provided
+            logger.error(e)
+            logger.debug('No image uploaded')
+            waypoint.image_path = original_image_path
+            pass
+        """
+        route = Route.objects.create(name=route_name, description=route_description,
+                                     created=created, image_path='none_provided', user_id=user.id, group_id=group.id)
         gpx = GPXProc(gpx_path, route)
         gpx.process_gpx()
         

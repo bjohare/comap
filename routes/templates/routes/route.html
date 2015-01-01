@@ -25,9 +25,15 @@
             <input type="file" name="gpxfile" id="file"/> 
      </div>
     </div>
+    <div class="form-group row">
+     <div class="col-md-6" style="float:left;">
+            <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
+            <input type="file" name="image" id="image"/> 
+     </div>
+    </div>
     <div class="form-group row pull-left">
         <div class="col-md-6">
-            <button id="save" type="submit" class="btn btn-default">Upload GPX</button>
+            <button id="save" type="submit" class="btn btn-default">Add Your Route</button>
         </div>
     </div>
     <div class="form-group row">
@@ -65,7 +71,7 @@
                     ],
                     toolbar1: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
                     width:600,
-                    height:248,
+                    height:150,
             });
     });
 </script>
