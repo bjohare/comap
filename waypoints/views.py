@@ -11,7 +11,7 @@ from django.views import generic
 
 from django import forms
 
-from waypoints.models import Waypoints as HeritageWaypoints
+from waypoints.models import Waypoint
 from waypoints.forms import EditWaypointForm
 
 # Geo related imports
@@ -35,11 +35,11 @@ class IndexView(generic.ListView):
         return super(IndexView, self).dispatch(*args, **kwargs)
     
     def get_queryset(self):
-        return HeritageWaypoints.objects.order_by('name')
+        return Waypoint.objects.order_by('name')
 
 
 class EditView(generic.UpdateView):
-    model = HeritageWaypoints
+    model = Waypoint
     form_class = EditWaypointForm
     context_object_name = 'waypoint'
     template_name = 'waypoints/edit.html'
@@ -49,11 +49,12 @@ class EditView(generic.UpdateView):
         return super(EditView, self).dispatch(*args, **kwargs)
     
     def pre_save(self, obj):
-        obj.owner = self.request.user
+        obj.user = self.request.user
+        obj.group = self.request.user.groups.get()
         logger.debug(obj.owner)
     
     def get_object(self, queryset=None):
-        obj = HeritageWaypoints.objects.get(fid=self.kwargs['fid'])
+        obj = Waypoint.objects.get(fid=self.kwargs['fid'])
         return obj
     
     
@@ -76,7 +77,7 @@ class EditView(generic.UpdateView):
         waypoint.latitude = latitude
         waypoint.longitude = longitude
         waypoint.the_geom = point
-        waypoint.owner = self.request.user
+        waypoint.user = self.request.user
         try:
             filedata = form.files['file']
             waypoint.image_path = '/' + self.__module__.split('.')[0] + '/heritage/%s' % filedata.name

@@ -27,7 +27,8 @@ TEMPLATE_DEBUG = True
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates/'),
-    'api/templates/',)
+    'api/templates/',
+    'routes/templates/',)
 
 ALLOWED_HOSTS = []
 
@@ -55,7 +56,7 @@ THIRD_PARTY_APPS = (
 
 LOCAL_APPS = (
     'waypoints',
-    'gpx',
+    'routes',
     'api',
 )
 
@@ -111,12 +112,15 @@ STATIC_URL = '/comap/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    'gpx/static/gpx/',
+    'routes/static/routes/',
     'waypoints/static/waypoints/'
 )
 
 MEDIA_URL = '/comap/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# root storage for uploaded gpx files
+GPX_ROOT = os.path.join(BASE_DIR, 'media/gpx/')
 
 LOGGING = {
     'version': 1,
@@ -154,7 +158,7 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
-        'gpx': {
+        'routes': {
             'handlers': ['file'],
             'propagate': True,
             'level': 'DEBUG',

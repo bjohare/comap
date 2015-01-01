@@ -20,15 +20,10 @@ import django.contrib.gis
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
 
-from gpx.models import Route
+from routes.models import Route
 
 from rest_framework.decorators import api_view
-
-
-
-
-
-from waypoints.models import Waypoints
+from waypoints.models import Waypoint
 from serializers import WaypointSerializer, RouteSerializer
 
 # Get an instance of a logger
@@ -44,13 +39,17 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+        
 
+class ListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """A custom viewset providing just list behaviour"""
+    
 
 class WaypointViewset(viewsets.ModelViewSet):
     """
     Viewset for handling api operations on Waypoints
     """
-    queryset = Waypoints.objects.all()
+    queryset = Waypoint.objects.all()
     serializer_class = WaypointSerializer
     parser_classes = (FormParser, MultiPartParser)
     permission_classes = (permissions.IsAuthenticated,)
@@ -81,48 +80,34 @@ class WaypointViewset(viewsets.ModelViewSet):
             logger.debug('No image uploaded')
             pass
         
+        
         serializer = self.get_serializer(self.object, data=request.DATA,
                                      files=request.FILES, partial=partial)
         
         self.object.date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        
         if not serializer.is_valid():
             return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        self.object = serializer.save(force_update=True)
+        self.object = serializer.save(users=request.user, groups=request.user.groups.get(), force_update=True)
         self.post_save(self.object, created=False)
         logger.debug('saved ok');
         return JSONResponse(serializer.data, status=status.HTTP_200_OK)
         
-        
-class ListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """A custom viewset providing just list behaviour"""
-    
-    
 
 class RouteViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for handling api operations on Routes
+    """
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
     parser_classes = (FormParser, MultiPartParser)
     permission_classes = (permissions.IsAuthenticated,)
     
-    
-
-"""
-class LayersViewset(ListViewSet):
-    queryset = GeometryColumns.objects.all()
-    serializer_class = LayersSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-"""
-    
-
-
-
-
 
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
         'waypoints': reverse('waypoints-list', request=request, format=format),
-    })
+        'routes': reverse('routes-list', request=request, format=format),
+})
+

@@ -7,7 +7,7 @@ admin.autodiscover()
 # api endpoints
 router = DefaultRouter(trailing_slash=False)
 router.register(r'waypoints', views.WaypointViewset, base_name='waypoints')
-router.register(r'routes', views.RouteViewSet)
+router.register(r'routes', views.RouteViewSet, base_name='routes')
 
 urlpatterns = patterns('',
     url(r'^comap/login/$', 'django.contrib.auth.views.login', {'template_name': 'comap/login.html'}),
@@ -15,6 +15,6 @@ urlpatterns = patterns('',
     url(r'^comap/api/', include(router.urls, namespace='api')),
     url(r'^comap/api/', include('rest_framework.urls', namespace='rest_framework')), 
     url(r'^comap/waypoints/', include('waypoints.urls', namespace='waypoints')),
-    url(r'^comap/gpx/', include('gpx.urls', namespace='gpx')),
+    url(r'^comap/routes/', include('routes.urls', namespace='routes')),
     url(r'^comap/admin/', include(admin.site.urls)),
 )
