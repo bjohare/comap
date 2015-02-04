@@ -138,8 +138,6 @@ var EditApp = OpenLayers.Class({
 		var ocm = Layers.OCM;
 		ocm.options = {layers: "basic", isBaseLayer: false, visibility: false, displayInLayerSwitcher: true};
         map.addLayers([Layers.OCM]);
-		var sat = Layers.GOOGLE_SATELLITE;
-		map.addLayers([sat]);
         
         // add the route layer to the map
         this.loadRouteVector();

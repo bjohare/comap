@@ -12,12 +12,12 @@ class Waypoint(models.Model):
     created = models.DateTimeField()
     the_geom = models.PointField(blank=True, null=True, srid=4326)
     image_path = models.CharField(max_length=500, blank=True)
-    route = models.ForeignKey('routes.Route', related_name='wp_routes')
+    route = models.ForeignKey('routes.Route', related_name='waypoints')
     visible = models.BooleanField(default=True)
     objects = models.GeoManager()
     
     def __str__(self):
-        return 'Waypoint[fid: {}, name: {}, description: {}, date: {}, route: {}]'.format(self.fid, self.name, self.description, self.date, self.route_id)
+        return 'Waypoint[fid: {}, name: {}, description: {}, created: {}, route: {}]'.format(self.fid, self.name, self.description, self.created, self.route_id)
     
     class Meta:
         managed = True

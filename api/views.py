@@ -312,7 +312,7 @@ class TrackPointViewSet(viewsets.ModelViewSet):
             return TrackPoint.objects.filter(route_id=route_id)
 
 
-
+"""
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
@@ -320,4 +320,4 @@ def api_root(request, format=None):
         'points': reverse('points-list', request=request, format=format),
         #'tracks': reverse('tracks-list', request=request, format=format),
 })
-
+"""

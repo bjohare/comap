@@ -21,6 +21,26 @@ class WaypointSerializer(geo_serializers.GeoFeatureModelSerializer):
             return object.route.name
 
 
+class RouteSerializer(geo_serializers.GeoFeatureModelSerializer):
+    
+    waypoints = WaypointSerializer(many=True)
+    
+    class Meta:
+        model = Route
+        geo_field = 'the_geom'
+        read_only_fields = ['user','group']
+        fields = ('fid','name','description','created','image_file', 'gpx_file', 'user', 'group', 'waypoints')
+        
+    def transform_user(self, object, value):
+        return object.user.username
+    
+    def transform_group(self, object, value):
+        return object.group.name
+
+
+
+
+
 class TrackPointSerializer(geo_serializers.GeoFeatureModelSerializer):
     
     class Meta:
@@ -29,19 +49,7 @@ class TrackPointSerializer(geo_serializers.GeoFeatureModelSerializer):
         fields = ('fid','time','ele','route')
         
     
-class RouteSerializer(geo_serializers.GeoFeatureModelSerializer):
-    
-    class Meta:
-        model = Route
-        geo_field = 'the_geom'
-        read_only_fields = ['user','group']
-        fields = ('fid','name','description','created','image_file', 'gpx_file', 'user', 'group')
-        
-    def transform_user(self, object, value):
-        return object.user.username
-    
-    def transform_group(self, object, value):
-        return object.group.name
+
     
     
     

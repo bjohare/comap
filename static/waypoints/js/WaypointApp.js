@@ -37,7 +37,7 @@ var WaypointApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var ocm = Layers.LANDSCAPE;
+        var ocm = Layers.OCM;
         ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
         map.addLayers([ocm]);
         
@@ -160,11 +160,12 @@ var WaypointApp = OpenLayers.Class({
         var numWaypoints = 0;
         
         /* Get the Routes geojson */
-        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data){
+        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data) {
             var routeId = data.id;
             var props = data.properties;
+            var waypts = data.properties.waypoints;
             routeName = data.properties.name;
-            if (props.length != 0) {
+            if (props.length != 0) { // find a better test here..
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -182,14 +183,10 @@ var WaypointApp = OpenLayers.Class({
                 map.zoomToExtent(route.getDataExtent());
             }
             
-        });
-        
-        $.getJSON(waypointUrl, function(data){
-            var feats = data.features;
-            numWaypoints = feats.length;
-            if (numWaypoints == 0) {
+            if (waypts.length == 0) {
                 $('#map').css('display','none');
                 $('ul.list-group').css('display','none');
+                $('#detail-panel').css('display','none');
                 $('#detail-panel-body').css('display','none');
                 $('#create-link').empty();
                 var heading = '<h5>No Waypoints</h5>';
@@ -211,16 +208,20 @@ var WaypointApp = OpenLayers.Class({
                 $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button><span class="glyphicon glyphicon-plus"></span> Add a new waypoint..</button></a>');
                 // add waypoints to the list..
                 $('ul.list-group').empty();
-                $.each(feats, function(i){
-                    var name = feats[i].properties.name;
-                    var id = feats[i].id;
+                $.each(waypts, function(i){
+                    var name = waypts[i].properties.name;
+                    var id = waypts[i].id;
                     $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
                 });
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
                 });
-                var features = geojson.read(data);
+                var waypointsGeoJSON = {
+                    type: "FeatureCollection",
+                    features: waypts
+                }
+                var features = geojson.read(waypointsGeoJSON);
                 waypoints.addFeatures(features);
             }
             $( "#list a" ).bind( "click", function() {
@@ -269,9 +270,7 @@ var WaypointApp = OpenLayers.Class({
                 }
             }
         });
-        
     }
-    
 });
 
 
