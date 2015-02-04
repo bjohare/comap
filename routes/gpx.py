@@ -16,7 +16,7 @@
 
 """
 import logging, os, pprint
-from osgeo import ogr
+from osgeo import ogr, gdal
 from models import TrackPoint, Route
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
@@ -25,29 +25,67 @@ from django.contrib.gis.gdal import OGRGeometry
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+# enable osgeo exceptions
+gdal.UseExceptions()
+
 class GPXProc:
     
-    def __init__(self, gpx_path, route):
+    def __init__(self, gpx_path):
         self.gpx_path = gpx_path
-        self.route = route
         self.driver = ogr.GetDriverByName('GPX')
         self.ds = self.driver.Open(self.gpx_path)
        
         logger.debug('Opening GPX file for reading: %s' % self.ds.name)
+        
     
-
-
-    def process_gpx(self):
+    def get_track(self):
+        """ Gets the track layer as a GEOSGeometry"""
+        tracks_layer = self.ds.GetLayerByName('tracks')
+        track_feature = tracks_layer.GetFeature(0)
+        geom = track_feature.GetGeometryRef().ExportToWkt()
+        line = GEOSGeometry(geom)
+        return line
+    
+    def update_trackpoints(self, route_id):
+        logger.debug('Updating trackpoints for route with id: {0}'.format(route_id))
+        # delete existing trackpoints for this route..
+        TrackPoint.objects.filter(route_id=route_id).delete()
+        points = []
         track_points = self.ds.GetLayerByName('track_points')
         count = 0
         for i in range(track_points.GetFeatureCount()):
+            # this needs to be tidied up to account for missing field values etc..
             feature = track_points.GetFeature(i)
             ele = feature.GetField('ele')
             time = feature.GetField('time')
-            ts = time.replace('/', '-')
+            ts = None
+            if (time != None):
+                ts = time.replace('/', '-')
             geom = feature.GetGeometryRef().ExportToWkt()
             point = GEOSGeometry(geom)
-            tp = TrackPoint(ele=ele, time=ts, the_geom=point, route_id=self.route.fid)
+            tp = TrackPoint(ele=ele, time=ts, the_geom=point, route_id=route_id)
+            tp.save()
+            logging.debug("Saved TP: %s" % tp)
+            count = count + 1
+        self.driver = None     
+        logging.debug('Saved %d track_points' % count)
+
+    def save_trackpoints(self, route_id):
+        """Saves the TrackPoints to the database"""
+        points = []
+        track_points = self.ds.GetLayerByName('track_points')
+        count = 0
+        for i in range(track_points.GetFeatureCount()):
+            # this needs to be tidied up to account for missing field values etc..
+            feature = track_points.GetFeature(i)
+            ele = feature.GetField('ele')
+            time = feature.GetField('time')
+            ts = None
+            if (time != None):
+                ts = time.replace('/', '-')
+            geom = feature.GetGeometryRef().ExportToWkt()
+            point = GEOSGeometry(geom)
+            tp = TrackPoint(ele=ele, time=ts, the_geom=point, route_id=route_id)
             tp.save()
             logging.debug("Saved TP: %s" % tp)
             count = count + 1

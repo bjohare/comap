@@ -33,8 +33,8 @@ div#list a:hover {
 }
 
 div#map {
-    width: 50em;
-    height: 50em;
+    width: 40em;
+    height: 40em;
     float: left;
     margin-top: 5em;
     border: 1px dashed lightgrey;
@@ -97,8 +97,8 @@ div#edit input {
 */
 
 div#edit-map {
-    width: 25em;
-    height: 25em;
+    width: 20em;
+    height: 20em;
     float: left;
     margin-top: 5em;
     border: 1px dashed lightgrey;

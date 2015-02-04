@@ -26,3 +26,7 @@ Layers.OUTDOORS = new OpenLayers.Layer.OSM("OSM Outdoors",
 Layers.GOOGLE_SATELLITE = new OpenLayers.Layer.Google("Google Satellite",
             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}                                          
             );
+
+Layers.STAMEN_WATERCOLOR = new OpenLayers.Layer.OSM("Stamen Watercolor",
+                ["http://tile.stamen.com/watercolor/${z}/${x}/${y}.png",]
+            );

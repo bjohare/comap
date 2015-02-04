@@ -5,8 +5,8 @@
 <h2>Editing {{ waypoint.name }} Waypoint</h2>
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    <div id="edit">
-    <form id="waypointForm" action="{% url 'api:waypoints-detail' waypoint.fid %}" method="post"
+    <div id="edit-waypoint">
+    <form id="waypointForm" action="" method="post"
           enctype="multipart/form-data" role="form">
     {% csrf_token %}
     <input type="hidden" id="fid" name="fid" value="{{ waypoint.fid }}"/>
@@ -80,25 +80,8 @@
 <script src="http://code.jquerygeo.com/jquery.geo-1.0.0-b1.5.min.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script> 
 <script type="text/javascript">
-    $(function() {
-            $('textarea.tinymce').tinymce({
-                    // Location of TinyMCE script
-                    script_url : '{% static "js/tinymce/js/tinymce/tinymce.min.js" %}',
-                    
-                    // General options
-                    selector: "textarea",
-                    theme : "modern",
-                    menubar: false,
-                    plugins: [
-                        "advlist autolink lists link charmap hr anchor",
-                        "searchreplace wordcount visualblocks visualchars code fullscreen",
-                        "insertdatetime nonbreaking contextmenu directionality",
-                    ],
-                    toolbar1: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link",
-                    width:400,
-                    height:248,
-            });
-    });
+    
+   
 </script>
 
 <!-- load map -->
@@ -107,7 +90,7 @@
     $(document).ready(function() {
         var fid = $('#fid').val();
         editMap = new EditMap();
-        editMap.initialize(fid); // initialize the edit map with the fid to update..
+        //editMap.initialize(fid); // initialize the edit map with the fid to update..
         editMap.main();
         var wkt = new OpenLayers.Format.WKT();
         var point = $('input#the_geom').val();
@@ -115,53 +98,6 @@
         $('span#lat').html('&nbsp;' + geom.y);
         $('span#lng').html('&nbsp;' + geom.x);        
         // TODO: round elevation when page first loads..
-    });
-    
-    /* progressbar stuff */
-    var progressbar = $('#progressbar').progressbar();
-    $('#progressbar').css("display","none");
-    $('#waypointForm').ajaxForm({
-        beforeSubmit: function(arr, $form, options) {
-            $('#progressbar').css("display","block");
-        },
-        uploadProgress: function(event, position, total, percentComplete) {
-            progressbar.progressbar({value: percentComplete});
-        },
-        success: function(data, status, xrh) {
-            $('#progressbar').css("display","none");
-            console.log(data);
-            console.log(status);
-            var attrs = xrh.responseJSON.properties
-            $('#form-group-name').removeClass('has-error');
-            $('#info').removeClass('error');
-            /* clear existing feature info and rebuild */
-            $('#info').empty();
-            $('#info').append('<h4>' + attrs.name + '</h4>');
-            $('#info').append('<p><img id="info" src="/comap/media/' + attrs.image_path + '"/></p>');
-            $('#info').append('<p>' + attrs.description + '</p>');
-            $('#info').append('<p><strong>Latitude:</strong> ' + attrs.latitude + '</p>');
-            $('#info').append('<p><strong>Longitude:</strong> ' + attrs.longitude + '</p>');
-            $('#info').append('<p><strong>Elevation:</strong> ' + Math.round(attrs.elevation) + ' metres</p>');
-            $('#info').append('<strong>Updated:</strong> ' + attrs.date + '</p>');
-            
-            // force a refresh of the map when the waypoint is saved..
-            // TODO: fix hardcoding of layer name..
-            var layer = editMap.map.getLayersByName('Heritage Route South Waypoints')[0]; 
-            layer.refresh({force:true});
-        },
-        error: function(xhr, status, error){
-            $('#progressbar').css("display", "none");
-            $('#info').empty();
-            var json = xhr.responseJSON
-            errors = json.errors;
-            $('#info').addClass('error');
-            $('#info').append('<h3>Please correct these errors:</h3>');
-            $.each(errors, function(i, error){
-                console.log(error);
-                $('#form-group-' + error).addClass('has-error');
-                $('#info').append('<p><strong>' + error + '</strong> is a required field.</h4>');
-            });
-        },
     });
 </script>
 {% endblock %}

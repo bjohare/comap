@@ -13,13 +13,13 @@ class EditWaypointForm(forms.ModelForm):
         self.fields['elevation'].required= True
         self.fields['image_path'].required = False
         self.fields['the_geom'].required = False
-        self.fields['date'].required = False
+        self.fields['created'].required = False
         self.fields['route'].required = True
         
 
     class Meta:
         model = Waypoint
-        fields = ['name','description','elevation','image_path','the_geom','date','route']
+        fields = ['name','description','elevation','image_path','the_geom','created','route']
         
     # stores the point geometry
     the_geom = models.PointField()

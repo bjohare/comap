@@ -16,7 +16,7 @@ class RouteTest(TestCase):
         routes = Route.objects.all()
         route = routes[0]
         logging.debug(route)
-        self.assertEquals(1, route.fid)
+        self.assertEquals(2, route.fid)
         self.assertEquals('Mountain Walk', route.name)
         self.assertEquals(time, route.created)
 

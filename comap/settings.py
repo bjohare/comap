@@ -34,7 +34,7 @@ ALLOWED_HOSTS = []
 
 # authentication related
 LOGIN_URL = '/comap/login/'
-LOGIN_REDIRECT_URL = '/comap/waypoints/'
+LOGIN_REDIRECT_URL = '/comap/routes/'
 
 
 # Application definition
@@ -70,6 +70,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',), 
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',)
+}
 
 ROOT_URLCONF = 'comap.urls'
 

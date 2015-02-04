@@ -26,8 +26,40 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from datetime import datetime
 
+
+class RouteListView(generic.ListView):
+    """
+    View to render list of routes. Filtered by group.
+    """
+    template_name = 'routes/list.html'
+    context_object_name = 'routes_list'
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(RouteListView, self).dispatch(*args, **kwargs)
+    
+   
+    def get_queryset(self):
+        user = self.request.user
+        logger.debug("Username is: {0}".format(user.username))
+        group = user.groups.get()
+        logger.debug("Listing Routes for group {0}".format(group.name))
+        return Route.objects.filter(group_id=group.id)
+    
+       
+    def get_context_data(self, *args, **kwargs):
+        context = super(RouteListView, self).get_context_data(**kwargs)
+        user = self.request.user
+        logger.debug("Username is: {0}".format(user.username))
+        group = user.groups.get()
+        logger.debug("Listing Routes for group {0}".format(group.name))
+        context['user'] = user
+        context['group'] = group
+        return context
+    
+
 class RouteAddView(generic.FormView):
-    template_name = 'routes/route.html'
+    template_name = 'routes/create.html'
     form_class = RouteAddForm
     success_url = '/route/add/'
     
@@ -88,7 +120,8 @@ class RouteAddView(generic.FormView):
             waypoint.image_path = original_image_path
             pass
         """
-        route = Route.objects.create(name=route_name, description=route_description,
+        # construct the route here but dont save until we extract the track
+        route = Route(name=route_name, description=route_description,
                                      created=created, image_path='none_provided', user_id=user.id, group_id=group.id)
         gpx = GPXProc(gpx_path, route)
         gpx.process_gpx()

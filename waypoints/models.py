@@ -9,10 +9,11 @@ class Waypoint(models.Model):
     name = models.CharField(max_length=255, blank=True)
     description = models.CharField(max_length=1000, blank=True)
     elevation = models.FloatField(blank=True, null=True)
-    date = models.CharField(max_length=19, blank=True)
+    created = models.DateTimeField()
     the_geom = models.PointField(blank=True, null=True, srid=4326)
     image_path = models.CharField(max_length=500, blank=True)
     route = models.ForeignKey('routes.Route', related_name='wp_routes')
+    visible = models.BooleanField(default=True)
     objects = models.GeoManager()
     
     def __str__(self):

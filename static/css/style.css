@@ -8,6 +8,11 @@ html, body {
   font-family: Lato;
   width: 100%;
   height: 100%;
+  
+}
+
+div#container {
+    /*background-image: url('/comap/static/images/ireland.png');*/
 }
 
 a {
@@ -15,9 +20,18 @@ a {
     text-decoration: none;
 }
 
+div#navbar{
+   
+}
+
+div#title {
+    margin-left: 25px;
+}
+
 div#list {
     margin-right: 2em;
     float: left;
+    min-width: 320px;
 }
 
 .list-group-item {
@@ -33,11 +47,12 @@ div#list a:hover {
 }
 
 div#map {
-    width: 50em;
-    height: 50em;
+    width: 45em;
+    height: 40em;
     float: left;
     margin-top: 5em;
-    border: 1px dashed lightgrey;
+    border: 1px solid lightgrey;
+    border-radius: 4px;
 }
 
 #dialog-confirm {
@@ -48,8 +63,12 @@ div#map {
   z-index: 1000;
 }
 
+#editGpxForm {
+    display: none;
+}
 
-.info {
+
+#info {
     margin-left: 2em;
     border: 1px dashed lightgrey;
     float: left;
@@ -58,12 +77,28 @@ div#map {
     display: none;
 }
 
+
+#create-info, #update-info {
+    display: none;
+    width: 40%;
+}
+
+.glyphicon-heading {
+    font-size: 2em;
+    top: 8px;
+    color: #6b9430;
+}
+
 .instructions {
     margin-left: 2em;
     border: 1px dashed lightgrey;
     float: left;
     width: 30%;
     padding: 2em;
+}
+
+#gpxForm, #editGpxForm{
+    margin-left: 25px;
 }
 
 .error {
@@ -90,6 +125,15 @@ div#edit {
     margin-right: 2em;
 }
 
+div#edit-waypoint {
+    border: 1px solid lightgrey;
+    border-radius: 4px;
+    width: 70%;
+    float: left;
+    padding: 2em !important;
+    margin: 0 2em 2em 0;
+}
+
 /*
 div#edit input {
     border: 1px solid darkgrey;
@@ -97,33 +141,66 @@ div#edit input {
 */
 
 div#edit-map {
+    /*
     width: 25em;
     height: 25em;
+    */
+    width: auto;
+    height: auto;
     float: left;
     margin-top: 5em;
     border: 1px dashed lightgrey;
 }
 
-.ui-progressbar .ui-progressbar-value {
-    margin: 0px;
+div#edit-waypoint-map {
+    width: 35em;
+    height: 33em;
+    float: left;
+    margin-left:2em;
+    border:1px solid lightgrey;
+    border-radius: 4px;
 }
 
+div#create-header {
+    width: 70%;
+}
+
+
+.olControlDrawFeature {
+    cursor: crosshair;
+}
+
+.olControlLayerSwitcher .layersDiv {
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    padding-right: 10px;
+    background-color: #569400 !important;
+    border-radius: 4px;
+}
+
+.ui-progressbar, .ui-progressbar-value {
+    height: 6px !important;
+    width: 105% !important;
+}
+
+.ui-corner-all {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+
 .ui-widget-header {
-    /*background: #699965;*/
-    background: #5D762D;
+    background: #569400;
     border: 1px solid #DDDDDD;
-    /*color: #333333;*/
     color: white;
     font-weight: bold;
     padding: 1px;
  }
-    
-.progress-label {
-   left: 50%;
-   top: 13px;
-   font-weight: bold;
-   text-shadow: 1px 1px 0 #fff;
-}
+ 
+
 
 .olControlAttribution {
     background: none repeat scroll 0 0 white;
@@ -142,8 +219,16 @@ div#location {
     padding:10px;
 }
 
+#map, #detail-panel {
+    visibility: hidden;
+}
+
+#detail-panel-body {
+    display: none;
+}
+
 .form-control:focus {
-    border-color: rgba(82,168,236,.8) ;
+    border-color: rgba(82,168,236,.8);
     outline: 0;
     outline: thin dotted \9;
     -moz-box-shadow: 0 0 8px rgba(82,168,236,.6);
@@ -151,4 +236,26 @@ div#location {
     background-color: #eee;
 }
 
+
+.btn-default {
+    background-color: red;
+}
+
+.form-control-feedback {
+    right: 1em;
+}
+
+li#logout {
+    float: right;
+}
+
+.navbar-nav {
+    float: none !important;
+}
+
+
+
+div#heading, div#detail-heading {
+    color:#6b9430;
+}
 

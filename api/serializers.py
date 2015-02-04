@@ -1,4 +1,5 @@
 from rest_framework_gis import serializers as geo_serializers
+from rest_framework_gis import fields as geo_fields
 from rest_framework import serializers
 
 from django.contrib.auth.models import User, Group
@@ -11,9 +12,14 @@ class WaypointSerializer(geo_serializers.GeoFeatureModelSerializer):
     class Meta:
         model = Waypoint
         geo_field = 'the_geom'
-        fields = ('fid','name','description','elevation','date','the_geom','image_path', 'route')
-   
-    
+        fields = ('fid','name','description','elevation','created','the_geom','image_path', 'route')
+        
+    def transform_route(self, object, value):
+        if (object == None):
+            return None
+        else:
+            return object.route.name
+
 
 class TrackPointSerializer(geo_serializers.GeoFeatureModelSerializer):
     
@@ -21,18 +27,21 @@ class TrackPointSerializer(geo_serializers.GeoFeatureModelSerializer):
         model = TrackPoint
         geo_field = 'the_geom'
         fields = ('fid','time','ele','route')
-
-
-class RouteSerializer(serializers.ModelSerializer):
+        
     
-    track_points = serializers.RelatedField(many=True)
-    user = serializers.RelatedField(queryset=User.objects.all())
-    group =  serializers.RelatedField(queryset=Group.objects.all())
+class RouteSerializer(geo_serializers.GeoFeatureModelSerializer):
     
     class Meta:
         model = Route
-        fields = ('fid','name','description','created','image_path','user','group', 'track_points')
+        geo_field = 'the_geom'
+        read_only_fields = ['user','group']
+        fields = ('fid','name','description','created','image_file', 'gpx_file', 'user', 'group')
         
+    def transform_user(self, object, value):
+        return object.user.username
+    
+    def transform_group(self, object, value):
+        return object.group.name
     
     
     
