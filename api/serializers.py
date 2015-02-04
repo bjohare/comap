@@ -28,8 +28,8 @@ class RouteSerializer(geo_serializers.GeoFeatureModelSerializer):
     class Meta:
         model = Route
         geo_field = 'the_geom'
-        read_only_fields = ['user','group']
         fields = ('fid','name','description','created','image_file', 'gpx_file', 'user', 'group', 'waypoints')
+        read_only_fields = ['user','group']
         
     def transform_user(self, object, value):
         return object.user.username

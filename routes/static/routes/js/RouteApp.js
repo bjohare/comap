@@ -37,7 +37,7 @@ var RouteApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var ocm = Layers.LANDSCAPE;
+        var ocm = Layers.OCM;
         ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
         map.addLayers([ocm]);
         
@@ -100,10 +100,10 @@ var RouteApp = OpenLayers.Class({
                 }
                 $('#info').find('span.description').html(attrs.description);
                 $('#info').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
-                
+                $('#info').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
                 $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
                
-                $('#deleteForm').prop('action','/comap/api/tracks/' + fid);
+                $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
                 
         });
         
@@ -189,15 +189,6 @@ var RouteApp = OpenLayers.Class({
                 var json = xhr.responseJSON
                 errors = json.errors;
                 console.log(errors);
-                /*
-                $('#info').addClass('error');
-                $('#info').append('<h3>Please correct these errors:</h3>');
-                $.each(errors, function(i, error){
-                    console.log(error);
-                    $('#form-group-' + error).addClass('has-error');
-                    $('#info').append('<p><strong>' + error + '</strong> is a required field.</h4>');
-                });
-                */
             },
         }
         

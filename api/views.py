@@ -187,7 +187,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         gpx = GPXProc(gpx_file)
         the_geom = gpx.get_track()
         valid_data = {'created': created, 'the_geom': the_geom, 'description': route_description, 'name': route_name,
-                      'image_file': 'none_provided', 'gpx_file': gpx_file}
+                      'image_file': 'none_provided', 'gpx_file': gpx_file, 'waypoints': []}
         logger.debug(valid_data)
         """
         route = Route(name=route_name, description=route_description,
@@ -276,7 +276,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         name = request.DATA['name']
         description = request.DATA['description']
         data = {'name': name, 'description': description, 'the_geom': the_geom, 'created': created,
-                'gpx_file': gpx_file, 'image_file': image_file}
+                'gpx_file': gpx_file, 'image_file': image_file, 'waypoints': []}
         serializer = self.get_serializer(self.object, data=data,
                                     files=request.FILES, partial=partial)
         
