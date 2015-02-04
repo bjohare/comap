@@ -1,0 +1,148 @@
+{% extends "comap/base.html" %}
+{% load staticfiles %}
+{% block container %}
+<div id="title">
+    <h2>Create a route..</h2>
+</div>
+    <!-- gpx processing results -->
+     <div id="create-info" class="panel panel-default">
+        <!-- Default panel contents -->
+        <div id="heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
+        <div id="panel" class="panel-body"></div>
+    </div>
+    <form id="gpxForm" action="" method="post" enctype="multipart/form-data" role="form">
+    {% csrf_token %}
+    <div class="form-group row" id="form-group-name">
+        <div class="col-md-4">
+            <strong><label class="control-label" for="name">Enter a name for this route: </label></strong>
+            <input class="form-control" type="text" name="name" id="name" value=""/>
+        </div>
+    </div>
+    <div class="form-group row" id="form-group-description">
+        <div class="col-md-4">
+            <strong><label class="control-label" for="description">Describe this Route: </label></strong>
+            <textarea name="description" id="description" class="form-control" rows="10"></textarea>
+        </div>
+    </div>
+    <div class="form-group row" id="form-group-gpxfile">
+     <div class="col-md-4" style="float:left;">
+            <strong><label class="control-label" for="gpxfile">Select a GPX file to upload: </label></strong>
+            <input type="file" name="gpxfile" id="file"/> 
+     </div>
+    </div>
+    <div class="form-group row" id="form-group-image">
+     <div class="col-md-4" style="float:left;">
+            <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
+            <input type="file" name="image" id="image"/> 
+     </div>
+    </div>
+    <div class="form-group row pull-left">
+        <div class="col-md-4">
+            <button id="save" type="submit" class="btn btn-success">Add Your Route</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-4">
+          <div id="progressbar" class="animate">
+                  <div class="progress-label"></div>
+           </div>
+        </div>
+    </div>  
+    </form>
+    
+    
+{% endblock %}
+{% block corejs %}
+{{ block.super }}
+<script src="{% static "js/tinymce/js/tinymce/jquery.tinymce.min.js" %}" type="text/javascript"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script> 
+<script type="text/javascript">
+    $(document).ready(function() {
+    });
+    
+    $('#gpxForm').formValidation({
+        framework: 'bootstrap',
+        // Feedback icons
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+
+        // List of fields and their validation rules
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: 'The route name is required and cannot be empty'
+                    },
+                }
+            },
+            description: {
+                validators: {
+                    notEmpty: {
+                        message: 'The description is required and cannot be empty'
+                    }
+                }
+            },
+            gpxfile: {
+                validators: {
+                    notEmpty: {
+                        message: 'Please provide a valid GPX file.'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- load map -->
+<script type="text/javascript">
+    /* progressbar stuff */
+    var progressbar = $('#progressbar').progressbar();
+    $('#progressbar').css("display","none");
+    $('#gpxForm').ajaxForm({
+        url: Config.TRACK_API_URL,
+        beforeSubmit: function(arr, $form, options) {
+            $('#progressbar').css("display","block");
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+            progressbar.progressbar({value: percentComplete});
+        },
+        success: function(data, status, xrh) {
+            $('#progressbar').css("display","none");
+            $('#gpxForm').css('display','none');
+            console.log('Created Route.')
+            var props = xrh.responseJSON.properties;
+            var id = xrh.responseJSON.id;
+            $('#title').empty();
+            $('#create-info').css("display", "block");
+            $('#heading').append('<h4>Route created successfully</h4>');
+            $('#panel').append('<p><span><strong>Route name:</strong> ' + props.name + '</span></p>');
+            $('#panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
+            $('#panel').append('<p><span><strong>Created:</strong> ' + props.created + '</span></p>');
+            $('#panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
+            $('#panel').append('<p><span><strong>Created by:</strong> ' + props.user + '</span></p>');
+            $('#panel').append('<p><span><strong><hr/></p>');
+            $('#panel').append('<p>');
+            $('#panel').append('<a class="editlink" href="/comap/routes/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Route..</button></a> &nbsp;');
+            $('#panel').append('<a class="listlink" href="/comap/routes/"><button><span class="glyphicon glyphicon-list"></span> List Routes..</button></a> &nbsp;');
+            $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Route..</button></a>');
+            $('#panel').append('</p>');
+        },
+        error: function(xhr, status, error){
+            console.log('Failed to create route..');
+            $('#progressbar').css("display","none");    $('#progressbar').css("display","none");
+            $('#gpxForm').css('display','none');
+            $('#title').empty();
+            $('#heading').empty();
+            $('#panel').empty();
+            $('#info').css("display", "block").addClass('error');
+            $('#title').append('<h3>There was an error during Route creation..  </h3>');
+            $('#info').append('<p><span><strong>Error message: </strong> ' + error + '</span></p>');
+            $('#info').append('<p><span>Click <a href="/comap/routes/create">here</a> to try again.</span></p>');
+
+        },
+    });
+</script>
+{% endblock %}

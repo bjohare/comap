@@ -1,0 +1,103 @@
+{% extends "comap/base.html" %}
+{% load staticfiles %}
+{% block container %}
+    <div id="create-header" class="panel panel-default">
+      <div class="panel-body"></div>
+    </div>
+    <div id="create-info" class="panel panel-default">
+        <!-- Default panel contents -->
+        <div id="heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
+        <div id="panel" class="panel-body"></div>
+    </div>
+    <div id="edit-waypoint" class="container-fluid">
+        <form id="waypointForm" action="" method="post"
+              enctype="multipart/form-data" role="form">
+        <input type="hidden" id="route" name="route" value=""/>
+        <input type="hidden" id="created" name="created" value=""/>
+        {% csrf_token %}
+        <div class="row col-md-6">
+            <div class="form-group" id="form-group-name">
+                <div class="">
+                    <strong><label class="control-label" for="name">Waypoint name: </label></strong>
+                    <input class="form-control" type="text" name="name" id="name" value="" />
+                </div>
+            </div>
+        
+            <div class="form-group" id="form-group-description">
+                <div class="">
+                    <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
+                    <textarea name="description" id="description" class="form-control" rows="10"></textarea>
+                </div> 
+            </div>
+            
+            <div class="form-group" id="form-group-image">
+                <div class="">
+                       <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
+                       <input type="file" name="file" id="file"/> 
+                </div>
+            </div>
+            <br/>
+            <div class="form-group">
+                <div class="">
+                    <button id="save" type="submit" class="btn btn-md btn-success" value="POST" name="_method"><span class="glyphicon glyphicon-save"></span> Add waypoint</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group" id="form-group-map">
+            <div class="col-md-6">
+                <strong><label class="control-label" for="the_geom">Add a point to the map. </label></strong>
+                <div class="" id="edit-waypoint-map">
+                    
+                </div>
+                
+                <div class="pull-left" id="location">
+                  <span><strong>Latitude:</strong></span><span id="lat">&nbsp;</span>
+                  <span><strong>Longitude:</strong><span id="lng">&nbsp;</span>
+                  <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                </div>
+               
+                <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
+                <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/>
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <div class="col-md-12">
+              <div id="progressbar">
+                      <div class="progress-label"></div>
+               </div>
+            </div>
+        </div>
+              
+        </form>
+    </div>
+    
+    
+    <!-- waypoint preview -->
+    <div id="info" class="pull-left info">
+      <h4>{{ waypoint.name }} (Preview)</h4>
+      <p><img src="/comap/media/{{ waypoint.image_path }}"/></p>
+      {{ waypoint.description | safe }}
+      <p><strong>Latitude: </strong>{{ waypoint.latitude }}</p>
+      <p><strong>Longitude: </strong>{{ waypoint.longitude }}</p>
+      <p><strong>Elevation: </strong>{{ waypoint.elevation }}</p>
+      <p><strong>Updated: </strong>{{ waypoint.date }}</p>
+    </div>
+{% endblock %}
+{% block corejs %}
+{{ block.super }}
+<script src="{% static "waypoints/js/EditWaypoint.js" %}" type="text/javascript" defer></script>
+<script src="{% static "js/Layers.js" %}" type="text/javascript" defer></script>
+<script src="http://code.jquerygeo.com/jquery.geo-1.0.0-b1.5.min.js"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script> 
+<script type="text/javascript">
+</script>
+
+<!-- load map -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        new EditApp();
+    });
+</script>
+{% endblock %}
