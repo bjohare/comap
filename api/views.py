@@ -189,12 +189,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         valid_data = {'created': created, 'the_geom': the_geom, 'description': route_description, 'name': route_name,
                       'image_file': 'none_provided', 'gpx_file': gpx_file, 'waypoints': []}
         logger.debug(valid_data)
-        """
-        route = Route(name=route_name, description=route_description,
-                        created=created, image_file='none_provided', user_id=user.id,
-                        group_id=group.id, gpx_file='a path', the_geom=the_geom)
-        """
-        serializer = RouteSerializer(data=valid_data)
+        serializer = RouteSerializer(data=valid_data, context=group_name)
         route = None
         if (serializer.is_valid()):
             serializer.object.user = user;

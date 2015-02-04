@@ -118,7 +118,7 @@ var WaypointApp = OpenLayers.Class({
                 var feat = feature.clone();
                 var attrs = feat.attributes;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
-                 $('#detail-panel-body').css('display','block');
+                $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
                 if (!attrs.image_path == 'none_provided') {
                     $('.panel-body').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');

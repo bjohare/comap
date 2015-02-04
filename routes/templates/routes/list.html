@@ -1,36 +1,44 @@
 {% extends "comap/base.html" %}
 {% load staticfiles %}
 {% block container %}
-    <div id="list" class="panel panel-default">
-        <!-- Default panel contents -->
-        <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
-            <div id="heading"><h5>Loading available routes...</h5></div>
+    <div class="container-fluid">
+        <div class="row col-md-3">
+            <div id="list" class="panel panel-default">
+                <!-- Default panel contents -->
+                <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+                    <div id="heading"><h5>Loading routes...</h5></div>
+                </div>
+                <div id="panel" class="panel-body">
+                </div>
+                <!-- List group -->
+                <ul class="list-group"></ul>
+            </div>
+            <div id="create-link" class="listlink"></div>
         </div>
-        <div id="panel" class="panel-body"> 
+        <div class="col-md-9">
+            <div id="map" class=""></div>
+            <div id="detail-panel" class="panel panel-default pull-right" style="width:40%;">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <span class="glyphicon-heading glyphicon glyphicon-pushpin pull-left">&nbsp</span>
+                    <div id="detail-heading"><h5>Select a route</h5></div>
+                </div>
+                <div id="detail-panel-body" class="panel-body">
+                    <p><span class="image"></span></p>
+                    <p><span class="description"></span></p>
+                    <p><span><strong>Created: </strong></span><span class="created"></span></p>
+                    <p><hr/></p>
+                    <p><a class="editlink" href=""><button><span class="glyphicon glyphicon-edit"></span> Edit this route</button></a>
+                    <form id="deleteForm" method="post" action="" role="form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" value="DELETE" name="_method"/>
+                        <a><button id="btnDelete" type="button"><span class="glyphicon glyphicon-remove"></span> Delete this route</button></a>
+                    </form>
+                    </p>
+                    <p><a class="waypointlink" href=""><button><span class="glyphicon glyphicon-list"></span> List waypoints for this route</button></a></p>
+                </div>
+            </div
         </div>
-        <!-- List group -->
-        <ul class="list-group"></ul>
-    </div>
-    <!--
-      <div class="pull-left">
-        <a class="createlink" href="/comap/routes/create"><button><span class="glyphicon glyphicon-edit"></span> Add another route..</button></a>
-      </div>
-    -->
-    <div id="map"></div>
-    <div id="instructions" class="instructions"><span>Select a route name from the list to get started...</span></div>
-    <div id="info" class="info">
-        <p><span class="name"></span></p>
-        <p><span class="image"></span></p>
-        <p><span class="description"></span></p>
-        <p><a class="editlink" href=""><button><span class="glyphicon glyphicon-edit"></span> Edit this route</button></a></p>
-        <p>
-        <form id="deleteForm" method="post" action="" role="form" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" value="DELETE" name="_method"/>
-            <a><button id="btnDelete" type="button"><span class="glyphicon glyphicon-remove"></span> Delete this route</button></a>
-        </form>
-        </p>
-        <p><a class="waypointlink" href=""><button><span class="glyphicon glyphicon-th-list"></span> List waypoints for this route</button></a></p>
     </div>
     <div id="dialog-confirm" title="Really delete this route?"></div>
 {% endblock %}
