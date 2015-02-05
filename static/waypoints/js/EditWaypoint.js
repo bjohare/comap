@@ -99,19 +99,19 @@ var EditApp = OpenLayers.Class({
                 var id = xrh.responseJSON.id;
                 $('#title').empty();
                 $('#create-header').css('display','none');
+                $('#create-header').find('.panel-body').css('display','none');
                 $('#create-info').css("display", "block");
                 $('#heading').append('<h4>Waypoint created successfully</h4>');
                 $('#panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
                 $('#panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
-                $('#panel').append('<p><span><strong>Created:</strong> ' + props.created + '</span></p>');
-                $('#panel').append('<p><span><strong>Route:</strong> ' + props.group + '</span></p>');
-                $('#panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
-                $('#panel').append('<p><span><strong>Created by:</strong> ' + props.user + '</span></p>');
+                $('#panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
+                $('#panel').append('<p><span><strong>Route:</strong> ' + props.route + '</span></p>');
+                $('#panel').append('<p><span><strong>Elevation:</strong> ' + props.elevation + ' metres.</span></p>');
                 $('#panel').append('<p><span><strong><hr/></p>');
                 $('#panel').append('<p>');
                 $('#panel').append('<a class="editlink" href="/comap/waypoint/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
                 $('#panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#panel').append('</p>');
             },
             error: function(xhr, status, error){
@@ -231,7 +231,7 @@ var EditApp = OpenLayers.Class({
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
                 });
                 var routeName = data.properties.name;
-                $('.panel-body').html('<h4>Add a waypoint to the ' + routeName + ' route.</h4>');
+                $('#create-form-heading').html('<h5>Add a waypoint to the ' + routeName + ' route</h5>');
                 var route = new OpenLayers.Layer.Vector(routeName, {
                 styleMap: that.getLineStyleMap()
                 });

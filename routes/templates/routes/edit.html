@@ -1,56 +1,63 @@
 {% extends "comap/base.html" %}
 {% load staticfiles %}
 {% block container %}
-<div id="title">
-    <h2>Edit route..</h2>
-</div>
+<div class="container-fluid">
     <!-- gpx processing results -->
      <div id="update-info" class="panel panel-default">
         <!-- Default panel contents -->
-        <div id="heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-saved pull-left">&nbsp</span></div>
-        <div id="panel" class="panel-body"></div>
+        <div id="update-info-heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
+        <div id="update-info-panel" class="panel-body"></div>
     </div>
-    <form id="editGpxForm" action="" method="post"
-          enctype="multipart/form-data" role="form">
-    {% csrf_token %}
-    <input type="hidden" id="fid" name="fid"/>
-    <div class="form-group row" id="form-group-name">
-        <div class="col-md-4">
-            <strong><label class="control-label" for="name">Enter a name for this route: </label></strong>
-            <input class="form-control" type="text" name="name" id="name" value=""/>
-        </div>
-    </div>
-    <div class="form-group row" id="form-group-description">
-        <div class="col-md-4">
-            <strong><label class="control-label" for="description">Describe this Route: </label></strong>
-            <textarea name="description" id="description" class="form-control" rows="10"></textarea>
-        </div>
-    </div>
-    <div class="form-group row" id="form-group-gpxfile">
-     <div class="col-md-4" style="float:left;">
-            <strong><label class="control-label" for="gpxfile">Select a GPX file to upload: </label></strong>
-            <input type="file" name="gpxfile" id="file"/> 
-     </div>
-    </div>
-    <div class="form-group row" id="form-group-image">
-     <div class="col-md-4" style="float:left;">
-            <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
-            <input type="file" name="image" id="image"/> 
-     </div>
-    </div>
-    <div class="form-group row pull-left">
-        <div class="col-md-4">
-            <button id="save" type="submit" class="btn btn-success" value="PUT" name="_method">Update Your Route</button>
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-md-4">
-          
-        </div>
-    </div>
-    </form>
     
-    
+    <div id="update-route" class="panel panel-default">
+        <!-- Default panel contents -->
+        <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+            <div id="create-route-heading"><h5>Update your route</h5></div>
+        </div>
+        <div id="create-route-panel" class="panel-body">
+            <form id="editGpxForm" action="" method="post" enctype="multipart/form-data" role="form">
+                {% csrf_token %}
+                <input type="hidden" id="fid" name="fid"/>
+                <div class="form-group row" id="form-group-name">
+                    <div class="col-md-10">
+                        <strong><label class="control-label" for="name">Enter a name for this route: </label></strong>
+                        <input class="form-control" type="text" name="name" id="name" value=""/>
+                    </div>
+                </div>
+                <div class="form-group row" id="form-group-description">
+                    <div class="col-md-10">
+                        <strong><label class="control-label" for="description">Describe this Route: </label></strong>
+                        <textarea name="description" id="description" class="form-control" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row" id="form-group-gpxfile">
+                 <div class="col-md-10" style="float:left;">
+                        <strong><label class="control-label" for="gpxfile">Select a GPX file to upload: </label></strong>
+                        <input type="file" name="gpxfile" id="file"/> 
+                 </div>
+                </div>
+                <div class="form-group row" id="form-group-image">
+                 <div class="col-md-10" style="float:left;">
+                        <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
+                        <input type="file" name="image" id="image"/> 
+                 </div>
+                </div>
+                <div class="form-group row pull-left">
+                    <div class="col-md-10">
+                        <button id="save" type="submit" class="btn btn-success" value="PUT" name="_method">Update Your Route</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-10">
+                      <div id="progressbar" class="animate">
+                              <div class="progress-label"></div>
+                       </div>
+                    </div>
+                </div>  
+            </form>  
+        </div>
+    </div>
+</div>  
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
@@ -134,24 +141,23 @@
         },
         success: function(data, status, xrh) {
             $('#progressbar').css("display","none");
-            $('#editGpxForm').css('display','none');
+            $('#update-route').css('display','none');
             console.log('Updated Route.')
             props = xrh.responseJSON.properties;
             var id = xrh.responseJSON.id;
-            $('#title').empty();
             $('#update-info').css("display", "block");
-            $('#heading').append('<h4>Route updated successfully</h4>');
-            $('#panel').append('<p><span><strong>Route name:</strong> ' + props.name + '</span></p>');
-            $('#panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
-            $('#panel').append('<p><span><strong>Updated:</strong> ' + props.created.replace('T', ' ') + '</span></p>');
-            $('#panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
-            $('#panel').append('<p><span><strong>Updated by:</strong> ' + props.user + '</span></p>');
-            $('#panel').append('<p><span><strong><hr/></p>');
-            $('#panel').append('<p>');
-            $('#panel').append('<a class="editlink" href="/comap/routes/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Route..</button></a> &nbsp;');
-            $('#panel').append('<a class="listlink" href="/comap/routes/"><button><span class="glyphicon glyphicon-list"></span> List Routes..</button></a> &nbsp;');
-            $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Route..</button></a>');
-            $('#panel').append('</p>');
+            $('#update-info-heading').append('<h4>Route updated successfully</h4>');
+            $('#update-info-panel').append('<p><span><strong>Route name:</strong> ' + props.name + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Updated:</strong> ' +moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Updated by:</strong> ' + props.user + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong><hr/></p>');
+            $('#update-info-panel').append('<p>');
+            $('#update-info-panel').append('<a class="editlink" href="/comap/routes/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Route..</button></a> &nbsp;');
+            $('#update-info-panel').append('<a class="listlink" href="/comap/routes/"><button><span class="glyphicon glyphicon-list"></span> List Routes..</button></a> &nbsp;');
+            $('#update-info-panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Route..</button></a>');
+            $('#update-info-panel').append('</p>');
         },
         error: function(xhr, status, error){
             console.log('Failed to update route..');

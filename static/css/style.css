@@ -15,6 +15,25 @@ div#container {
     /*background-image: url('/comap/static/images/ireland.png');*/
 }
 
+#create-route, #update-route {
+    width: 50%;
+}
+
+#create-route-heading, #create-info-heading, #create-form-heading,
+#update-route-heading, #update-info-heading {
+    color: #526325;
+}
+
+#create-route-panel, #update-route-panel {
+    padding-top: 2em;
+}
+
+#create-form-panel {
+    width: 70%;
+}
+
+
+
 a {
     color: #526325;
     text-decoration: none;
@@ -126,11 +145,7 @@ div#edit {
 }
 
 div#edit-waypoint {
-    border: 1px solid lightgrey;
-    border-radius: 4px;
-    width: 70%;
     float: left;
-    padding: 2em !important;
     margin: 0 2em 2em 0;
 }
 

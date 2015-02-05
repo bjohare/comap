@@ -91,27 +91,25 @@ var RouteApp = OpenLayers.Class({
                 var feat = feature.clone();
                 var attrs = feat.attributes;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
-                
-                $('#instructions').css('display','none');
-                $('#info').css('display','block');
-                $('#info').find('span.name').html('<h4>' + attrs.name + '</h4>');
+                $('#detail-panel-body').css('display','block');
+                $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
                 if (!attrs.image_path == 'none_provided') {
-                    $('#info').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
+                    $('.panel-body').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
                 }
-                $('#info').find('span.description').html(attrs.description);
-                $('#info').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
-                $('#info').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
+                $('.panel-body').find('span.description').html(attrs.description);
+                $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
+                $('.panel-body').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
+                $('.panel-body').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
                 $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
-               
                 $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
                 
         });
         
         /* feature unselection event handling */
         routes.events.register("featureunselected", this, function(e){
-                $('#info').css('display','none');
-                $('#instructions').css('display','block');
-                $('li.list-group-item').css('background-color','white').css('color','#526325');
+            $('#detail-heading').html('<h5>Select a route</h5>');
+            $('#detail-panel-body').css('display','none');
+            $('li.list-group-item').css('background-color','white').css('color','#526325');
         });
         
         /* Add map controls */
@@ -130,21 +128,28 @@ var RouteApp = OpenLayers.Class({
             if (feats.length == 0) {
                 $('#map').css('display','none');
                 $('ul.list-group').css('display','none');
-                var heading = '<h5>No Routes available..</h5>';
-                var panelText = '<h5>You have no Routes. Please click <a href="/comap/routes/create">here</a> to create one.</h5>';
-                $('#info').empty();
-                $('#info').css('display','none');
+                $('#detail-panel').css('display','none');
+                $('#detail-panel-body').css('display','none');
+                $('#create-link').empty();
+                var heading = '<h5>No Routes Found</h5>';
+                //var panelText = '<h5>There are no routes for ' + group + '.</h5>';
                 $('#heading').html(heading);
-                $('#panel').html(panelText);
+                //$('#panel').html(panelText);
+                //$('#panel').append('<p><span><strong><hr/></p>');
+                $('#panel').append('<p>');
+                $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+                $('#panel').append('</p>');
             }
             else {
                 $('#map').css('visibility','visible');
-                $('#instructions').css('visibility','visible');
+                $('#detail-panel').css('visibility','visible');
+                $('#detail-panel-body').css('display','none');
                 var group = feats[0].properties.group;
                 var heading = '<h5>' + group + '</h5>';
                 $('#heading').html(heading);
                 $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
-                // add routes to the list..
+                $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+                // add waypoints to the list..
                 $('ul.list-group').empty();
                 $.each(feats, function(i){
                     var name = feats[i].properties.name;
