@@ -260,6 +260,10 @@ li#logout {
     float: right;
 }
 
+div#logout {
+    width: 35%;
+}
+
 .navbar-nav {
     float: none !important;
 }

@@ -16,6 +16,9 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.response import Response
 
+from imagekit import ImageSpec
+from imagekit.processors import ResizeToFill
+
 import django_filters
 
 # Geo related imports
@@ -44,6 +47,9 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+        
+
+
 
     
 class WaypointViewSet(viewsets.ModelViewSet):
@@ -56,6 +62,11 @@ class WaypointViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (filters.OrderingFilter,)
     ordering = ('-created',)
+    
+    class ResizedImage(ImageSpec):
+        processors = [ResizeToFill(400,300)]
+        format = 'JPEG'
+        options = {'quality': 50}
     
     def list(self, request, pk=None, *args, **kwargs):
         route_id = self.request.QUERY_PARAMS.get('route_id', -1)
@@ -146,10 +157,15 @@ class WaypointViewSet(viewsets.ModelViewSet):
         waypoint_paths = self.get_or_create_waypoint_media_tree()
         image_path = waypoint_paths['image'] + filedata.name
         # do image processing here.. then save it..
+        image_generator = self.ResizedImage(source=filedata)
+        image = image_generator.generate()
         try:
             with open(image_path, 'wb+') as destination:
-                for chunk in filedata.chunks():
+                destination.write(image.read())
+                """
+                for chunk in image.chunks():
                     destination.write(chunk)
+                """
         except OSError as e:
             pass
     
