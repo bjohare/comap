@@ -167,7 +167,9 @@ class WaypointViewSet(viewsets.ModelViewSet):
                     destination.write(chunk)
                 """
         except OSError as e:
-            pass
+            errstr = "Error creating directory: {0} : {1}".format(path, e)
+            logger.debug(errstr)
+            return HttpResponse(content=errstr, status=500)
     
     def get_or_create_waypoint_media_tree(self, *args, **kwargs):
         user = self.request.user
@@ -189,7 +191,7 @@ class WaypointViewSet(viewsets.ModelViewSet):
                         os.makedirs(path, 0770)
                         logger.debug('Created directory {0}'.format(path))
                     except OSError as e:
-                        errstr = "Error creating directory: {0} : {1}".format(gpx_group_path, e)
+                        errstr = "Error creating directory: {0} : {1}".format(path, e)
                         logger.debug(errstr)
                         return HttpResponse(content=errstr, status=500)
             return waypoint_paths
