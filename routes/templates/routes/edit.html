@@ -150,8 +150,8 @@
             $('#update-info-panel').append('<p><span><strong>Route name:</strong> ' + props.name + '</span></p>');
             $('#update-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
             $('#update-info-panel').append('<p><span><strong>Updated:</strong> ' +moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
-            $('#update-info-panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
-            $('#update-info-panel').append('<p><span><strong>Updated by:</strong> ' + props.user + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Group:</strong> ' + props.group.name + '</span></p>');
+            $('#update-info-panel').append('<p><span><strong>Updated by:</strong> ' + props.user.username + '</span></p>');
             $('#update-info-panel').append('<p><span><strong><hr/></p>');
             $('#update-info-panel').append('<p>');
             $('#update-info-panel').append('<a class="editlink" href="/comap/routes/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Route..</button></a> &nbsp;');

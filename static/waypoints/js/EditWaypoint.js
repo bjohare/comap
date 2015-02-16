@@ -16,26 +16,10 @@
 
 */
 
-/*
-        var wkt = new OpenLayers.Format.WKT();
-        var point = $('input#the_geom').val();
-        var geom = wkt.read(point).geometry;
-        $('span#lat').html('&nbsp;' + geom.y);
-        $('span#lng').html('&nbsp;' + geom.x);        
-*/
-
-var EditApp = OpenLayers.Class({
+var EditWaypointApp = OpenLayers.Class({
     
     /* initial setup */
     initialize: function() {
-        
-        var url = document.URL;
-        var parts = url.split('/');
-        var id = parts[6];
-        console.log('Route id is ' + id);
-        this.routeId = id;
-        // add the route id to the form.
-        $('#route').val(this.routeId);
         this.initForm();
         this.map = this.initMap();
 	},
@@ -81,38 +65,35 @@ var EditApp = OpenLayers.Class({
         var that = this;
         $('#progressbar').css("display","none");
         $('#waypointForm').ajaxForm({
-            url: Config.WAYPOINT_API_URL + ".json",
             beforeSubmit: function(arr, $form, options) {
                 $('#progressbar').css("display","block");
                 var now = new Date();
                 // update the post values
                 arr[1].value = now.toISOString();
+                this.url = Config.WAYPOINT_API_URL + '/' + $('#fid').val();
             },
             uploadProgress: function(event, position, total, percentComplete) {
                 progressbar.progressbar({value: percentComplete});
             },
             success: function(data, status, xrh) {
                 $('#progressbar').css("display","none");
-                $('#edit-waypoint').css('display','none');
-                console.log('Created Waypoint.')
+                $('#update-form-panel').css('display','none');
+                console.log('Updated Waypoint.')
                 var props = xrh.responseJSON.properties;
                 var id = xrh.responseJSON.id;
-                $('#title').empty();
-                $('#create-header').css('display','none');
-                $('#create-header').find('.panel-body').css('display','none');
-                $('#create-info').css("display", "block");
-                $('#heading').append('<h4>Waypoint created successfully</h4>');
-                $('#panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
-                $('#panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
-                $('#panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
-                $('#panel').append('<p><span><strong>Route:</strong> ' + props.route + '</span></p>');
-                $('#panel').append('<p><span><strong>Elevation:</strong> ' + props.elevation + ' metres.</span></p>');
-                $('#panel').append('<p><span><strong><hr/></p>');
-                $('#panel').append('<p>');
-                $('#panel').append('<a class="editlink" href="/comap/waypoint/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
-                $('#panel').append('</p>');
+                $('#update-info').css("display", "block");
+                $('#update-info-heading').append('<h4>Waypoint updated successfully</h4>');
+                $('#update-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
+                $('#update-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
+                $('#update-info-panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
+                $('#update-info-panel').append('<p><span><strong>Route:</strong> ' + props.route.name + '</span></p>');
+                $('#update-info-panel').append('<p><span><strong>Elevation:</strong> ' + props.elevation + ' metres.</span></p>');
+                $('#update-info-panel').append('<p><span><strong><hr/></p>');
+                $('#update-info-panel').append('<p>');
+                $('#update-info-panel').append('<a class="editlink" href="/comap/waypoints/edit/' + id + '/"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
+                $('#update-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
+                $('#update-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#update-info-panel').append('</p>');
             },
             error: function(xhr, status, error){
                 $('#progressbar').css("display", "none");
@@ -139,9 +120,6 @@ var EditApp = OpenLayers.Class({
 		ocm.options = {layers: "basic", isBaseLayer: false, visibility: false, displayInLayerSwitcher: true};
         map.addLayers([Layers.OCM]);
         
-        // add the route layer to the map
-        this.loadRouteVector();
-        
         var waypoints = new OpenLayers.Layer.Vector("Waypoints", {
             styleMap: this.getPointStyleMap(),
             eventListeners: {
@@ -151,23 +129,27 @@ var EditApp = OpenLayers.Class({
 						lonlat.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
 						var lat = lonlat.lat.toPrecision(8);
 						var lon = lonlat.lon.toPrecision(8);
+                        // irish grid ref
+                        wgs84=new GT_WGS84();
+                        wgs84.setDegrees(lat, lon);
+                        irish=wgs84.getIrish();
+                        gridref = irish.getGridRef(3);
 						$('#lat').html('&nbsp;' + lat);
 						$('#lng').html('&nbsp;' + lon);
+                        $('#gridref').html('&nbsp;' + gridref);
 						$('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
 					},
 					
                 },
         });
         map.addLayers([waypoints]);
+        
+        // add the route and waypoint features to the map
+        this.loadVectors(waypoints);
 		
 		var selectControl = new OpenLayers.Control.SelectFeature([waypoints]);
 		map.addControl(selectControl);
 		selectControl.activate();
-        
-        var pointControl = new OpenLayers.Control.DrawFeature(waypoints,
-                                OpenLayers.Handler.Point);
-        map.addControl(pointControl);
-        pointControl.activate();
         
 		// TODO: map zoom and pan causes this to fire.. so bit buggy.. as map gets reset
 		waypoints.events.register("featureadded", selectControl, function(e){
@@ -177,16 +159,21 @@ var EditApp = OpenLayers.Class({
             // update the geom on the form and trigger validation
             $('#the_geom').val('POINT(' + geom.x + ' ' + geom.y + ')');
             $('#the_geom').trigger("input");
-            var lat = geom.y;
-            var lon = geom.x;
+            var lat = geom.y.toPrecision(8);
+            var lon = geom.x.toPrecision(8);
+            wgs84=new GT_WGS84();
+            wgs84.setDegrees(lat, lon);
+            irish=wgs84.getIrish();
+            gridref = irish.getGridRef(3);
+            $('#lat').html('&nbsp;' + lat);
+            $('#lng').html('&nbsp;' + lon);
+            $('#gridref').html('&nbsp;' + gridref);
             $.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY+ '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
                   function(data){
                     var elevation = data.elevationProfile[0].height;
                     $('#elevation').val(elevation);
                     $('#elev').html('&nbsp;' + elevation + ' metres');
             });
-            // only allow one feature to be added.
-            pointControl.deactivate();
 		});
 		
 		
@@ -220,28 +207,56 @@ var EditApp = OpenLayers.Class({
         return map;
     },
     
-    loadRouteVector: function() {
-        /* Add the routes for the current group */
+    loadVectors: function(waypoints) {
+        var url = document.URL;
+        var parts = url.split('/');
+        var id = parts[6];
+        console.log('Waypoint id is ' + id);
+        var fid = id;
+        this.routeId = -1;
+        var waypointUrl = Config.WAYPOINT_API_URL + '/' + id + '.json';
+        console.log(waypointUrl);
         var that = this;
-        var jsonUrl = Config.TRACK_API_URL + '/' + this.routeId + '.json';
-        console.log(jsonUrl);
-        $.getJSON(jsonUrl, function(data){
-            var geojson = new OpenLayers.Format.GeoJSON({
-                        'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                        'externalProjection': new OpenLayers.Projection("EPSG:4326")
-                });
-                var routeName = data.properties.name;
-                $('#create-form-heading').html('<h5>Add a waypoint to the ' + routeName + ' route</h5>');
-                var route = new OpenLayers.Layer.Vector(routeName, {
-                styleMap: that.getLineStyleMap()
-                });
-                that.map.addLayers([route]);
-                var features = geojson.read(data);
-                route.addFeatures(features);
-                that.map.zoomToExtent(route.getDataExtent());
-        }).fail(function(data){
-            console.log('Failed to load route features..');
-        });
+        $.getJSON(waypointUrl, function(data){
+                var props = data.properties;
+                that.routeId = data.properties.route.fid;
+                if (props.length == 0) {
+                    alert('Error, no features found');
+                }
+                else {
+                    $('#fid').val(id);
+                    $('#name').val(props.name);
+                    $('#description').val(props.description);
+                    $('#route').val(that.routeId);
+                    $('#update-form-heading').html('<h5>Update the ' + props.name + ' waypoint</h5>');
+                    var geojson = new OpenLayers.Format.GeoJSON({
+                                    'internalProjection': new OpenLayers.Projection("EPSG:3857"),
+                                    'externalProjection': new OpenLayers.Projection("EPSG:4326")
+                    });
+                    var features = geojson.read(data);
+                    waypoints.addFeatures(features);
+                    var jsonUrl = Config.TRACK_API_URL + '/' + that.routeId + '.json';
+                    console.log(jsonUrl);
+                    $.getJSON(jsonUrl, function(data){
+                        var geojson = new OpenLayers.Format.GeoJSON({
+                                    'internalProjection': new OpenLayers.Projection("EPSG:3857"),
+                                    'externalProjection': new OpenLayers.Projection("EPSG:4326")
+                            });
+                            var routeName = data.properties.name;
+                            var route = new OpenLayers.Layer.Vector(routeName, {
+                            styleMap: that.getLineStyleMap()
+                            });
+                            that.map.addLayers([route]);
+                            var features = geojson.read(data);
+                            route.addFeatures(features);
+                            that.map.zoomToExtent(route.getDataExtent());
+                    }).fail(function(data){
+                        console.log('Failed to load route features..');
+                    });
+                }
+            }).fail(function(data){
+                alert('Failed.. do something here..');
+            }); 
     },
     
     getLineStyleMap: function(){

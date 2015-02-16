@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^comap/api/', include('rest_framework.urls', namespace='rest_framework')), 
     url(r'^comap/waypoints/', include('waypoints.urls', namespace='waypoints')),
     url(r'^comap/routes/', include('routes.urls', namespace='routes')),
+    url(r'^grappelli/', include('grappelli.urls')), 
     url(r'^comap/admin/', include(admin.site.urls)),
 )

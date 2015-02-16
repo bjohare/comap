@@ -30,6 +30,12 @@ TEMPLATE_DIRS = (
     'api/templates/',
     'routes/templates/',)
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.core.context_processors.request",
+    "django.contrib.auth.context_processors.auth",
+    "django.contrib.messages.context_processors.messages",  
+)
+
 ALLOWED_HOSTS = []
 
 # authentication related
@@ -40,6 +46,7 @@ LOGIN_REDIRECT_URL = '/comap/routes/'
 # Application definition
 
 DEFAULT_APPS = (
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +59,7 @@ DEFAULT_APPS = (
 THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework_gis',
+    'imagekit',
 )
 
 LOCAL_APPS = (
@@ -172,3 +180,7 @@ LOGGING = {
         }, 
     }
 }
+
+# Grappelli Settings
+
+GRAPPELLI_ADMIN_TITLE = 'CoMap Administration'

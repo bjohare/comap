@@ -144,7 +144,7 @@ var RouteApp = OpenLayers.Class({
                 $('#map').css('visibility','visible');
                 $('#detail-panel').css('visibility','visible');
                 $('#detail-panel-body').css('display','none');
-                var group = feats[0].properties.group;
+                var group = feats[0].properties.group.name;
                 var heading = '<h5>' + group + '</h5>';
                 $('#heading').html(heading);
                 $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');

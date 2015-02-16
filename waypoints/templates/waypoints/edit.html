@@ -1,103 +1,90 @@
 {% extends "comap/base.html" %}
 {% load staticfiles %}
 {% block container %}
-<br/><br/><br/>
-<h2>Editing {{ waypoint.name }} Waypoint</h2>
-
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    <div id="edit-waypoint">
-    <form id="waypointForm" action="" method="post"
-          enctype="multipart/form-data" role="form">
-    {% csrf_token %}
-    <input type="hidden" id="fid" name="fid" value="{{ waypoint.fid }}"/>
-    <div class="form-group row" id="form-group-name">
-        <div class="col-md-5">
-            <strong><label class="control-label" for="name">Waypoint name: </label></strong>
-            <input class="form-control" type="text" name="name" id="name" value="{{ waypoint.name }}" />
-        </div>
+<div class="container-fluid">
+    <div id="update-info" class="panel panel-default">
+        <!-- Default panel contents -->
+        <div id="update-info-heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
+        <div id="update-info-panel" class="panel-body"></div>
     </div>
-    <div class="form-group row" id="form-group-description">
-        <div class="col-md-6">
-            <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
-            <textarea name="description" id="description" class="tinymce form-control">{{ waypoint.description}}</textarea>
-            
+    <div id="update-form-panel" class="panel panel-default">
+        <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+            <div id="update-form-heading"><h5>&nbsp;</h5></div>
         </div>
-        <strong><label class="control-label" for="name">Edit waypoint location: </label></strong>
-        <div class="col-md=6" id="edit-map"></div>
-        
-    </div>
-    
-    <div class="form-group row">
-     <div class="col-md-5" style="float:left;">
-            <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
-            <input type="file" name="file" id="file"/> 
+        <div class="panel-body">
+        <div id="edit-waypoint" class="container-fluid">
+            <form id="waypointForm" action="" method="post"
+                  enctype="multipart/form-data" role="form">
+                <input type="hidden" id="route" name="route" value=""/>
+                <input type="hidden" id="created" name="created" value=""/>
+                <input type="hidden" id="fid" name="fid" value=""/>
+                {% csrf_token %}
+                <div class="row col-md-6">
+                    <div class="form-group" id="form-group-name">
+                        <div class="">
+                            <strong><label class="control-label" for="name">Waypoint name: </label></strong>
+                            <input class="form-control" type="text" name="name" id="name" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group" id="form-group-description">
+                        <div class="">
+                            <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
+                            <textarea name="description" id="description" class="form-control" rows="10"></textarea>
+                        </div> 
+                    </div>
+                    <div class="form-group" id="form-group-image">
+                        <div class="">
+                               <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
+                               <input type="file" name="file" id="file"/> 
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="form-group">
+                        <div class="">
+                            <button id="save" type="submit" class="btn btn-md btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> update this waypoint</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="form-group-map">
+                    <div class="col-md-6">
+                        <strong><label class="control-label" for="the_geom">Update the waypoint</label></strong>
+                        <div class="" id="edit-waypoint-map"></div>
+                        <div class="pull-left" id="location">
+                          <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
+                          <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
+                          <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
+                          <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                        </div>
+                        <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
+                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-12">
+                      <div id="progressbar">
+                              <div class="progress-label"></div>
+                       </div>
+                    </div>
+                </div>
+            </form>
         </div>
-      <div class="col-md-6" id="location">
-        <span><strong>Latitude:</strong></span><span id="lat">&nbsp;</span><br/>
-        <span><strong>Longitude:</strong><span id="lng">&nbsp;</span><br/>
-        <span><strong>Elevation:</strong><span id="elev">&nbsp;{{ waypoint.elevation }} metres</span>
-        <input type="hidden" id="elevation" name="elevation" value="{{ waypoint.elevation }}"/>
-        <input type="hidden" id="the_geom" name="the_geom" value="{{ waypoint.the_geom }}"/>
       </div>
     </div>
-    
-    <div class="form-group row pull-left">
-        <div class="col-md-6">
-            <button id="save" type="submit" class="btn btn-sm btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> Save waypoint</button>
-        </div>
-    </div>
-    
-    <div class="form-group row">
-        <div class="col-md-12">
-          <div id="progressbar">
-                  <div class="progress-label"></div>
-           </div>
-        </div>
-    </div>
-          
-    </form>
-    
-    </div>
-    
-    
-    <!-- waypoint preview -->
-    <div id="info" class="pull-left info">
-      <h4>{{ waypoint.name }} (Preview)</h4>
-      <p><img src="/comap/media/{{ waypoint.image_path }}"/></p>
-      {{ waypoint.description | safe }}
-      <p><strong>Latitude: </strong>{{ waypoint.latitude }}</p>
-      <p><strong>Longitude: </strong>{{ waypoint.longitude }}</p>
-      <p><strong>Elevation: </strong>{{ waypoint.elevation }}</p>
-      <p><strong>Updated: </strong>{{ waypoint.date }}</p>
-    </div>
+</div> 
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
-<script src="{% static "waypoints/js/EditMapJSON.js" %}" type="text/javascript" defer></script>
-<script src="{% static "waypoints/js/Layers.js" %}" type="text/javascript" defer></script>
-<script src="{% static "waypoints/js/Config.js" %}" type="text/javascript" defer></script>
-<script src="{% static "js/tinymce/js/tinymce/jquery.tinymce.min.js" %}" type="text/javascript"></script>
+<script src="{% static "waypoints/js/EditWaypoint.js" %}" type="text/javascript" defer></script>
+<script src="{% static "js/Layers.js" %}" type="text/javascript" defer></script>
+<script src="{% static "js/Config.js" %}" type="text/javascript" defer></script>
 <script src="http://code.jquerygeo.com/jquery.geo-1.0.0-b1.5.min.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script> 
-<script type="text/javascript">
-    
-   
-</script>
 
 <!-- load map -->
 <script type="text/javascript">
     var editMap;
     $(document).ready(function() {
-        var fid = $('#fid').val();
-        editMap = new EditMap();
-        //editMap.initialize(fid); // initialize the edit map with the fid to update..
-        editMap.main();
-        var wkt = new OpenLayers.Format.WKT();
-        var point = $('input#the_geom').val();
-        var geom = wkt.read(point).geometry;
-        $('span#lat').html('&nbsp;' + geom.y);
-        $('span#lng').html('&nbsp;' + geom.x);        
-        // TODO: round elevation when page first loads..
+        editApp = new EditWaypointApp();
     });
 </script>
 {% endblock %}

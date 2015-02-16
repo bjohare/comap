@@ -99,6 +99,7 @@ var RouteApp = OpenLayers.Class({
                 $('.panel-body').find('span.description').html(attrs.description);
                 $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
                 $('.panel-body').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
+                $('.panel-body').find('a.download').prop('href',attrs.gpx_url);
                 $('.panel-body').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
                 $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
                 $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
@@ -125,45 +126,28 @@ var RouteApp = OpenLayers.Class({
         // get the routes from the tracks api and build the page..
         $.getJSON(Config.TRACK_API_URL, function(data){
             var feats = data.features;
-            if (feats.length == 0) {
-                $('#map').css('display','none');
-                $('ul.list-group').css('display','none');
-                $('#detail-panel').css('display','none');
-                $('#detail-panel-body').css('display','none');
-                $('#create-link').empty();
-                var heading = '<h5>No Routes Found</h5>';
-                //var panelText = '<h5>There are no routes for ' + group + '.</h5>';
-                $('#heading').html(heading);
-                //$('#panel').html(panelText);
-                //$('#panel').append('<p><span><strong><hr/></p>');
-                $('#panel').append('<p>');
-                $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
-                $('#panel').append('</p>');
-            }
-            else {
-                $('#map').css('visibility','visible');
-                $('#detail-panel').css('visibility','visible');
-                $('#detail-panel-body').css('display','none');
-                var group = feats[0].properties.group;
-                var heading = '<h5>' + group + '</h5>';
-                $('#heading').html(heading);
-                $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
-                $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
-                // add waypoints to the list..
-                $('ul.list-group').empty();
-                $.each(feats, function(i){
-                    var name = feats[i].properties.name;
-                    var id = feats[i].id;
-                    $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
-                });
-                var geojson = new OpenLayers.Format.GeoJSON({
-                        'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                        'externalProjection': new OpenLayers.Projection("EPSG:4326")
-                });
-                var features = geojson.read(data);
-                routes.addFeatures(features);
-                map.zoomToExtent(routes.getDataExtent());
-            }
+            $('#map').css('visibility','visible');
+            $('#detail-panel').css('visibility','visible');
+            $('#detail-panel-body').css('display','none');
+            var group = feats[0].properties.group.name;
+            var heading = '<h5>' + group + '</h5>';
+            $('#heading').html(heading);
+            $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
+            $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+            // add waypoints to the list..
+            $('ul.list-group').empty();
+            $.each(feats, function(i){
+                var name = feats[i].properties.name;
+                var id = feats[i].id;
+                $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
+            });
+            var geojson = new OpenLayers.Format.GeoJSON({
+                    'internalProjection': new OpenLayers.Projection("EPSG:3857"),
+                    'externalProjection': new OpenLayers.Projection("EPSG:4326")
+            });
+            var features = geojson.read(data);
+            routes.addFeatures(features);
+            map.zoomToExtent(routes.getDataExtent());
             $( "#list a" ).bind( "click", function() {
                 var fid = $(this).attr("id");
                 var feature = routes.getFeatureByFid(fid);
@@ -171,6 +155,27 @@ var RouteApp = OpenLayers.Class({
                 selectControl.select(feature);
             });
             
+        }).fail(function(data){
+            if (data.status == 404) {
+                var message = data.responseJSON.detail;
+                console.log(message);
+                $('#map').css('display','none');
+                $('ul.list-group').css('display','none');
+                $('#detail-panel').css('display','none');
+                $('#detail-panel-body').css('display','none');
+                $('#create-link').empty();
+                var heading = '<h5>No Routes Found</h5>';
+                var panelText = '<h5>' + message + '</h5>';
+                $('#heading').html(heading);
+                $('#panel').html(panelText);
+                $('#panel').append('<p><span><strong><hr/></p>');
+                $('#panel').append('<p>');
+                $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+                $('#panel').append('</p>');
+            }
+            else {
+                console.log('Crap.. something went wrong there...');
+            }
         });
     },
     
@@ -197,21 +202,18 @@ var RouteApp = OpenLayers.Class({
             },
         }
         
-        $('#dialog-confirm').dialog({
-           resizable: false,
-           height:200,
-           width:400,
-           autoOpen: false,
-           modal: true,
-           buttons: {
-                "Delete": function() {
-                    $('#deleteForm').ajaxSubmit(options);
-                    $( this ).dialog( "close" );
-                },
-                "Cancel": function() {
-                    $( this ).dialog( "close" );
-                }
-            }
+        var modalOpts = {
+            keyboard: true,
+            backdrop: 'static',
+        }
+        
+        $("#btnDelete").click(function(){
+            $("#deleteRouteModal").modal(modalOpts, 'show');
+        });
+        
+        $("#deleteConfirm").click(function(){
+            $('#deleteForm').ajaxSubmit(options);
+            $("#deleteRouteModal").modal('hide');
         });
         
     }

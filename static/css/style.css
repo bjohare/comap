@@ -20,7 +20,7 @@ div#container {
 }
 
 #create-route-heading, #create-info-heading, #create-form-heading,
-#update-route-heading, #update-info-heading {
+#update-route-heading, #update-info-heading, #update-form-heading {
     color: #526325;
 }
 
@@ -28,7 +28,7 @@ div#container {
     padding-top: 2em;
 }
 
-#create-form-panel {
+#create-form-panel, #update-form-panel {
     width: 70%;
 }
 
@@ -87,13 +87,9 @@ div#map {
 }
 
 
-#info {
-    margin-left: 2em;
-    border: 1px dashed lightgrey;
-    float: left;
-    width: 30%;
-    padding: 2em;
+#waypoint-image {
     display: none;
+    max-width: 400px;
 }
 
 
@@ -227,7 +223,7 @@ div#create-header {
 }
 
 div#location {
-  margin-left: 4.5em;
+  font-size: small;
 }
 
 .div {

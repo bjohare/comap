@@ -35,12 +35,14 @@
                         <input type="file" name="gpxfile" id="file"/> 
                  </div>
                 </div>
+                <!--
                 <div class="form-group row" id="form-group-image">
                  <div class="col-md-10" style="float:left;">
                         <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
                         <input type="file" name="image" id="image"/> 
                  </div>
                 </div>
+                -->
                 <div class="form-group row pull-left">
                     <div class="col-md-10">
                         <button id="save" type="submit" class="btn btn-success">Add This Route</button>
@@ -126,8 +128,8 @@
             $('#create-info-panel').append('<p><span><strong>Route name:</strong> ' + props.name + '</span></p>');
             $('#create-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
             $('#create-info-panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
-            $('#create-info-panel').append('<p><span><strong>Group:</strong> ' + props.group + '</span></p>');
-            $('#create-info-panel').append('<p><span><strong>Created by:</strong> ' + props.user + '</span></p>');
+            $('#create-info-panel').append('<p><span><strong>Group:</strong> ' + props.group.name + '</span></p>');
+            $('#create-info-panel').append('<p><span><strong>Created by:</strong> ' + props.user.username + '</span></p>');
             $('#create-info-panel').append('<p><span><strong><hr/></p>');
             $('#create-info-panel').append('<p>');
             $('#create-info-panel').append('<a class="editlink" href="/comap/routes/edit/' + id + '"><button><span class="glyphicon glyphicon-edit"></span> Edit this Route..</button></a> &nbsp;');
@@ -136,16 +138,13 @@
             $('#create-info-panel').append('</p>');
         },
         error: function(xhr, status, error){
-            console.log('Failed to create route..');
-            $('#progressbar').css("display","none");    $('#progressbar').css("display","none");
-            $('#gpxForm').css('display','none');
-            $('#title').empty();
-            $('#heading').empty();
-            $('#panel').empty();
-            $('#info').css("display", "block").addClass('error');
-            $('#title').append('<h3>There was an error during Route creation..  </h3>');
-            $('#info').append('<p><span><strong>Error message: </strong> ' + error + '</span></p>');
-            $('#info').append('<p><span>Click <a href="/comap/routes/create">here</a> to try again.</span></p>');
+            $('#progressbar').css("display","none");
+            $('#create-route').css('display','none');
+            console.log('Route creation failed.')
+            $('#create-info').css("display", "block");
+            $('#create-info-heading').append('<h4>Failed to create the route</h4>');
+            $('#create-info-panel').append('<p><span>There was an error during route creation. ' + xhr.statusText + '</span></p>');
+            
 
         },
     });
