@@ -30,7 +30,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from routes.models import Route, TrackPoint
 from routes.gpx import GPXProc
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from waypoints.models import Waypoint
 from serializers import WaypointSerializer, RouteSerializer, TrackPointSerializer
 
@@ -49,9 +49,6 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content, **kwargs)
         
 
-
-
-    
 class WaypointViewSet(viewsets.ModelViewSet):
     """
     Viewset for handling api operations on Waypoints
@@ -59,14 +56,14 @@ class WaypointViewSet(viewsets.ModelViewSet):
     queryset = Waypoint.objects.filter(visible=True)
     serializer_class = WaypointSerializer
     parser_classes = (FormParser, MultiPartParser)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (filters.OrderingFilter,)
     ordering = ('-created',)
     
     class ResizedImage(ImageSpec):
-        processors = [ResizeToFill(400,300)]
+        processors = [ResizeToFill(400,250)]
         format = 'JPEG'
-        options = {'quality': 50}
+        options = {'quality': 70}
     
     def list(self, request, pk=None, *args, **kwargs):
         route_id = self.request.QUERY_PARAMS.get('route_id', -1)
@@ -174,10 +171,10 @@ class WaypointViewSet(viewsets.ModelViewSet):
     def get_or_create_waypoint_media_tree(self, *args, **kwargs):
         user = self.request.user
         group = user.groups.get()
-        group_name = group.name.replace(" ", "_").lower()
+        #group_name = group.name.replace(" ", "_").lower()
         fid = self.object.fid
         route_id = self.object.route.fid
-        waypoint_dir = '{0}/{1}/{2}/waypoints/{3}'.format(comap.settings.MEDIA_ROOT, group_name, route_id, fid)
+        waypoint_dir = '{0}/{1}/{2}/waypoints/{3}'.format(comap.settings.MEDIA_ROOT, str(group.id), route_id, fid)
         wp_image_dir = '{0}/images/'.format(waypoint_dir)
         wp_audio_dir = '{0}/audio/'.format(waypoint_dir)
         wp_video_dir = '{0}/video/'.format(waypoint_dir)
@@ -206,7 +203,7 @@ class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().order_by('name')
     serializer_class = RouteSerializer
     parser_classes = (FormParser, MultiPartParser)
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (filters.OrderingFilter,)
     ordering = ('-created',)
     
@@ -372,8 +369,8 @@ class RouteViewSet(viewsets.ModelViewSet):
     def get_or_create_route_media_tree(self, fid):
         user = self.request.user
         group = user.groups.get()
-        group_name = group.name.replace(" ", "_").lower()
-        route_dir = '{0}/{1}/{2}'.format(comap.settings.MEDIA_ROOT, group_name, fid)
+        #group_name = group.name.replace(" ", "_").lower()
+        route_dir = '{0}/{1}/{2}'.format(comap.settings.MEDIA_ROOT, str(group.id), fid)
         gpx_dir = '{0}/gpx/'.format(route_dir)
         rt_image_dir = '{0}/images/'.format(route_dir)
         rt_wp_dir = '{0}/waypoints/'.format(route_dir)
@@ -404,6 +401,19 @@ class TrackPointViewSet(viewsets.ModelViewSet):
             return TrackPoint.objects.none()
         else:
             return TrackPoint.objects.filter(route_id=route_id)
+       
+
+
+"""
+Public endpoint for listing routes
+"""
+@api_view(('GET',))
+@permission_classes((permissions.AllowAny,))
+def list_tracks(request, format=None):
+    group_id = request.QUERY_PARAMS.get('group_id', -1)
+    routes = Route.objects.filter(group_id=group_id)
+    serializer = RouteSerializer(routes,  many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 """

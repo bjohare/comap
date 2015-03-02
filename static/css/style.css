@@ -1,8 +1,10 @@
+/*
 @media (min-width: 1200px) {
   .container {
     width: auto;
   }
 }
+*/
 
 html, body {
   font-family: Lato;
@@ -11,8 +13,16 @@ html, body {
   
 }
 
-div#container {
-    /*background-image: url('/comap/static/images/ireland.png');*/
+.container {
+    width: 100%;
+}
+
+.navbar-header {
+    padding-left: 15px;
+}
+
+#navbar {
+   width: 100%;
 }
 
 #create-route, #update-route {
@@ -39,9 +49,7 @@ a {
     text-decoration: none;
 }
 
-div#navbar{
-   
-}
+
 
 div#title {
     margin-left: 25px;
@@ -50,7 +58,7 @@ div#title {
 div#list {
     margin-right: 2em;
     float: left;
-    min-width: 320px;
+    width: 100%;
 }
 
 .list-group-item {
@@ -66,12 +74,13 @@ div#list a:hover {
 }
 
 div#map {
-    width: 45em;
+    width: 100%;
     height: 40em;
     float: left;
     margin-top: 5em;
     border: 1px solid lightgrey;
     border-radius: 4px;
+    margin-bottom: 1.5em !important;
 }
 
 #dialog-confirm {
@@ -90,12 +99,17 @@ div#map {
 #waypoint-image {
     display: none;
     max-width: 400px;
+    border: 1px solid lightgrey;
 }
 
 
 #create-info, #update-info {
     display: none;
     width: 40%;
+}
+
+#create-link {
+    margin-bottom: 1.5em;
 }
 
 .glyphicon-heading {
@@ -238,6 +252,11 @@ div#location {
     display: none;
 }
 
+#detail-panel {
+    width: 100%;
+    float: left;
+}
+
 .form-control:focus {
     border-color: rgba(82,168,236,.8);
     outline: 0;
@@ -258,6 +277,7 @@ div#location {
 
 li#logout {
     float: right;
+    margin-right: 1em;
 }
 
 div#logout {

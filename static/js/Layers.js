@@ -32,3 +32,12 @@ Layers.STAMEN_WATERCOLOR = new OpenLayers.Layer.OSM("Stamen Watercolor",
                  "http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg"],
                 {crossOriginKeyword: null}
             );
+
+Layers.MAP_BOX = new OpenLayers.Layer.XYZ('MapBox', [
+            'http://a.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://b.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://c.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://d.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q'], {
+            sphericalMercator: true,
+            wrapDateLine: true
+        });

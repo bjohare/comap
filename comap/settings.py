@@ -90,6 +90,12 @@ ROOT_URLCONF = 'comap.urls'
 
 WSGI_APPLICATION = 'comap.wsgi.application'
 
+# session settings
+SESSION_COOKIE_NAME='comap_sessionid'
+SESSION_COOKIE_DOMAIN='cloughjordan.ie'
+SESSION_COOKIE_PATH='/comap'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases

@@ -124,8 +124,9 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
                 'image_path': image_path, 'elevation': elevation}
     
     def get_image_url(self, obj):
-        group_name = obj.route.group.name.replace(" ", "_").lower()
-        return '{0}/{1}/{2}/{3}/{4}/{5}'.format(settings.MEDIA_URL + group_name, obj.route.fid,
+        group = obj.route.group
+        group_name = group.name.replace(" ", "_").lower()
+        return '{0}/{1}/{2}/{3}/{4}/{5}'.format(settings.MEDIA_URL + str(group.id), obj.route.fid,
                                         'waypoints', obj.fid, 'images', obj.image_path)
     
 
@@ -173,8 +174,9 @@ class RouteSerializer(ComapGeoFeatureModelSerializer):
         return serializer.data
     
     def get_gpx_url(self, obj):
-        group_name = obj.group.name.replace(" ", "_").lower()
-        return '{0}/{1}/{2}/{3}'.format(settings.MEDIA_URL + group_name, obj.fid, 'gpx', obj.gpx_file)
+        group = obj.group
+        group_name = group.name.replace(" ", "_").lower()
+        return '{0}/{1}/{2}/{3}'.format(settings.MEDIA_URL + str(group.id), obj.fid, 'gpx', obj.gpx_file)
     
 
 class TrackPointSerializer(ComapGeoFeatureModelSerializer):

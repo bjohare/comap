@@ -37,7 +37,7 @@ var RouteApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var ocm = Layers.OCM;
+        var ocm = Layers.MAP_BOX;
         ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
         map.addLayers([ocm]);
         
