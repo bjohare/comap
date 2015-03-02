@@ -26,7 +26,7 @@ html, body {
 }
 
 #create-route, #update-route {
-    width: 50%;
+    max-width: 960px;
 }
 
 #create-route-heading, #create-info-heading, #create-form-heading,
@@ -127,7 +127,7 @@ div#map {
 }
 
 #gpxForm, #editGpxForm{
-    margin-left: 25px;
+    /*margin-left: 25px;*/
 }
 
 .error {
