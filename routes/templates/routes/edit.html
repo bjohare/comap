@@ -19,36 +19,36 @@
                 {% csrf_token %}
                 <input type="hidden" id="fid" name="fid"/>
                 <div class="form-group row" id="form-group-name">
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <strong><label class="control-label" for="name">Enter a name for this route: </label></strong>
                         <input class="form-control" type="text" name="name" id="name" value=""/>
                     </div>
                 </div>
                 <div class="form-group row" id="form-group-description">
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <strong><label class="control-label" for="description">Describe this Route: </label></strong>
                         <textarea name="description" id="description" class="form-control" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="form-group row" id="form-group-gpxfile">
-                 <div class="col-md-10" style="float:left;">
+                 <div class="col-md-12" style="float:left;">
                         <strong><label class="control-label" for="gpxfile">Select a GPX file to upload: </label></strong>
                         <input type="file" name="gpxfile" id="file"/> 
                  </div>
                 </div>
                 <div class="form-group row" id="form-group-image">
-                 <div class="col-md-10" style="float:left;">
+                 <div class="col-md-12" style="float:left;">
                         <strong><label class="control-label" for="image">Select an Image for this route: </label></strong>
                         <input type="file" name="image" id="image"/> 
                  </div>
                 </div>
                 <div class="form-group row pull-left">
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <button id="save" type="submit" class="btn btn-success" value="PUT" name="_method">Update Your Route</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                       <div id="progressbar" class="animate">
                               <div class="progress-label"></div>
                        </div>

@@ -37,9 +37,13 @@ var RouteApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var ocm = Layers.MAP_BOX;
-        ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
-        map.addLayers([ocm]);
+        var mbox_hike = Layers.MAP_BOX_HIKE;
+        var mbox_out = Layers.MAP_BOX_OUTDOORS;
+        var bing_aerial = Layers.BING_AERIAL;
+        mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([mbox_hike, mbox_out, bing_aerial]);
         
         /* Styles */
         var defaultStyle = new OpenLayers.Style({

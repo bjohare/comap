@@ -61,9 +61,9 @@ class WaypointViewSet(viewsets.ModelViewSet):
     ordering = ('-created',)
     
     class ResizedImage(ImageSpec):
-        processors = [ResizeToFill(400,250)]
+        processors = [ResizeToFill(500,350)]
         format = 'JPEG'
-        options = {'quality': 70}
+        options = {'quality': 80}
     
     def list(self, request, pk=None, *args, **kwargs):
         route_id = self.request.QUERY_PARAMS.get('route_id', -1)

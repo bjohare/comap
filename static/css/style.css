@@ -6,6 +6,7 @@
 }
 */
 
+/* containers */
 html, body {
   font-family: Lato;
   width: 100%;
@@ -25,6 +26,8 @@ html, body {
    width: 100%;
 }
 
+/* route and waypoint creation/update styles */
+
 #create-route, #update-route {
     max-width: 960px;
 }
@@ -39,9 +42,19 @@ html, body {
 }
 
 #create-form-panel, #update-form-panel {
-    width: 70%;
+    width: 100%;
+    max-width: 960px;
 }
 
+#create-info, #update-info {
+    display: none;
+    width: 100%;
+    max-width: 960px;
+}
+
+#create-link {
+    margin-bottom: 1.5em;
+}
 
 
 a {
@@ -53,6 +66,10 @@ a {
 
 div#title {
     margin-left: 25px;
+}
+
+#description {
+    height: 100%;
 }
 
 div#list {
@@ -98,19 +115,12 @@ div#map {
 
 #waypoint-image {
     display: none;
-    max-width: 400px;
     border: 1px solid lightgrey;
+    width: 100%;
 }
 
 
-#create-info, #update-info {
-    display: none;
-    width: 40%;
-}
 
-#create-link {
-    margin-bottom: 1.5em;
-}
 
 .glyphicon-heading {
     font-size: 2em;
@@ -155,8 +165,7 @@ div#edit {
 }
 
 div#edit-waypoint {
-    float: left;
-    margin: 0 2em 2em 0;
+   
 }
 
 /*
@@ -166,10 +175,6 @@ div#edit input {
 */
 
 div#edit-map {
-    /*
-    width: 25em;
-    height: 25em;
-    */
     width: auto;
     height: auto;
     float: left;
@@ -178,12 +183,13 @@ div#edit-map {
 }
 
 div#edit-waypoint-map {
-    width: 35em;
+    width: 100%;
     height: 33em;
     float: left;
     margin-left:2em;
     border:1px solid lightgrey;
     border-radius: 4px;
+    margin-bottom: 15px !important;
 }
 
 div#create-header {
@@ -228,7 +234,7 @@ div#create-header {
 
 
 .olControlAttribution {
-    background: none repeat scroll 0 0 white;
+    background: none repeat scroll 0 0 transparent;
     bottom: 0em !important;
     display: block;
     font-size: smaller;
@@ -237,13 +243,15 @@ div#create-header {
 }
 
 div#location {
-  font-size: small;
+  font-size: 1em;
+  padding-top: 10px;
 }
 
+/*
 .div {
     padding:10px;
 }
-
+*/
 #map, #detail-panel {
     visibility: hidden;
 }
@@ -293,4 +301,5 @@ div#logout {
 div#heading, div#detail-heading {
     color:#6b9430;
 }
+
 

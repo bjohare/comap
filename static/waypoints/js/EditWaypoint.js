@@ -158,7 +158,7 @@ var EditWaypointApp = OpenLayers.Class({
             geom.transform('EPSG:3857', 'EPSG:4326');
             // update the geom on the form and trigger validation
             $('#the_geom').val('POINT(' + geom.x + ' ' + geom.y + ')');
-            $('#the_geom').trigger("input");
+            //$('#the_geom').trigger("input");
             var lat = geom.y.toPrecision(8);
             var lon = geom.x.toPrecision(8);
             wgs84=new GT_WGS84();

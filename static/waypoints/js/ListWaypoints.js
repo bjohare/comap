@@ -126,7 +126,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
                 if (!(attrs.image_path == 'none_provided')) {
-                    $('.panel-body').find('span.image').html('<img id="waypoint-image" src="' + attrs.image_url + '"/>');
+                    $('.panel-body').find('span.image').html('<img id="waypoint-image" class="img-responsive" src="' + attrs.image_url + '"/>');
                     $('#waypoint-image').css('display','block');
                 }
                 else {

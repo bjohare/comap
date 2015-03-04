@@ -3,72 +3,83 @@
 {% block container %}
 <div class="container-fluid">
     <div id="update-info" class="panel panel-default">
-        <!-- Default panel contents -->
         <div id="update-info-heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
         <div id="update-info-panel" class="panel-body"></div>
     </div>
+    
     <div id="update-form-panel" class="panel panel-default">
         <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
             <div id="update-form-heading"><h5>&nbsp;</h5></div>
         </div>
         <div class="panel-body">
-        <div id="edit-waypoint" class="container-fluid">
-            <form id="waypointForm" action="" method="post"
-                  enctype="multipart/form-data" role="form">
-                <input type="hidden" id="route" name="route" value=""/>
-                <input type="hidden" id="created" name="created" value=""/>
-                <input type="hidden" id="fid" name="fid" value=""/>
-                {% csrf_token %}
-                <div class="row col-md-6">
-                    <div class="form-group" id="form-group-name">
-                        <div class="">
-                            <strong><label class="control-label" for="name">Waypoint name: </label></strong>
-                            <input class="form-control" type="text" name="name" id="name" value="" />
+            <div id="edit-waypoint" class="container-fluid">
+                <form id="waypointForm" action="" method="post"
+                      enctype="multipart/form-data" role="form">
+                    <input type="hidden" id="route" name="route" value=""/>
+                    <input type="hidden" id="created" name="created" value=""/>
+                    <input type="hidden" id="fid" name="fid" value=""/>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" id="form-group-name">
+                                <div>
+                                    <strong><label class="control-label" for="name">Waypoint name: </label></strong>
+                                    <input class="form-control" type="text" name="name" id="name" value="" />
+                                </div>
+                            </div>
+                            <div class="form-group" id="form-group-description">
+                                <div>
+                                    <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
+                                    <textarea name="description" id="description" class="form-control" rows="20"></textarea>
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group" id="form-group-map">
+                                <strong><label class="control-label" for="the_geom">Update the waypoint</label></strong>
+                                <div id="edit-waypoint-map"></div>
+                                <div id="location">
+                                  <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
+                                  <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
+                                  <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
+                                  <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                                </div>
+                                <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
+                                <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group" id="form-group-description">
-                        <div class="">
-                            <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
-                            <textarea name="description" id="description" class="form-control" rows="10"></textarea>
-                        </div> 
-                    </div>
-                    <div class="form-group" id="form-group-image">
-                        <div class="">
-                               <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
-                               <input type="file" name="file" id="file"/> 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" id="form-group-image">
+                                <div class="">
+                                       <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
+                                       <input type="file" name="file" id="file"/> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <div class="">
+                                    <button id="save" type="submit" class="btn btn-md btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> update this waypoint</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <br/>
-                    <div class="form-group">
-                        <div class="">
-                            <button id="save" type="submit" class="btn btn-md btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> update this waypoint</button>
-                        </div>
-                    </div>
+                    
+                </form>
+            </div>
+                    
+            <div class="form-group row">
+                <div class="col-md-12">
+                  <div id="progressbar">
+                          <div class="progress-label"></div>
+                   </div>
                 </div>
-                <div class="form-group" id="form-group-map">
-                    <div class="col-md-6">
-                        <strong><label class="control-label" for="the_geom">Update the waypoint</label></strong>
-                        <div class="" id="edit-waypoint-map"></div>
-                        <div class="pull-left" id="location">
-                          <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
-                          <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
-                          <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
-                          <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
-                        </div>
-                        <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
-                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-md-12">
-                      <div id="progressbar">
-                              <div class="progress-label"></div>
-                       </div>
-                    </div>
-                </div>
-            </form>
+            </div>  
         </div>
       </div>
+       
     </div>
 </div> 
 {% endblock %}

@@ -33,11 +33,27 @@ Layers.STAMEN_WATERCOLOR = new OpenLayers.Layer.OSM("Stamen Watercolor",
                 {crossOriginKeyword: null}
             );
 
-Layers.MAP_BOX = new OpenLayers.Layer.XYZ('MapBox', [
-            'http://a.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
-            'http://b.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
-            'http://c.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
-            'http://d.tiles.mapbox.com/v4/' + 'bjohare.l8fai95a' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q'], {
+Layers.MAP_BOX_HIKE = new OpenLayers.Layer.XYZ('Hiking Base Map', [
+            'http://a.tiles.mapbox.com/v4/' + 'bjohare.lcbh2m4m' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://b.tiles.mapbox.com/v4/' + 'bjohare.lcbh2m4m' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://c.tiles.mapbox.com/v4/' + 'bjohare.lcbh2m4m' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://d.tiles.mapbox.com/v4/' + 'bjohare.lcbh2m4m' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q'], {
             sphericalMercator: true,
             wrapDateLine: true
         });
+
+Layers.MAP_BOX_OUTDOORS = new OpenLayers.Layer.XYZ('Outdoors Base Map', [
+            'http://a.tiles.mapbox.com/v4/' + 'bjohare.lcbha25i' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://b.tiles.mapbox.com/v4/' + 'bjohare.lcbha25i' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://c.tiles.mapbox.com/v4/' + 'bjohare.lcbha25i' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q',
+            'http://d.tiles.mapbox.com/v4/' + 'bjohare.lcbha25i' + '/${z}/${x}/${y}.png?access_token=pk.eyJ1IjoiYmpvaGFyZSIsImEiOiI1S3VKQ3NFIn0.TPJtCWtEGXg45rUz766_2Q'], {
+            sphericalMercator: true,
+            wrapDateLine: true
+        });
+
+var apiKey = 'AhhQBBaTq3cZgChLehXIWlMTWRqG-GVUi9rb_0xGK_QQSwEAigT80_UJpgZvrPC5';
+Layers.BING_AERIAL = new OpenLayers.Layer.Bing({
+                name: "Aerial",
+                key: apiKey,
+                type: "Aerial"
+            });
