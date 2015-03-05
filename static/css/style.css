@@ -256,7 +256,7 @@ div#location {
     padding:10px;
 }
 */
-#map, #detail-panel {
+#waypoints-map-panel, #routes-map-panel, #detail-panel {
     visibility: hidden;
 }
 

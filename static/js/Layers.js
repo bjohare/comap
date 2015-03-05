@@ -89,9 +89,11 @@ var template =
 var townland_style = new OpenLayers.Style(template, {context: context})
 
 Layers.OSM_TOWNLANDS = new OpenLayers.Layer.Vector("Townlands", {
-            'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-            'externalProjection': new OpenLayers.Projection("EPSG:4326"),
+            internalProjection: new OpenLayers.Projection("EPSG:3857"),
+            externalProjection: new OpenLayers.Projection("EPSG:4326"),
             styleMap: new OpenLayers.StyleMap(townland_style),
+            //minScale: 1/100000,
+            //maxScale: 1/2500,
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
                 url: "/comap/media/townlands/monaghan_townlands_osm.json",

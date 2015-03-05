@@ -41,10 +41,11 @@ var ListWaypointsApp = OpenLayers.Class({
         var mbox_hike = Layers.MAP_BOX_HIKE;
         var mbox_out = Layers.MAP_BOX_OUTDOORS;
         var bing_aerial = Layers.BING_AERIAL;
+        var townlands = Layers.OSM_TOWNLANDS;
         mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([mbox_hike, mbox_out, bing_aerial]);
+        map.addLayers([mbox_hike, mbox_out, bing_aerial, townlands]);
         
         /*
         var ocm = Layers.OCM;
@@ -219,7 +220,8 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('#panel').append('</p>');
             }
             else {
-                $('#map').css('visibility','visible');
+                $('#waypoints-map-panel').css('visibility','visible');
+                //$('#map').css('visibility','visible');
                 $('#detail-panel').css('visibility','visible');
                 $('#detail-panel-body').css('display','none');
                 var heading = '<h5>' + routeName + '</h5>';

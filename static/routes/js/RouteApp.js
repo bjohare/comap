@@ -31,7 +31,8 @@ var RouteApp = OpenLayers.Class({
                 displayProjection: new OpenLayers.Projection("EPSG:4326"),
                 controls: [new OpenLayers.Control.Attribution(),
                            new OpenLayers.Control.ScaleLine()],
-                maxExtent: new OpenLayers.Bounds(10.5,51.5,5.5,55.5).transform("EPSG:4326", "EPSG:3857"),   
+                maxExtent: new OpenLayers.Bounds(10.5,51.5,5.5,55.5).transform("EPSG:4326", "EPSG:3857"),
+                scales:[500000,350000,250000,100000,25000,20000,15000,10000,5000,2500],   
                 units: 'm',
         }
 
@@ -57,7 +58,7 @@ var RouteApp = OpenLayers.Class({
             strokeColor: "yellow",
             strokeWidth: 3.5,
             strokeDashstyle: "dashdot",
-            label: " ${name}",
+            label: '${name}',
             labelAlign: "lm",
             labelXOffset: "20",
             labelOutlineColor: "white",
@@ -131,7 +132,8 @@ var RouteApp = OpenLayers.Class({
         // get the routes from the tracks api and build the page..
         $.getJSON(Config.TRACK_API_URL, function(data){
             var feats = data.features;
-            $('#map').css('visibility','visible');
+            $('#routes-map-panel').css('visibility','visible');
+            //$('#map').css('visibility','visible');
             $('#detail-panel').css('visibility','visible');
             $('#detail-panel-body').css('display','none');
             var group = feats[0].properties.group.name;
@@ -164,7 +166,8 @@ var RouteApp = OpenLayers.Class({
             if (data.status == 404) {
                 var message = data.responseJSON.detail;
                 console.log(message);
-                $('#map').css('display','none');
+                $('#routes-map-panel').css('display','none');
+                //$('#map').css('display','none');
                 $('ul.list-group').css('display','none');
                 $('#detail-panel').css('display','none');
                 $('#detail-panel-body').css('display','none');

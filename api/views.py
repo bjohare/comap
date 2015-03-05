@@ -116,8 +116,11 @@ class WaypointViewSet(viewsets.ModelViewSet):
             # remove the existing image and save the new one..
             try:
                 path = waypoint_paths['image'] + self.object.image_path
-                os.remove(path)
-                logger.debug('Removed original image {0}'.format(path))
+                if (self.object.image_path == 'none_provided'):
+                    logger.debug('No image found.')
+                else:
+                    os.remove(path)
+                    logger.debug('Removed original image {0}'.format(path))
                 # save the new one..
                 path = waypoint_paths['image'] + image_path
                 with open(path, 'wb+') as destination:
