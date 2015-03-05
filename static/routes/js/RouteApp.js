@@ -40,10 +40,11 @@ var RouteApp = OpenLayers.Class({
         var mbox_hike = Layers.MAP_BOX_HIKE;
         var mbox_out = Layers.MAP_BOX_OUTDOORS;
         var bing_aerial = Layers.BING_AERIAL;
+        var townlands = Layers.OSM_TOWNLANDS;
         mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([mbox_hike, mbox_out, bing_aerial]);
+        map.addLayers([mbox_hike, mbox_out, bing_aerial,townlands]);
         
         /* Styles */
         var defaultStyle = new OpenLayers.Style({
@@ -137,7 +138,7 @@ var RouteApp = OpenLayers.Class({
             var heading = '<h5>' + group + '</h5>';
             $('#heading').html(heading);
             $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
-            $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+            $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
             // add waypoints to the list..
             $('ul.list-group').empty();
             $.each(feats, function(i){
@@ -174,7 +175,7 @@ var RouteApp = OpenLayers.Class({
                 $('#panel').html(panelText);
                 $('#panel').append('<p><span><strong><hr/></p>');
                 $('#panel').append('<p>');
-                $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button><span class="glyphicon glyphicon-asterisk"></span> Add a new route..</button></a>');
+                $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
                 $('#panel').append('</p>');
             }
             else {

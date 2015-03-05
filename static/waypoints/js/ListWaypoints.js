@@ -38,9 +38,19 @@ var ListWaypointsApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
+        var mbox_hike = Layers.MAP_BOX_HIKE;
+        var mbox_out = Layers.MAP_BOX_OUTDOORS;
+        var bing_aerial = Layers.BING_AERIAL;
+        mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([mbox_hike, mbox_out, bing_aerial]);
+        
+        /*
         var ocm = Layers.OCM;
         ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
         map.addLayers([ocm]);
+        */
         
         /* Styles */
         var defaultLineStyle = new OpenLayers.Style({
@@ -205,7 +215,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('#panel').html(panelText);
                 $('#panel').append('<p><span><strong><hr/></p>');
                 $('#panel').append('<p>');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Waypoint</button></a>');
                 $('#panel').append('</p>');
             }
             else {
@@ -215,7 +225,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 var heading = '<h5>' + routeName + '</h5>';
                 $('#heading').html(heading);
                 $('#panel').html('<p>Here is a list of waypoints for the ' + routeName + ' route.</p>');
-                $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button><span class="glyphicon glyphicon-plus"></span> Add a new waypoint..</button></a>');
+                $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new waypoint</button></a>');
                 // add waypoints to the list..
                 $('ul.list-group').empty();
                 var features = waypts.features;

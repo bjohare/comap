@@ -6,7 +6,7 @@
             <div  class="col-md-3">
                 <div id="list" class="panel panel-default">
                     <!-- Default panel contents -->
-                    <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+                    <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>
                         <div id="heading"><h5>Loading routes...</h5></div>
                     </div>
                     <div id="panel" class="panel-body"></div>
@@ -16,7 +16,14 @@
                 <div id="create-link" class="listlink"></div>
             </div>
             <div class="col-md-6">
-                <div id="map" class="pull-left"></div>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+                        <div><h5>Route Map</h5></div>
+                    </div>
+                    <div id="map-panel" class="panel-body">
+                        <div id="map" class="pull-left"></div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
                 <div id="detail-panel" class="panel panel-default">
@@ -30,16 +37,16 @@
                         <p><span class="description"></span></p>
                         <p><span><strong>Created: </strong></span><span class="created"></span></p>
                         <p><hr/></p>
-                        <p><a class="editlink" href=""><button><span class="glyphicon glyphicon-edit"></span> Edit this route</button></a></p>
+                        <p><a class="editlink" href=""><button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit this route</button></a></p>
+                        <p><a class="download" href=""><button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-download-alt"></span> Download GPX</button></a></p>
+                        <p><a class="waypointlink" href=""><button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-list"></span> List waypoints for this route</button></a></p>
                         <p>
                             <form id="deleteForm" method="post" action="" role="form" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" value="DELETE" name="_method"/>
-                            <a><button id="btnDelete" type="button"><span class="glyphicon glyphicon-remove"></span> Delete this route</button></a>
+                            <a><button id="btnDelete" type="button" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete this route</button></a>
                         </form>
-                        </p>
-                        <p><a class="download" href=""><button><span class="glyphicon glyphicon-download-alt"></span> Download GPX</button></a></p>
-                        <p><a class="waypointlink" href=""><button><span class="glyphicon glyphicon-list"></span> List waypoints for this route</button></a></p>
+                        </p>  
                     </div>
                 </div
             </div>

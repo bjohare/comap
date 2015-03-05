@@ -194,7 +194,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('#panel').html(panelText);
                 $('#panel').append('<p><span><strong><hr/></p>');
                 $('#panel').append('<p>');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-primary"><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#panel').append('</p>');
             }
             else {

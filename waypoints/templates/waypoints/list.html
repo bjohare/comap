@@ -6,7 +6,7 @@
             <div class="col-md-3">
                 <div id="list" class="panel panel-default">
                     <!-- Default panel contents -->
-                    <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+                    <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>
                         <div id="heading"><h5>Loading waypoints...</h5></div>
                     </div>
                     <div id="panel" class="panel-body">
@@ -17,7 +17,14 @@
                 <div id="create-link" class=""></div>
             </div>
             <div class="col-md-5">
-                <div id="map" class=""></div>
+                <div class="panel panel-default">
+                    <div class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
+                        <div><h5>Route Map</h5></div>
+                    </div>
+                    <div id="map-panel" class="panel-body">
+                        <div id="map"></div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-4">
                 <div id="detail-panel" class="panel panel-default">
@@ -28,19 +35,18 @@
                     </div>
                     <div id="detail-panel-body" class="panel-body">
                         <p><span class="image"></span></p>
-                        <p><span class="description"></span></p>
+                        <div class="well"><span class="description"></span></div>
                         <p><span><strong>Elevation: </strong></span><span class="elevation"></span></p>
                         <p><span><strong>Latitude: </strong></span><span class="latitude"></span></p>
                         <p><span><strong>Longitude: </strong></span><span class="longitude"></span></p>
                         <p><span><strong>Irish Grid Ref: </strong></span><span class="irishgrid"></span></p>
                         <p><span><strong>Created: </strong></span><span class="created"></span></p>
                         <p><hr/></p>
-                        <p><a class="editlink" href=""><button><span class="glyphicon glyphicon-edit"></span> Edit this waypoint</button></a>
-                        <!--<a><button id="btnDelete"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button></a>-->
+                        <p><a class="editlink" href=""><button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit this waypoint</button></a>
                         <form id="deleteForm" method="post" action="" role="form" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" value="DELETE" name="_method"/>
-                            <a><button id="btnDelete" type="button"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button></a>
+                            <a><button id="btnDelete" type="button" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span> Delete this waypoint</button></a>
                         </form>
                         </p>
                     </div>
