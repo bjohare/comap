@@ -85,6 +85,7 @@ class WaypointViewSet(viewsets.ModelViewSet):
         filedata = None
         try:
             filedata = uploaded_file['file']
+            logger.debug('Found{0} uploaded files.'.format(filedata.keys()))
             image_path = filedata.name
         except (KeyError) as e:
             logger.error(e)
@@ -111,6 +112,7 @@ class WaypointViewSet(viewsets.ModelViewSet):
         path = ''
         try:
             filedata = uploaded_file['file']
+            logger.debug('Found{0} uploaded files.'.format(len(filedata)))
             image_path = filedata.name
             waypoint_paths = self.get_or_create_waypoint_media_tree()
             # remove the existing image and save the new one..

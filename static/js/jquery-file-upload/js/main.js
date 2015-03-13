@@ -18,10 +18,15 @@ $(function () {
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: 'server/php/'
+        url: Config.WAYPOINT_API_URL + '.json',
+        type: 'POST',
+        singleFileUploads: false
     });
 
+    
+    
     // Enable iframe cross-domain access via redirect option:
+    /*
     $('#fileupload').fileupload(
         'option',
         'redirect',
@@ -56,6 +61,7 @@ $(function () {
             });
         }
     } else {
+    
         // Load existing files:
         $('#fileupload').addClass('fileupload-processing');
         $.ajax({
@@ -71,5 +77,6 @@ $(function () {
                 .call(this, $.Event('done'), {result: result});
         });
     }
+    */
 
 });
