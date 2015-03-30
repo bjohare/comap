@@ -9,6 +9,7 @@ admin.autodiscover()
 # api endpoints
 router = DefaultRouter(trailing_slash=False)
 router.register(r'waypoints', views.WaypointViewSet, base_name='waypoints')
+router.register(r'media', views.WaypointMediaViewSet, base_name='media')
 router.register(r'tracks', views.RouteViewSet, base_name='tracks')
 router.register(r'points', views.TrackPointViewSet, base_name='points')
 
@@ -18,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^comap/logout/$', 'django.contrib.auth.views.logout', {'template_name': 'comap/logout.html'}),
     url(r'^comap/api/', include(router.urls, namespace='api')),
     url(r'^comap/api/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^comap/api/routes', 'api.views.list_tracks'),
+    url(r'^comap/api/routes', list_tracks),
     url(r'^comap/waypoints/', include('waypoints.urls', namespace='waypoints')),
     url(r'^comap/routes/', include('routes.urls', namespace='routes')),
     url(r'^grappelli/', include('grappelli.urls')), 

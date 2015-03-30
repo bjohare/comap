@@ -59,6 +59,7 @@ DEFAULT_APPS = (
 THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework_gis',
+    'rest_framework.authtoken',
     'imagekit',
 )
 
@@ -82,7 +83,8 @@ MIDDLEWARE_CLASSES = (
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',), 
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',
+                                       'rest_framework.authentication.TokenAuthentication'),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',)
 }
 

@@ -192,6 +192,12 @@ div#edit-waypoint-map {
     margin-bottom: 15px !important;
 }
 
+input#the_geom, input#elevation {
+    width:1px;
+    height:1px;
+    float: right;
+}
+
 div#create-header {
     width: 70%;
 }
@@ -349,7 +355,7 @@ div#heading, div#detail-heading {
     height: 100%;
     line-height: 1.5em;
     font-size: larger;
-    border: none;
+    border: 1px solid #6B9430;
 }
 
 #dropzone.hover {

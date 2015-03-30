@@ -47,16 +47,16 @@ var CreateWaypointApp = OpenLayers.Class({
             dropZone: $('#dropzone')
         });
         
-        /*
-        $('#fileupload').bind('fileuploadsubmit', function (e, data) {
-            var that = this;
-            var result = $('#fileupload').data('formValidation').validate();
-            if (result.$invalidFields.length > 0) {
-                alert('invalid fields..')
-                return false;
-            }
+        
+        $('#fileupload').bind('fileuploadadded', function (e, data) {
+            $('#dropzone').css('border','1px solid lightgrey');
+            $('#dz-message').css('display','none');
         });
-        */
+        
+        $('#fileupload').bind('fileuploadstopped', function (e, data) {
+            $('#dropzone').css('border','1px dashed #6B9430');
+            $('#dz-message').css('display','block');
+        });
         
         $(document).bind('dragover', function (e) {
             var dropZone = $('#dropzone'),
@@ -102,7 +102,7 @@ var CreateWaypointApp = OpenLayers.Class({
                 if (data && data.submit) {
                     var jqXHR = $('#fileupload').fileupload('send', data)
                         .success(function (result, textStatus, jqXHR) {
-                            alert(textStatus);
+                            alert(result);
                         })
                         .error(function (jqXHR, textStatus, errorThrown) {/* ... */})
                         .complete(function (result, textStatus, jqXHR) {/* ... */});
@@ -110,9 +110,28 @@ var CreateWaypointApp = OpenLayers.Class({
                 else {
                     var tmp = fileUpload.ajaxSubmit({
                         url: Config.WAYPOINT_API_URL + '.json',
-                    });
+                        success: function(data, status, xrh) {
+                            $('#progressbar').css("display","none");
+                            $('#create-form-panel').css('display','none');
+                            console.log('Created Waypoint.')
+                            var props = xrh.responseJSON.properties;
+                            var id = xrh.responseJSON.id;
+                            $('#create-info').css("display", "block");
+                            $('#create-info-heading').append('<h4>Waypoint created successfully</h4>');
+                            $('#create-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
+                            $('#create-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
+                            $('#create-info-panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
+                            $('#create-info-panel').append('<p><span><strong>Route:</strong> ' + props.route.name + '</span></p>');
+                            $('#create-info-panel').append('<p><span><strong>Elevation:</strong> ' + props.elevation + ' metres.</span></p>');
+                            $('#create-info-panel').append('<p><span><strong><hr/></p>');
+                            $('#create-info-panel').append('<p>');
+                            $('#create-info-panel').append('<a class="editlink" href="/comap/waypoint/edit/' + id + '/"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
+                            $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
+                            $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                            $('#create-info-panel').append('</p>');
+                        },
+                    })
                 }
-                button.prop('enabled', true);
             }
         });
         

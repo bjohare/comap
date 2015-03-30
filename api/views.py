@@ -1,4 +1,4 @@
-import logging, os, shutil
+import logging, os, shutil, pdb
 import comap
 from datetime import datetime
 from django.http import HttpResponse
@@ -31,8 +31,8 @@ from routes.models import Route, TrackPoint
 from routes.gpx import GPXProc
 
 from rest_framework.decorators import api_view, permission_classes
-from waypoints.models import Waypoint
-from serializers import WaypointSerializer, RouteSerializer, TrackPointSerializer
+from waypoints.models import Waypoint, WaypointMedia
+from serializers import WaypointSerializer, RouteSerializer, TrackPointSerializer, WaypointMediaSerializer
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -201,6 +201,39 @@ class WaypointViewSet(viewsets.ModelViewSet):
             logger.error(e)
 
 
+
+class WaypointMediaViewSet(viewsets.ModelViewSet):
+    """API endpoint for WaypointMedia operations."""
+    queryset = WaypointMedia.objects.all()
+    serializer_class = WaypointMediaSerializer
+    
+    def list(self, request, pk=None, *args, **kwargs):
+        queryset = WaypointMedia.objects.all()
+        serializer = WaypointMediaSerializer(queryset,  many=True)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        logger.debug('Adding media to waypoint')
+        data = {}
+        try:
+            f = request.FILES['media_file']
+            waypoint_id = request.DATA['waypoint_id']
+            name = f.name
+            content_type = f.content_type
+            size = f.size
+            data = {'filename': name, 'size': size, 'waypoint_id': waypoint_id, 'content_type': content_type, 'file': f}
+        except (KeyError) as e:
+            logger.error(e)
+            logger.debug('No files uploaded')
+        serializer = self.get_serializer(data=data)
+        #pdb.set_trace()
+        if not serializer.is_valid():
+            logger.error(serializer.errors)
+            return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.object = serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
 class RouteViewSet(viewsets.ModelViewSet):
     """
     Viewset for handling api operations on Routes
@@ -236,6 +269,7 @@ class RouteViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
+        
         user = self.request.user
         group = user.groups.get()
         gpx_file = ''

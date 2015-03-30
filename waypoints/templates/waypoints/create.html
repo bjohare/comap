@@ -43,6 +43,7 @@
                         <div class="col-md-6">
                             <div class="form-group" id="form-group-map">
                                 <strong><label class="control-label" for="the_geom">Add a point to the map</label></strong>
+                                <button type="button" class="glyphicon glyphicon-question-sign" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."></button>
                                 <div id="edit-waypoint-map"></div>
                                 <div id="location">
                                   <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
@@ -57,7 +58,7 @@
                     </div>
                     <div class="row">
                         <div id="dropzone" class="col-md-12 fade well">
-                            <span>Drop media files here..</span>
+                            <span id="dz-message" class="glyphicon glyphicon-plus"> Drop media files here..</span>
                             <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
                         </div>
                     </div>
@@ -66,15 +67,16 @@
                         <div class="row fileupload-buttonbar">
                             <div class="col-lg-7">
                                 <!-- The fileinput-button span is used to style the file input field as button -->
-                                <span class="btn btn-success fileinput-button">
+                                <span class="btn btn-primary fileinput-button">
                                     <i class="glyphicon glyphicon-plus"></i>
-                                    <span>Add files...</span>
+                                    <span>Add media files...</span>
                                     <input type="file" name="files[]" multiple>
                                 </span>
-                                <button id="save-mup" type="submit" class="btn btn-primary start" enabled>
+                                <button id="save-mup" type="submit" class="btn btn-success start" enabled>
                                     <i class="glyphicon glyphicon-upload"></i>
-                                    <span>Start upload</span>
+                                    <span>Add this waypoint</span>
                                 </button>
+                                <!--
                                 <button type="reset" class="btn btn-warning cancel">
                                     <i class="glyphicon glyphicon-ban-circle"></i>
                                     <span>Cancel upload</span>
@@ -84,6 +86,7 @@
                                     <span>Delete</span>
                                 </button>
                                 <input type="checkbox" class="toggle">
+                                -->
                                 <!-- The global file processing state -->
                                 <span class="fileupload-process"></span>
                             </div>
