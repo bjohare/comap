@@ -9,7 +9,7 @@ admin.autodiscover()
 # api endpoints
 router = DefaultRouter(trailing_slash=False)
 router.register(r'waypoints', views.WaypointViewSet, base_name='waypoints')
-router.register(r'media', views.WaypointMediaViewSet, base_name='media')
+router.register(r'waypointmedia', views.WaypointMediaViewSet, base_name='waypointmedia')
 router.register(r'tracks', views.RouteViewSet, base_name='tracks')
 router.register(r'points', views.TrackPointViewSet, base_name='points')
 

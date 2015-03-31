@@ -63,15 +63,20 @@ class SimpleRouteSerializer(serializers.Serializer):
     
     fid = serializers.IntegerField()
     name = serializers.CharField()
+    url = serializers.HyperlinkedIdentityField(
+        view_name="api:tracks-detail",
+    )
     
 
 class SimpleWaypointSerializer(serializers.Serializer):
+    """ Simple serializer to provide a subset of Waypoint fields"""
     
     fid = serializers.IntegerField()
     name = serializers.CharField()
     url = serializers.HyperlinkedIdentityField(
         view_name="api:waypoints-detail",
     )
+    
     
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -89,8 +94,8 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
     Serializes Waypoints. Uses SimpleRouteSerializer to return nested parent Route properties.
     """
     
-    route = SimpleRouteSerializer()
-    media = serializers.SerializerMethodField('get_waypoint_media')
+    route = serializers.SerializerMethodField()
+    media = serializers.SerializerMethodField()
     
     class Meta:
         model = Waypoint
@@ -110,7 +115,6 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.name)
         instance.elevation = validated_data.get('elevation', instance.elevation)
-        instance.image_path = validated_data.get('image_path', instance.image_path)
         instance.the_geom = validated_data.get('the_geom', instance.the_geom)
         instance.created = validated_data.get('created', instance.created)
         instance.save()
@@ -125,23 +129,18 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
         name = data['name']
         description = data['description']
         elevation = data['elevation']
-        image_path = data['image_path']
         the_geom = data['the_geom']
-        return {'name': name, 'description': description, 'created': created,'the_geom': the_geom, 'route': route_data,
-                'image_path': image_path, 'elevation': elevation}
+        return {'name': name, 'description': description, 'created': created,'the_geom': the_geom, 'route': route_data, 'elevation': elevation}
     
-    def get_waypoint_media(self, obj):
+    def get_media(self, obj):
         media = WaypointMedia.objects.filter(fid=obj.fid)
-        #pdb.set_trace()
-        serializer = WaypointMediaSerializer(media, many=True)
+        serializer = WaypointMediaSerializer(media, many=True, context=self.context)
         return serializer.data
-        
     
-    def get_image_url(self, obj):
-        group = obj.route.group
-        group_name = group.name.replace(" ", "_").lower()
-        return '{0}/{1}/{2}/{3}/{4}/{5}'.format(settings.MEDIA_URL + str(group.id), obj.route.fid,
-                                        'waypoints', obj.fid, 'images', obj.image_path)
+    def get_route(self, obj):
+        route = obj.route
+        serializer = SimpleRouteSerializer(route, context=self.context)
+        return serializer.data
     
 
 class RouteSerializer(ComapGeoFeatureModelSerializer):
@@ -183,7 +182,7 @@ class RouteSerializer(ComapGeoFeatureModelSerializer):
     
     def get_visible_waypoints(self, obj):
         waypoints = Waypoint.objects.filter(route_id=obj.fid, visible=True)
-        serializer = WaypointSerializer(waypoints, many=True)
+        serializer = WaypointSerializer(waypoints, many=True, context=self.context)
         logger.debug(serializer.data)
         return serializer.data
     
@@ -204,13 +203,14 @@ class TrackPointSerializer(ComapGeoFeatureModelSerializer):
 class WaypointMediaSerializer(serializers.ModelSerializer):
     
     waypoint = SimpleWaypointSerializer()
-    
-    # need to override this as namespaces are not handled by the DefaultRouter
-    # see coma
+    media_url = serializers.SerializerMethodField()
+    url = serializers.HyperlinkedIdentityField(
+        view_name="api:waypointmedia-detail",
+    )
     
     class Meta:
         model = WaypointMedia
-        fields = ('fid','filename','content_type','size','created','updated','waypoint')
+        fields = ('fid','filename','content_type','size','created','updated','media_url','url','waypoint')
     
     def create(self, validated_data):
         waypoint_data = validated_data.pop('waypoint_data')
@@ -228,6 +228,7 @@ class WaypointMediaSerializer(serializers.ModelSerializer):
         content_type = data['content_type']
         return {'filename': filename, 'size': size, 'waypoint_data': waypoint_data, 'content_type': content_type, 'file': file}
     
-    
+    def get_media_url(self, obj):
+        return obj.file.url
     
     

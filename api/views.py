@@ -68,139 +68,41 @@ class WaypointViewSet(viewsets.ModelViewSet):
     def list(self, request, pk=None, *args, **kwargs):
         route_id = self.request.QUERY_PARAMS.get('route_id', -1)
         queryset = Waypoint.objects.filter(route_id=route_id, visible=True)
-        serializer = WaypointSerializer(queryset,  many=True)
+        serializer = WaypointSerializer(queryset,  many=True, context={'request': request})
         return Response(serializer.data)
     
     def retrieve(self, request, pk=None, *args, **kwargs):
         queryset = Waypoint.objects.filter(visible=True)
         waypoint = get_object_or_404(queryset, pk=pk)
-        serializer = WaypointSerializer(waypoint)
+        serializer = WaypointSerializer(waypoint, context={'request': request})
         return Response(serializer.data)
     
+    """
     def create(self, request, *args, **kwargs):
         logger.debug('Creating a new waypoint')
-        uploaded_file = request.FILES
-        image_path = 'none_provided'
-        route_id = request.DATA['route']
-        filedata = None
-        try:
-            filedata = uploaded_file['file']
-            logger.debug('Found{0} uploaded files.'.format(filedata.keys()))
-            image_path = filedata.name
-        except (KeyError) as e:
-            logger.error(e)
-            logger.debug('No image uploaded')
-        request.DATA['image_path'] = image_path
-        serializer = self.get_serializer(data=request.DATA)
+        serializer = self.get_serializer(data=request.DATA, context={'request': request})
         if not serializer.is_valid():
             logger.error(serializer.errors)
             return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         self.object = serializer.save()
-        if filedata is not None:
-            self.handle_file_uploads(filedata)
         logger.debug('Waypoint created ok');
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+    """
+    """
     def update(self, request, pk=None, *args, **kwargs):
         logger.debug('Updating waypoint with id: %s' % pk)
-        uploaded_file = request.FILES
         partial = kwargs.pop('partial', False)
         self.object = self.get_object()
         if self.object == None:
             return JSONResponse({'error': 'no waypoint to update'}, status.HTTP_404_NOT_FOUND)
-        image_path = self.object.image_path # default to existing
-        path = ''
-        try:
-            filedata = uploaded_file['file']
-            logger.debug('Found{0} uploaded files.'.format(len(filedata)))
-            image_path = filedata.name
-            waypoint_paths = self.get_or_create_waypoint_media_tree()
-            # remove the existing image and save the new one..
-            try:
-                path = waypoint_paths['image'] + self.object.image_path
-                if (self.object.image_path == 'none_provided'):
-                    logger.debug('No image found.')
-                else:
-                    os.remove(path)
-                    logger.debug('Removed original image {0}'.format(path))
-                # save the new one..
-                path = waypoint_paths['image'] + image_path
-                with open(path, 'wb+') as destination:
-                    for chunk in filedata.chunks():
-                        destination.write(chunk)
-            except OSError as e:
-                errstr = "Error removing image: {0} : {1}".format(path, e)
-                logger.warn(errstr)
-        except KeyError as e:
-            #don't force image upload but use existing one if none provided
-            logger.error(e)
-            logger.debug('No image uploaded')
-        request.DATA['image_path'] = image_path
-        serializer = self.get_serializer(self.object, data=request.DATA, partial=partial)
+        serializer = self.get_serializer(self.object, data=request.DATA, partial=partial, context={'request': request})
         if not serializer.is_valid():
             logger.error(serializer.errors)
             return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         self.object = serializer.save(force_update=True)
         logger.debug('Waypoint updated ok');
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def destroy(self, request, pk=None, *args, **kwargs):
-        logger.debug('Deleting waypoint with id: {0}'.format(pk))
-        self.object = self.get_object()
-        waypoint_paths = self.get_or_create_waypoint_media_tree()
-        path = waypoint_paths['waypoint']
-        if self.object is not None:
-            if (os.path.isdir(path)):
-                logger.debug('Deleting waypoint directory tree [' + path + ']')
-                shutil.rmtree(path)
-        return super(WaypointViewSet, self).destroy(request, *args, **kwargs)
-        
-    def handle_file_uploads(self, filedata, *args, **kwargs):
-        waypoint_paths = self.get_or_create_waypoint_media_tree()
-        image_path = waypoint_paths['image'] + filedata.name
-        # do image processing here.. then save it..
-        image_generator = self.ResizedImage(source=filedata)
-        image = image_generator.generate()
-        try:
-            with open(image_path, 'wb+') as destination:
-                destination.write(image.read())
-                """
-                for chunk in image.chunks():
-                    destination.write(chunk)
-                """
-        except OSError as e:
-            errstr = "Error creating directory: {0} : {1}".format(path, e)
-            logger.debug(errstr)
-            return HttpResponse(content=errstr, status=500)
-    
-    def get_or_create_waypoint_media_tree(self, *args, **kwargs):
-        user = self.request.user
-        group = user.groups.get()
-        #group_name = group.name.replace(" ", "_").lower()
-        fid = self.object.fid
-        route_id = self.object.route.fid
-        waypoint_dir = '{0}/{1}/{2}/waypoints/{3}'.format(comap.settings.MEDIA_ROOT, str(group.id), route_id, fid)
-        wp_image_dir = '{0}/images/'.format(waypoint_dir)
-        wp_audio_dir = '{0}/audio/'.format(waypoint_dir)
-        wp_video_dir = '{0}/video/'.format(waypoint_dir)
-        waypoint_paths = {'waypoint' : waypoint_dir, 'image': wp_image_dir,
-                          'audio': wp_audio_dir, 'video': wp_video_dir}
-        logger.debug(waypoint_paths)
-        try:
-            for path in waypoint_paths.values():
-                if not os.path.isdir(path):
-                    try:
-                        os.makedirs(path, 0770)
-                        logger.debug('Created directory {0}'.format(path))
-                    except OSError as e:
-                        errstr = "Error creating directory: {0} : {1}".format(path, e)
-                        logger.debug(errstr)
-                        return HttpResponse(content=errstr, status=500)
-            return waypoint_paths
-        except Exception as e:
-            logger.error(e)
-
-
+    """
 
 class WaypointMediaViewSet(viewsets.ModelViewSet):
     """API endpoint for WaypointMedia operations."""
@@ -209,7 +111,7 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
     
     def list(self, request, pk=None, *args, **kwargs):
         queryset = WaypointMedia.objects.all()
-        serializer = WaypointMediaSerializer(queryset,  many=True)
+        serializer = WaypointMediaSerializer(queryset,  many=True, context={'request': request})
         return Response(serializer.data)
     
     def create(self, request, *args, **kwargs):
@@ -265,7 +167,7 @@ class RouteViewSet(viewsets.ModelViewSet):
             }
             return JSONResponse(data, status=status.HTTP_404_NOT_FOUND)
         else:
-            serializer = RouteSerializer(routes,  many=True)
+            serializer = RouteSerializer(routes,  many=True, context={'request': self.request})
             return Response(serializer.data, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
@@ -297,7 +199,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         group_data = {'id': group.id, 'name': group.name}
         data = {'created': created, 'the_geom': the_geom, 'description': route_description, 'name': route_name,
                      'image_file': 'none_provided', 'gpx_file': gpx_file, 'user': user_data, 'group': group_data}
-        serializer = RouteSerializer(data=data)
+        serializer = RouteSerializer(data=data, context={'request': request})
         route = None
         if (serializer.is_valid()):
             route = serializer.save()
@@ -383,7 +285,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         group_data = {'id': group.id, 'name': group.name}
         data = {'name': name, 'description': description, 'the_geom': the_geom, 'created': created,
                 'gpx_file': gpx_file, 'image_file': image_file, 'user': user_data, 'group': group_data}
-        serializer = self.get_serializer(self.object, data=data, partial=partial)
+        serializer = self.get_serializer(self.object, data=data, partial=partial, context={'request': request})
         if not serializer.is_valid():
             logger.debug(serializer.errors)
             return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -451,7 +353,7 @@ Public endpoint for listing routes
 def list_tracks(request, format=None):
     group_id = request.QUERY_PARAMS.get('group_id', -1)
     routes = Route.objects.filter(group_id=group_id)
-    serializer = RouteSerializer(routes,  many=True)
+    serializer = RouteSerializer(routes,  many=True, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

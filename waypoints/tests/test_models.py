@@ -6,7 +6,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.auth.models import User, Group
 
 from routes.models import Route
-from models import Waypoint, WaypointMedia
+from ..models import Waypoint, WaypointMedia
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
