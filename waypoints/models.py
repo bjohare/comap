@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-import logging
+import logging, shutil, os
 
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User, Group
@@ -8,6 +8,7 @@ from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 
 from routes.models import Route
+from comap import settings
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ def get_upload_path(instance, filename):
     route = waypoint.route
     group = route.group_id
     content_type = instance.content_type.split('/')[0]
-    path = '{0}/{1}/waypoints/{2}/{3}'.format(group, route.fid, content_type, instance.filename)
+    path = '{0}/{1}/waypoints/{2}/{3}/{4}'.format(group, route.fid, waypoint.fid, content_type, instance.filename)
     logger.debug('Saving file to {0}'.format(path))
     return path
     
@@ -67,6 +68,14 @@ def delete_waypointmedia(sender, instance, **kwargs):
     logger.debug('Deleting WaypointMedia file: {0}'.format(instance.file.name))
     instance.file.delete(False)
 
-
-
+# force deletion of the waypoint directory when model instance is deleted.
+@receiver(post_delete, sender=Waypoint)
+def delete_waypoint_dir(sender, instance, **kwargs):
+    route = instance.route
+    group = route.group
+    path = '{0}/{1}/{2}/waypoints/{3}'.format(settings.MEDIA_ROOT, group.id, route.fid, instance.fid)
+    if (os.path.isdir(path)):
+        logger.debug('Deleting Waypoint directory: {0}'.format(path))
+        shutil.rmtree(path)
+    
     

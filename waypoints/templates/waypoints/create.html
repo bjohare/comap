@@ -20,113 +20,84 @@
                 <!-- orig
                 <form id="waypointForm" action="" method="post"
                       enctype="multipart/form-data" role="form"> -->
-                <form id="fileupload" action="." method="post"
-                    enctype="multipart/form-data" role="form" class="create-form">
-                    <input type="hidden" id="route" name="route" value=""/>
-                    <input type="hidden" id="created" name="created" value=""/>
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group" id="form-group-name">
-                                <div>
-                                    <strong><label class="control-label" for="name">Waypoint name: </label></strong>
-                                    <input class="form-control" type="text" name="name" id="name" value="" />
+                      
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="waypointForm" action="" method="post"
+                            enctype="multipart/form-data" role="form" class="create-form">
+                            <input type="hidden" id="route" name="route" value=""/>
+                            <input type="hidden" id="created" name="created" value=""/>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" id="form-group-name">
+                                        <div>
+                                            <strong><label class="control-label" for="name">Waypoint name: </label></strong>
+                                            <input class="form-control" type="text" name="name" id="name" value="" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="form-group-description">
+                                        <div>
+                                            <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
+                                            <textarea name="description" id="description" class="form-control" rows="20"></textarea>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" id="form-group-map">
+                                        <strong><label class="control-label" for="the_geom">Add a point to the map</label></strong>
+                                        <button type="button" class="glyphicon glyphicon-question-sign" data-container="body" data-toggle="popover" data-placement="right" data-content="Click anywhere on the map to add a Waypoint. Click and drag a point to move it."></button>
+                                        <div id="edit-waypoint-map"></div>
+                                        <div id="location">
+                                          <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
+                                          <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
+                                          <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
+                                          <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                                        </div>
+                                        <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
+                                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group" id="form-group-description">
-                                <div>
-                                    <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
-                                    <textarea name="description" id="description" class="form-control" rows="20"></textarea>
-                                </div> 
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group" id="form-group-map">
-                                <strong><label class="control-label" for="the_geom">Add a point to the map</label></strong>
-                                <button type="button" class="glyphicon glyphicon-question-sign" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus."></button>
-                                <div id="edit-waypoint-map"></div>
-                                <div id="location">
-                                  <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
-                                  <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
-                                  <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
-                                  <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    
+                                        <!-- The fileinput-button span is used to style the file input field as button -->
+                                        <button id="save" type="submit" class="btn btn-success" value="POST" name="_method" enabled>
+                                            <i class="glyphicon glyphicon-upload"></i>
+                                            <span>Add this waypoint</span>
+                                        </button>
+                                        <!-- The global file processing state -->
+                                        <span class="fileupload-process"></span>
+                                   
                                 </div>
-                                <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
-                                <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
                             </div>
-                        </div>
+                        </form>
                     </div>
-                    <div class="row">
-                        <div id="dropzone" class="col-md-12 fade well">
-                            <span id="dz-message" class="glyphicon glyphicon-plus"> Drop media files here..</span>
+                <div id="fileupload" class="col-md-4">
+                        <div id="dropzone" class="fade well">
+                            <span id="dz-message" class="glyphicon glyphicon-plus"> Drag media files here..</span>
                             <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                        <div class="row fileupload-buttonbar">
-                            <div class="col-lg-7">
-                                <!-- The fileinput-button span is used to style the file input field as button -->
-                                <span class="btn btn-primary fileinput-button">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    <span>Add media files...</span>
-                                    <input type="file" name="files[]" multiple>
-                                </span>
-                                <button id="save-mup" type="submit" class="btn btn-success start" enabled>
-                                    <i class="glyphicon glyphicon-upload"></i>
-                                    <span>Add this waypoint</span>
-                                </button>
-                                <!--
-                                <button type="reset" class="btn btn-warning cancel">
-                                    <i class="glyphicon glyphicon-ban-circle"></i>
-                                    <span>Cancel upload</span>
-                                </button>
-                                <button type="button" class="btn btn-danger delete">
-                                    <i class="glyphicon glyphicon-trash"></i>
-                                    <span>Delete</span>
-                                </button>
-                                <input type="checkbox" class="toggle">
-                                -->
-                                <!-- The global file processing state -->
-                                <span class="fileupload-process"></span>
+                        <div class="col-lg-5 fileupload-progress fade">
+                            <!-- The global progress bar -->
+                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar progress-bar-success" style="width:0%;"></div>
                             </div>
-                            <!-- The global progress state -->
-                            <div class="col-lg-5 fileupload-progress fade">
-                                <!-- The global progress bar -->
-                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                                </div>
-                                <!-- The extended global progress state -->
-                                <div class="progress-extended">&nbsp;</div>
-                            </div>
+                            <!-- The extended global progress state -->
+                            <div class="progress-extended">&nbsp;</div>
                         </div>
-        
-        
-
+                        <div class="row fileupload-buttonbar pull-right">
+                            <span class="btn btn-primary fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Add media files...</span>
+                                <input type="file" name="files[]" multiple>
+                            </span>
+                            <button type="button" class="start"/>
                         </div>
-                    </div>
-                    <!--
-                    <div class="row">
-                        <div class="col-md-6">  
-                            <div class="form-group" id="form-group-image">
-                                    <span type="button" class="btn btn-primary fileinput-button">
-                                        <i class="glyphicon glyphicon-plus"></i>
-                                        <span>Add Media files...</span>
-                                        <input type="file" name="file" multiple>
-                                    </span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <div class="">
-                                    <button id="save" type="submit" class="btn btn-md btn-success" value="POST" name="_method"><span class="glyphicon glyphicon-save"></span> Add This Waypoint</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    -->
-                </form>
-        </div>
+                </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>  
@@ -162,6 +133,7 @@
 <script src="{% static "js/fileupload/js/jquery.fileupload-validate.js" %}"></script>
 <!-- The File Upload user interface plugin -->
 <script  src="{% static "js/fileupload/js/jquery.fileupload-ui.js" %}"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script> 
 <!-- The main application script -->
 <!--<script  src="{% static "js/fileupload/js/main.js" %}"></script>-->
 
@@ -182,14 +154,11 @@
             <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
         </td>
         <td>
-            <!--
+           
             {% if (!i && !o.options.autoUpload) { %}
-                <button class="btn btn-primary start" enabled>
-                    <i class="glyphicon glyphicon-upload"></i>
-                    <span>Start</span>
-                </button>
+                <button class="start" enabled/>
             {% } %}
-            -->
+            
             {% if (!i) { %}
                 <button class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
@@ -207,15 +176,15 @@
     <tr class="template-download fade">
         <td>
             <span class="preview">
-                {% if (file.thumbnailUrl) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+                {% if (file.media_url) { %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}" download="{%=file.filename%}" data-gallery><img width=80 height=80 src="{%=file.media_url%}"></a>
                 {% } %}
             </span>
         </td>
         <td>
             <p class="name">
-                {% if (file.url) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                {% if (file.media_url) { %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}" download="{%=file.filename%}" {%=file.media_url?'data-gallery':''%}>{%=file.filename%}</a>
                 {% } else { %}
                     <span>{%=file.name%}</span>
                 {% } %}
@@ -225,8 +194,9 @@
             {% } %}
         </td>
         <td>
-            <span class="size">{%=o.formatFileSize(file.size)%}</span>
+            <span class="glyphicon glyphicon-ok">&nbsp;</span>
         </td>
+        <!--
         <td>
             {% if (file.deleteUrl) { %}
                 <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
@@ -241,6 +211,7 @@
                 </button>
             {% } %}
         </td>
+        -->
     </tr>
 {% } %}
 </script>

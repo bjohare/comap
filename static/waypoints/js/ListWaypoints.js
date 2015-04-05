@@ -74,7 +74,7 @@ var ListWaypointsApp = OpenLayers.Class({
         });
         
         var lineStyles = new OpenLayers.StyleMap(
-            {
+        {
                 "default": defaultLineStyle,
                 "select": selectLineStyle
         });
@@ -136,14 +136,34 @@ var ListWaypointsApp = OpenLayers.Class({
                 gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
+                // populate the carousel
+                if (attrs.media.length > 0) {
+                    // need to check for content_type here..
+                    // and only add images to the carousel
+                    $('.carousel').carousel()
+                    $.each(attrs.media, function( index, media ) {
+                        var active = index === 0 ? 'active' : '';
+                        var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
+                        var slide = '<div class="item ' + active + '">' +
+                                    '<img src="' +  media.media_url + '"/>' +
+                                    '</div>'
+                        $('.carousel-inner').append(slide);
+                        $('.carousel-indicators').append(indicator);
+                    });
+                    $('#carousel').css('display','block');
+                }
+                
+                /*
                 if (!(attrs.image_path == 'none_provided')) {
                     $('.panel-body').find('span.image').html('<img id="waypoint-image" class="img-responsive" src="' + attrs.image_url + '"/>');
                     $('#waypoint-image').css('display','block');
                 }
+                
                 else {
                     $('.panel-body').find('span.image').empty();
                     $('#waypoint-image').css('display','block');
                 }
+                */
                 $('.panel-body').find('span.description').html(attrs.description);
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
                 $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
@@ -159,6 +179,8 @@ var ListWaypointsApp = OpenLayers.Class({
         waypoints.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
+            $('.carousel-inner').empty();
+            $('.carousel-indicators').empty();
             $('li.list-group-item').css('background-color','white').css('color','#526325');
         });
         
@@ -181,12 +203,12 @@ var ListWaypointsApp = OpenLayers.Class({
         var numWaypoints = 0;
         
         /* Get the Routes geojson */
-        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data) {
+        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data, status, jqXHR) {
             var routeId = data.id;
             var props = data.properties;
             var waypts = data.properties.waypoints;
             routeName = data.properties.name;
-            if (props.length != 0) { // find a better test here..
+            if (jqXHR.status == 200) { 
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -205,7 +227,7 @@ var ListWaypointsApp = OpenLayers.Class({
             }
             
             if (waypts.features.length == 0) {
-                $('#map').css('display','none');
+                $('#waypoints-map-panel').css('display','none');
                 $('ul.list-group').css('display','none');
                 $('#detail-panel').css('display','none');
                 $('#detail-panel-body').css('display','none');

@@ -133,7 +133,7 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
         return {'name': name, 'description': description, 'created': created,'the_geom': the_geom, 'route': route_data, 'elevation': elevation}
     
     def get_media(self, obj):
-        media = WaypointMedia.objects.filter(fid=obj.fid)
+        media = WaypointMedia.objects.filter(waypoint_id=obj.fid)
         serializer = WaypointMediaSerializer(media, many=True, context=self.context)
         return serializer.data
     

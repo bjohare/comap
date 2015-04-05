@@ -4,6 +4,9 @@ from datetime import datetime
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models import FileField
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import mixins
@@ -18,6 +21,8 @@ from rest_framework.response import Response
 
 from imagekit import ImageSpec
 from imagekit.processors import ResizeToFill
+from cStringIO import StringIO
+from PIL import Image
 
 import django_filters
 
@@ -60,11 +65,6 @@ class WaypointViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter,)
     ordering = ('-created',)
     
-    class ResizedImage(ImageSpec):
-        processors = [ResizeToFill(500,350)]
-        format = 'JPEG'
-        options = {'quality': 80}
-    
     def list(self, request, pk=None, *args, **kwargs):
         route_id = self.request.QUERY_PARAMS.get('route_id', -1)
         queryset = Waypoint.objects.filter(route_id=route_id, visible=True)
@@ -77,37 +77,18 @@ class WaypointViewSet(viewsets.ModelViewSet):
         serializer = WaypointSerializer(waypoint, context={'request': request})
         return Response(serializer.data)
     
-    """
-    def create(self, request, *args, **kwargs):
-        logger.debug('Creating a new waypoint')
-        serializer = self.get_serializer(data=request.DATA, context={'request': request})
-        if not serializer.is_valid():
-            logger.error(serializer.errors)
-            return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        self.object = serializer.save()
-        logger.debug('Waypoint created ok');
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    """
-    """
-    def update(self, request, pk=None, *args, **kwargs):
-        logger.debug('Updating waypoint with id: %s' % pk)
-        partial = kwargs.pop('partial', False)
-        self.object = self.get_object()
-        if self.object == None:
-            return JSONResponse({'error': 'no waypoint to update'}, status.HTTP_404_NOT_FOUND)
-        serializer = self.get_serializer(self.object, data=request.DATA, partial=partial, context={'request': request})
-        if not serializer.is_valid():
-            logger.error(serializer.errors)
-            return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        self.object = serializer.save(force_update=True)
-        logger.debug('Waypoint updated ok');
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    """
 
 class WaypointMediaViewSet(viewsets.ModelViewSet):
     """API endpoint for WaypointMedia operations."""
     queryset = WaypointMedia.objects.all()
     serializer_class = WaypointMediaSerializer
+    
+    IMAGE_TYPES = ['image/jpeg', 'image/png','image/gif']
+    
+    class ResizedImage(ImageSpec):
+        processors = [ResizeToFill(500,350)]
+        format = 'JPEG'
+        options = {'quality': 80}
     
     def list(self, request, pk=None, *args, **kwargs):
         queryset = WaypointMedia.objects.all()
@@ -118,22 +99,27 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
         logger.debug('Adding media to waypoint')
         data = {}
         try:
-            f = request.FILES['media_file']
-            waypoint_id = request.DATA['waypoint_id']
+            f = request.FILES['files[]']
+            logging.debug(type(f))
             name = f.name
             content_type = f.content_type
             size = f.size
-            data = {'filename': name, 'size': size, 'waypoint_id': waypoint_id, 'content_type': content_type, 'file': f}
+            waypoint_id = request.DATA['waypoint_id']
+            if (content_type in self.IMAGE_TYPES):
+                image_generator = self.ResizedImage(source=f)
+                file = image_generator.generate()
+                rf = SimpleUploadedFile(name=name, content=file.getvalue(), content_type=content_type)
+            data = {'filename': name, 'size': size, 'waypoint_id': waypoint_id, 'content_type': content_type, 'file': rf}
         except (KeyError) as e:
             logger.error(e)
-            logger.debug('No files uploaded')
+            data = {'files':[{'error': 'Server Error: {0}'.format(str(e))}]}
+            return JSONResponse(data, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=data)
-        #pdb.set_trace()
         if not serializer.is_valid():
             logger.error(serializer.errors)
             return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         self.object = serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'files': [serializer.data]}, status=status.HTTP_200_OK)
     
 
 class RouteViewSet(viewsets.ModelViewSet):

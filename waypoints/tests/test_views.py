@@ -1,4 +1,4 @@
-import logging, sys, pdb
+import logging, sys, pdb, json
 
 from rest_framework.reverse import reverse
 from django.test import TestCase
@@ -15,7 +15,6 @@ from api.views import (WaypointMediaViewSet, WaypointViewSet)
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 class WaypointMediaViewSetTest(TestCase):
-    
     
     def setUp(self):
         self.factory = APIRequestFactory(format='multipart')
@@ -39,7 +38,7 @@ class WaypointMediaViewSetTest(TestCase):
         view = WaypointMediaViewSet.as_view({'post':'create'})
         response = view(request)
         media = WaypointMedia.objects.get(fid=response.data['fid'])
-        #pdb.set_trace()
+        # clean up
         media.delete()
         
         
@@ -70,7 +69,6 @@ class WaypointTestCase(TestCase):
         force_authenticate(request, user=self.user)
         view = WaypointViewSet.as_view({'post':'create'})
         response = view(request)
-        logging.debug(response.data)
         waypoint = Waypoint.objects.get(fid=response.data['id'])
         self.assertIsNotNone(waypoint, msg='Instance is None')
         self.assertEqual(waypoint.name, 'TestWaypoint')
@@ -92,9 +90,39 @@ class WaypointTestCase(TestCase):
         force_authenticate(request, user=self.user)
         view = WaypointViewSet.as_view({'post':'update'})
         response = view(request, pk=1)
-        logging.debug(response.data)
         waypoint = Waypoint.objects.get(fid=response.data['id'])
         self.assertIsNotNone(waypoint, msg='Instance is None')
         self.assertEqual(waypoint.name, 'Ballycapple Castle Updated')
         
+    
+    def test_destroy_waypoint(self):
+        point = GEOSGeometry('POINT (-7.102992720901966 54.326739795506001)')
+        waypoint = Waypoint.objects.create(fid=1, name='Ballycapple Castle', description='Some descriptive text',
+                                elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)
+        self.assertIsNotNone(waypoint)
+        request = self.factory.post('/api/waypoints/1', format='multipart')
+        force_authenticate(request, user=self.user)
+        view = WaypointViewSet.as_view({'post':'destroy'})
+        response = view(request, pk=1)
+        wp = None
+        try:
+            wp = Waypoint.objects.get(fid=1)
+        except (Waypoint.DoesNotExist) as e:
+            logging.debug('Expected: Waypoint not found')
+        self.assertIsNone(wp)
+        
+    def test_list_waypoints(self):
+        point = GEOSGeometry('POINT (-7.102992720901966 54.326739795506001)')
+        wp1 = Waypoint.objects.create(name='Ballycapple Castle 1', description='Some descriptive text',
+                                elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)
+        wp2 = Waypoint.objects.create(name='Ballycapple Castle 2', description='Some descriptive text',
+                                elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)
+        request = self.factory.get('/api/waypoints.json?route_id=1')
+        force_authenticate(request, user=self.user)
+        view = WaypointViewSet.as_view({'get':'list'})
+        response = view(request, route_id=1)
+        data = response.data
+        logging.debug(json.dumps(response.data))
+        
+    
         

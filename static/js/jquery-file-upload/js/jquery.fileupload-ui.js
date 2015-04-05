@@ -577,14 +577,8 @@
                 filesList = this.options.filesContainer;
             this._on(fileUploadButtonBar.find('.start'), {
                 click: function (e) {
-                    /*
-                     * We're using just the global submit button
-                     * so disable propagation to the submit buttons for
-                     * individual uploaded files
-                     *
-                     * e.preventDefault();
-                     * filesList.find('.start').click();
-                     */  
+                    e.preventDefault();
+                    filesList.find('.start').click();
                 }
             });
             this._on(fileUploadButtonBar.find('.cancel'), {

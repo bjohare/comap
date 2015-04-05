@@ -30,21 +30,23 @@ var CreateWaypointApp = OpenLayers.Class({
         $('#route').val(this.routeId);
         this.initForm();
         this.map = this.initMap();
+        $('[data-toggle="popover"]').popover();
+
 	},
 
     /* Initialize the form */
-    initForm: function(){
+    initForm: function() {
         console.log('Initializing form...');
         
          // Initialize the jQuery File Upload widget:
         var fileUpload = $('#fileupload').fileupload({
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCredentials: true},
-            url: Config.WAYPOINT_API_URL + '.json',
+            url: Config.WAYPOINT_MEDIA_API_URL + '.json',
             type: 'POST',
-            singleFileUploads: false,
+            //singleFileUploads: false,
             autoUpload: false,
-            dropZone: $('#dropzone')
+            dropZone: $('#dropzone'),
         });
         
         
@@ -56,6 +58,18 @@ var CreateWaypointApp = OpenLayers.Class({
         $('#fileupload').bind('fileuploadstopped', function (e, data) {
             $('#dropzone').css('border','1px dashed #6B9430');
             $('#dz-message').css('display','block');
+        });
+        
+        var that = this;
+        that.submitted = 0;
+        $('#fileupload').bind('fileuploadcompleted', function (e, data) {
+            that.submitted += 1;
+            var numFiles = data.getNumberOfFiles();
+            if (numFiles == that.submitted) {
+                console.log('All files submitted.')
+                $('#create-form-panel').css('display','none');
+                $('#create-info').css('display', 'block');
+            }
         });
         
         $(document).bind('dragover', function (e) {
@@ -85,58 +99,9 @@ var CreateWaypointApp = OpenLayers.Class({
                 dropZone.removeClass('in hover');
             }, 100);
         }); 
-        
-        
-        $('#save-mup').bind('click', function(e) {
-            var fileUpload = $('#fileupload').fileupload();
-            var result = $('#fileupload').data('formValidation').validate();
-            if (result.$invalidFields.length > 0) {
-                e.preventDefault();
-                return false;
-            }
-            else {
-                var button = $(e.currentTarget),
-                    template = $('.template-upload'),
-                    data = template.data('data');
-                button.prop('disabled', true);
-                if (data && data.submit) {
-                    var jqXHR = $('#fileupload').fileupload('send', data)
-                        .success(function (result, textStatus, jqXHR) {
-                            alert(result);
-                        })
-                        .error(function (jqXHR, textStatus, errorThrown) {/* ... */})
-                        .complete(function (result, textStatus, jqXHR) {/* ... */});
-                }
-                else {
-                    var tmp = fileUpload.ajaxSubmit({
-                        url: Config.WAYPOINT_API_URL + '.json',
-                        success: function(data, status, xrh) {
-                            $('#progressbar').css("display","none");
-                            $('#create-form-panel').css('display','none');
-                            console.log('Created Waypoint.')
-                            var props = xrh.responseJSON.properties;
-                            var id = xrh.responseJSON.id;
-                            $('#create-info').css("display", "block");
-                            $('#create-info-heading').append('<h4>Waypoint created successfully</h4>');
-                            $('#create-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
-                            $('#create-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
-                            $('#create-info-panel').append('<p><span><strong>Created:</strong> ' + moment(props.created).format('Do MMMM YYYY hh:mm a') + '</span></p>');
-                            $('#create-info-panel').append('<p><span><strong>Route:</strong> ' + props.route.name + '</span></p>');
-                            $('#create-info-panel').append('<p><span><strong>Elevation:</strong> ' + props.elevation + ' metres.</span></p>');
-                            $('#create-info-panel').append('<p><span><strong><hr/></p>');
-                            $('#create-info-panel').append('<p>');
-                            $('#create-info-panel').append('<a class="editlink" href="/comap/waypoint/edit/' + id + '/"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
-                            $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
-                            $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
-                            $('#create-info-panel').append('</p>');
-                        },
-                    })
-                }
-            }
-        });
-        
-        
-        $('#fileupload').formValidation({
+    
+            
+        $('#waypointForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
             icon: {
@@ -174,13 +139,7 @@ var CreateWaypointApp = OpenLayers.Class({
             }
         });
        
-        
-        var progressbar = $('#progressbar').progressbar();
-        var that = this;
-        $('#progressbar').css("display","none");
-        
-        /*
-        $('#fileupload').ajaxForm({
+        $('#waypointForm').ajaxForm({
             url: Config.WAYPOINT_API_URL + ".json",
             beforeSubmit: function(arr, $form, options) {
                 $('#progressbar').css("display","block");
@@ -189,15 +148,23 @@ var CreateWaypointApp = OpenLayers.Class({
                 arr[1].value = now.toISOString();
             },
             uploadProgress: function(event, position, total, percentComplete) {
-                progressbar.progressbar({value: percentComplete});
+                //progressbar.progressbar({value: percentComplete});
             },
             success: function(data, status, xrh) {
-                $('#progressbar').css("display","none");
-                $('#create-form-panel').css('display','none');
+                // get new waypoint id and post the media
+                var template = $('.template-upload');
+                var media = template.data('data');
+                var waypointId = data.id;
+                var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
+                var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
+                $('#fileupload').fileupload({
+                    formData: formData
+                });
+                $('.fileupload-buttonbar').find('.start').click();
+
                 console.log('Created Waypoint.')
                 var props = xrh.responseJSON.properties;
                 var id = xrh.responseJSON.id;
-                $('#create-info').css("display", "block");
                 $('#create-info-heading').append('<h4>Waypoint created successfully</h4>');
                 $('#create-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
                 $('#create-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
@@ -216,7 +183,6 @@ var CreateWaypointApp = OpenLayers.Class({
                 console.log(error);
             },
         });
-        */
         
     },
     
