@@ -7,3 +7,8 @@ heritage trail or any other routes of local interest and to associate points of 
 media can be added to these waypoints to provide contextual information about particular local features. Comap is 
 devloped in python using django, geodjango and the django rest framework and provides a REST api for developers. It uses jQuery, HTML5 and Twitter Bootstrap for the UI and is deployed to AWS.
 
+[Django](https://github.com/django/django)
+
+[Django Rest Framework](https://github.com/tomchristie/django-rest-framework)
+
+[Django Rest Framework GIS](https://github.com/djangonauts/django-rest-framework-gis)
