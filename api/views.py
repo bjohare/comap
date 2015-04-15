@@ -83,7 +83,9 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
     queryset = WaypointMedia.objects.all()
     serializer_class = WaypointMediaSerializer
     
-    IMAGE_TYPES = ['image/jpeg', 'image/png','image/gif']
+    IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+    AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/ogg']
+    VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg']
     
     class ResizedImage(ImageSpec):
         processors = [ResizeToFill(500,350)]
@@ -99,17 +101,21 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
         logger.debug('Adding media to waypoint')
         data = {}
         try:
-            f = request.FILES['files[]']
-            logging.debug(type(f))
-            name = f.name
-            content_type = f.content_type
-            size = f.size
+            original_file = request.FILES['files[]']
+            logging.debug(type(original_file))
+            name = original_file.name.replace(' ', '_').lower()
+            content_type = original_file.content_type
+            size = original_file.size
             waypoint_id = request.DATA['waypoint_id']
+            data = {'filename': name, 'size': size, 'waypoint_id': waypoint_id, 'content_type': content_type}
             if (content_type in self.IMAGE_TYPES):
-                image_generator = self.ResizedImage(source=f)
-                file = image_generator.generate()
-                rf = SimpleUploadedFile(name=name, content=file.getvalue(), content_type=content_type)
-            data = {'filename': name, 'size': size, 'waypoint_id': waypoint_id, 'content_type': content_type, 'file': rf}
+                # resize the image
+                image_generator = self.ResizedImage(source=original_file)
+                rf = image_generator.generate()
+                sf = SimpleUploadedFile(name=name, content=rf.getvalue(), content_type=content_type)
+                data['file'] = sf
+            else:
+                data['file'] = original_file
         except (KeyError) as e:
             logger.error(e)
             data = {'files':[{'error': 'Server Error: {0}'.format(str(e))}]}

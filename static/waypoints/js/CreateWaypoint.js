@@ -151,17 +151,6 @@ var CreateWaypointApp = OpenLayers.Class({
                 //progressbar.progressbar({value: percentComplete});
             },
             success: function(data, status, xrh) {
-                // get new waypoint id and post the media
-                var template = $('.template-upload');
-                var media = template.data('data');
-                var waypointId = data.id;
-                var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
-                var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
-                $('#fileupload').fileupload({
-                    formData: formData
-                });
-                $('.fileupload-buttonbar').find('.start').click();
-
                 console.log('Created Waypoint.')
                 var props = xrh.responseJSON.properties;
                 var id = xrh.responseJSON.id;
@@ -177,6 +166,24 @@ var CreateWaypointApp = OpenLayers.Class({
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#create-info-panel').append('</p>');
+                
+                 // get new waypoint id and post the media
+                var template = $('.template-upload');
+                var media = template.data('data');
+                if (media) {
+                    var waypointId = data.id;
+                    var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
+                    var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
+                    $('#fileupload').fileupload({
+                        formData: formData
+                    });
+                    $('.fileupload-buttonbar').find('.start').click();
+                }
+                else {
+                    $('#create-form-panel').css('display','none');
+                    $('#create-info').css('display', 'block');
+                }
+                
             },
             error: function(xhr, status, error){
                 $('#progressbar').css("display", "none");

@@ -20,6 +20,7 @@ var ListWaypointsApp = OpenLayers.Class({
     
     initialize: function(){
         this.buildDeleteDialog();
+        $('.carousel').carousel();
     },
     
     main: function() {
@@ -140,30 +141,42 @@ var ListWaypointsApp = OpenLayers.Class({
                 if (attrs.media.length > 0) {
                     // need to check for content_type here..
                     // and only add images to the carousel
-                    $('.carousel').carousel()
                     $.each(attrs.media, function( index, media ) {
-                        var active = index === 0 ? 'active' : '';
-                        var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
-                        var slide = '<div class="item ' + active + '">' +
-                                    '<img src="' +  media.media_url + '"/>' +
-                                    '</div>'
-                        $('.carousel-inner').append(slide);
-                        $('.carousel-indicators').append(indicator);
-                    });
-                    $('#carousel').css('display','block');
+                        var content_type = media.content_type.split('/')[0];
+                        switch(content_type) {
+                            case 'image':
+                                var active = index === 0 ? 'active' : '';
+                                var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
+                                var slide = '<div class="item ' + active + '">' +
+                                            '<img src="' +  media.media_url + '"/>' +
+                                            '</div>'
+                                $('.carousel-inner').append(slide);
+                                $('.carousel-indicators').append(indicator);
+                                $('#carousel').css('display','block');
+                                $('#carousel').carousel('cycle'); 
+                                break;
+                            case 'audio':
+                                var audio = $('audio');
+                                audio.css('display','block');
+                                audio.append('<source src="' + media.media_url + '" type="' + media.content_type + '"/>');
+                                break;
+                            case 'video':
+                                var video = $('#video-panel');
+                                var vid = "vid_" + index;
+                                video.css('display','block');
+                                video.append('<video id="' + vid + '" preload controls class="video-js vjs-default-skin vjs-big-play-centered embed-responsive-item">' +
+                                                '<source src="' + media.media_url + '" type="' + media.content_type + '"/>' +
+                                             '</video>');
+                                videojs(vid, {"width":"auto", "height":"auto"});
+                                break;
+                        }
+                    });  
                 }
-                
-                /*
-                if (!(attrs.image_path == 'none_provided')) {
-                    $('.panel-body').find('span.image').html('<img id="waypoint-image" class="img-responsive" src="' + attrs.image_url + '"/>');
-                    $('#waypoint-image').css('display','block');
-                }
-                
                 else {
-                    $('.panel-body').find('span.image').empty();
-                    $('#waypoint-image').css('display','block');
+                    $('#carousel').carousel('pause');
+                    $('#carousel').css('display','none');
                 }
-                */
+                
                 $('.panel-body').find('span.description').html(attrs.description);
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
                 $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
@@ -179,9 +192,20 @@ var ListWaypointsApp = OpenLayers.Class({
         waypoints.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
+            $('#carousel').css('display','none');
             $('.carousel-inner').empty();
             $('.carousel-indicators').empty();
             $('li.list-group-item').css('background-color','white').css('color','#526325');
+            //$('li.list-group-item').append('<span class="glyphicon glyphicon-chevron-right pull-right"></span>');
+            $('audio').css('display','none').empty();
+            $.each($('audio'), function () {
+                this.pause();
+                this.currentTime = 0;
+            });
+            $.each($('video'), function () {
+                videojs(this.id).dispose();
+            });
+            $('#video-panel').css('display','none').empty();
         });
         
         /* Add map controls */
