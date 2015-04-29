@@ -210,13 +210,11 @@ var CreateWaypointApp = OpenLayers.Class({
         var map = new OpenLayers.Map('edit-waypoint-map',  {options: mapOptions});
 		
 		/* add layers */
-        var mbox_hike = Layers.MAP_BOX_HIKE;
-        var mbox_out = Layers.MAP_BOX_OUTDOORS;
         var bing_aerial = Layers.BING_AERIAL;
-        mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        var tf_outdoors = Layers.OUTDOORS;
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([mbox_hike, mbox_out, bing_aerial]);
+        map.addLayers([tf_outdoors, bing_aerial]);
         
         /*
 		var ocm = Layers.OCM;

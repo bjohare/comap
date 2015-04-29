@@ -39,14 +39,14 @@ var ListWaypointsApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var mbox_hike = Layers.MAP_BOX_HIKE;
-        var mbox_out = Layers.MAP_BOX_OUTDOORS;
         var bing_aerial = Layers.BING_AERIAL;
+        var tf_outdoors = Layers.OUTDOORS;
         var townlands = Layers.OSM_TOWNLANDS;
-        mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([mbox_hike, mbox_out, bing_aerial, townlands]);
+        map.addLayers([tf_outdoors, bing_aerial]);
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial, townlands]);
         
         /*
         var ocm = Layers.OCM;
