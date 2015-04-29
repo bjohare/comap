@@ -128,6 +128,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 var fid = feature.fid;
                 var feat = feature.clone();
                 var attrs = feat.attributes;
+                var files = attrs.media.files;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
                 
                 // irish grid ref
@@ -137,18 +138,19 @@ var ListWaypointsApp = OpenLayers.Class({
                 gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
+                $('.panel-body').find('span.description').html(attrs.description);
                 // populate the carousel
-                if (attrs.media.length > 0) {
+                if (files.length > 0) {
                     // need to check for content_type here..
                     // and only add images to the carousel
-                    $.each(attrs.media, function( index, media ) {
-                        var content_type = media.content_type.split('/')[0];
+                    $.each(files, function( index, file) {
+                        var content_type = file.content_type.split('/')[0];
                         switch(content_type) {
                             case 'image':
                                 var active = index === 0 ? 'active' : '';
                                 var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
                                 var slide = '<div class="item ' + active + '">' +
-                                            '<img src="' +  media.media_url + '"/>' +
+                                            '<img src="' +  file.media_url + '"/>' +
                                             '</div>'
                                 $('.carousel-inner').append(slide);
                                 $('.carousel-indicators').append(indicator);
@@ -158,14 +160,14 @@ var ListWaypointsApp = OpenLayers.Class({
                             case 'audio':
                                 var audio = $('audio');
                                 audio.css('display','block');
-                                audio.append('<source src="' + media.media_url + '" type="' + media.content_type + '"/>');
+                                audio.append('<source src="' + file.media_url + '" type="' + file.content_type + '"/>');
                                 break;
                             case 'video':
                                 var video = $('#video-panel');
                                 var vid = "vid_" + index;
                                 video.css('display','block');
                                 video.append('<video id="' + vid + '" preload controls class="video-js vjs-default-skin vjs-big-play-centered embed-responsive-item">' +
-                                                '<source src="' + media.media_url + '" type="' + media.content_type + '"/>' +
+                                                '<source src="' + file.media_url + '" type="' + file.content_type + '"/>' +
                                              '</video>');
                                 videojs(vid, {"width":"auto", "height":"auto"});
                                 break;
@@ -176,8 +178,6 @@ var ListWaypointsApp = OpenLayers.Class({
                     $('#carousel').carousel('pause');
                     $('#carousel').css('display','none');
                 }
-                
-                $('.panel-body').find('span.description').html(attrs.description);
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
                 $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
                 $('.panel-body').find('span.longitude').html(geom.x.toFixed(4));

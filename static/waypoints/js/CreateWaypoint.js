@@ -49,16 +49,23 @@ var CreateWaypointApp = OpenLayers.Class({
             dropZone: $('#dropzone'),
         });
         
-        
         $('#fileupload').bind('fileuploadadded', function (e, data) {
-            $('#dropzone').css('border','1px solid lightgrey');
             $('#dz-message').css('display','none');
+            $('#dropzone').css('border','2px solid lightgrey');
         });
         
-        $('#fileupload').bind('fileuploadstopped', function (e, data) {
-            $('#dropzone').css('border','1px dashed #6B9430');
-            $('#dz-message').css('display','block');
+        var that = this;
+        that.cancelled = 0;
+        $('#fileupload').bind('fileuploadfail', function (e, data) {
+            that.cancelled += 1;
+            var numFiles = data.originalFiles.length;
+            if (numFiles == that.cancelled) {
+                that.cancelled = 0;
+                console.log('All uploads cancelled');
+                $('#dz-message').css('display','block');
+            }
         });
+        
         
         var that = this;
         that.submitted = 0;
@@ -66,20 +73,16 @@ var CreateWaypointApp = OpenLayers.Class({
             that.submitted += 1;
             var numFiles = data.getNumberOfFiles();
             if (numFiles == that.submitted) {
-                console.log('All files submitted.')
+                that.submitted = 0;
+                console.log('All files submitted.');
                 $('#create-form-panel').css('display','none');
                 $('#create-info').css('display', 'block');
             }
         });
         
-        $(document).bind('dragover', function (e) {
-            var dropZone = $('#dropzone'),
-                timeout = window.dropZoneTimeout;
-            if (!timeout) {
-                dropZone.addClass('in');
-            } else {
-                clearTimeout(timeout);
-            }
+        $('#dropzone').bind('dragover', function (e) {
+            var dropZone = $('#dropzone');
+            dropZone.addClass('in');
             var found = false,
                 node = e.target;
             do {
@@ -94,11 +97,11 @@ var CreateWaypointApp = OpenLayers.Class({
             } else {
                 dropZone.removeClass('hover');
             }
-            window.dropZoneTimeout = setTimeout(function () {
-                window.dropZoneTimeout = null;
-                dropZone.removeClass('in hover');
-            }, 100);
-        }); 
+        });
+        
+        $('#dropzone').bind('dragleave', function(e){
+           $('#dropzone').removeClass('in hover');
+        });
     
             
         $('#waypointForm').formValidation({
@@ -167,7 +170,7 @@ var CreateWaypointApp = OpenLayers.Class({
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#create-info-panel').append('</p>');
                 
-                 // get new waypoint id and post the media
+                // get new waypoint id and post the media
                 var template = $('.template-upload');
                 var media = template.data('data');
                 if (media) {

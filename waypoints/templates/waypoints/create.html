@@ -17,10 +17,6 @@
         </div>
         <div class="panel-body">
             <div id="edit-waypoint" class="container-fluid">
-                <!-- orig
-                <form id="waypointForm" action="" method="post"
-                      enctype="multipart/form-data" role="form"> -->
-                      
                 <div class="row">
                     <div class="col-md-8">
                         <form id="waypointForm" action="" method="post"
@@ -69,33 +65,34 @@
                                         </button>
                                         <!-- The global file processing state -->
                                         <span class="fileupload-process"></span>
-                                   
                                 </div>
                             </div>
                         </form>
                     </div>
-                <div id="fileupload" class="col-md-4">
-                        <div id="dropzone" class="fade well">
-                            <span id="dz-message" class="glyphicon glyphicon-plus"> Drag media files here..</span>
-                            <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
-                        </div>
-                        <div class="col-lg-5 fileupload-progress fade">
-                            <!-- The global progress bar -->
-                            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-                                <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                    <div id="fileupload" class="col-md-4">
+                            <div id="dz-wrap">
+                                <div id="dropzone" class="fade well">
+                                    <span id="dz-message" class="oi oi-data-transfer-upload"> Drag media files here..</span>
+                                    <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+                                </div>
                             </div>
-                            <!-- The extended global progress state -->
-                            <div class="progress-extended">&nbsp;</div>
-                        </div>
-                        <div class="row fileupload-buttonbar pull-right">
-                            <span class="btn btn-primary fileinput-button">
-                                <i class="glyphicon glyphicon-plus"></i>
-                                <span>Add media files...</span>
-                                <input type="file" name="files[]" multiple>
-                            </span>
-                            <button type="button" class="start"/>
-                        </div>
-                </div>
+                            <div class="col-lg-5 fileupload-progress fade">
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
+                            </div>
+                            <div class="row fileupload-buttonbar pull-right">
+                                <span class="btn btn-primary fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Add media files...</span>
+                                    <input type="file" name="files[]" multiple>
+                                </span>
+                                <button type="button" class="start"/>
+                            </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,7 +111,7 @@
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
 <script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
 <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 <!-- blueimp Gallery script -->
 <script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->

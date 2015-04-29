@@ -1,5 +1,9 @@
 {% extends "comap/base.html" %}
 {% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "js/fileupload/css/jquery.fileupload.css" %}">
+{% endblock css %}
 {% block container %}
 <div class="container-fluid">
     <div id="update-info" class="panel panel-default">
@@ -13,83 +17,237 @@
         </div>
         <div class="panel-body">
             <div id="edit-waypoint" class="container-fluid">
-                <form id="waypointForm" action="" method="post"
-                      enctype="multipart/form-data" role="form">
-                    <input type="hidden" id="route" name="route" value=""/>
-                    <input type="hidden" id="created" name="created" value=""/>
-                    <input type="hidden" id="fid" name="fid" value=""/>
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group" id="form-group-name">
-                                <div>
-                                    <strong><label class="control-label" for="name">Waypoint name: </label></strong>
-                                    <input class="form-control" type="text" name="name" id="name" value="" />
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="waypointForm" action="" method="post"
+                              enctype="multipart/form-data" role="form">
+                            <input type="hidden" id="route" name="route" value=""/>
+                            <input type="hidden" id="created" name="created" value=""/>
+                            <input type="hidden" id="fid" name="fid" value=""/>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" id="form-group-name">
+                                        <div>
+                                            <strong><label class="control-label" for="name">Waypoint name: </label></strong>
+                                            <input class="form-control" type="text" name="name" id="name" value="" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="form-group-description">
+                                        <div>
+                                            <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
+                                            <textarea name="description" id="description" class="form-control" rows="20"></textarea>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group" id="form-group-map">
+                                        <strong><label class="control-label" for="the_geom">Update the waypoint</label></strong>
+                                        <div id="edit-waypoint-map"></div>
+                                        <div id="location">
+                                          <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
+                                          <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
+                                          <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
+                                          <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                                        </div>
+                                        <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
+                                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group" id="form-group-description">
-                                <div>
-                                    <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
-                                    <textarea name="description" id="description" class="form-control" rows="20"></textarea>
-                                </div> 
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group" id="form-group-map">
-                                <strong><label class="control-label" for="the_geom">Update the waypoint</label></strong>
-                                <div id="edit-waypoint-map"></div>
-                                <div id="location">
-                                  <span><strong>Latitude: </strong></span><span id="lat">&nbsp;</span>
-                                  <span><strong>Longitude: </strong><span id="lng">&nbsp;</span></br>
-                                  <span><strong>Irish Grid Ref: </strong><span id="gridref">&nbsp;</span>
-                                  <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" id="form-group-image">
+                                        <div class="form-group">
+                                            <div class="">
+                                                <button id="save" type="submit" class="btn btn-md btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> update this waypoint</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
-                                <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
-                            </div>
-                        </div>
+                            </div> 
+                        </form>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group" id="form-group-image">
-                                <div class="">
-                                       <strong><label class="control-label" for="image_path">Select an image to use for this waypoint: </label></strong>
-                                       <input type="file" name="file" id="file"/> 
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <div class="">
-                                    <button id="save" type="submit" class="btn btn-md btn-success" value="PUT" name="_method"><span class="glyphicon glyphicon-save"></span> update this waypoint</button>
-                                </div>
-                            </div>
-                        </div>
+                <!--
+                    <div class="col-md-4 table-responsive">
+                        <strong><label>Uploaded files</label></strong>
+                        <table role="presentation" class="table table-striped table-hover"><tbody class="files"></tbody></table>
                     </div>
-                    
-                </form>
-            </div>
-                    
-            <div class="form-group row">
-                <div class="col-md-12">
-                  <div id="progressbar">
-                          <div class="progress-label"></div>
-                   </div>
+                    -->
+                    <div id="fileupload" class="col-md-4">
+                            <div class="table-responsive">
+                                <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+                            </div>
+                            <div id="dz-wrap">
+                                <div id="dropzone" class="fade well">
+                                    <span id="dz-message" class="oi oi-data-transfer-upload"> Drag media files here..</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-5 fileupload-progress fade">
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
+                            </div>
+                            <div class="row fileupload-buttonbar pull-right">
+                                <button class="btn btn-primary fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Add media files...</span>
+                                    <input type="file" name="files[]" multiple>
+                                </button>
+                                <button type="button" class="start"/>
+                            </div>
+                    </div>
                 </div>
-            </div>  
+            </div>
         </div>
       </div>
        
     </div>
-</div> 
+</div>
+<!-- bootstrap modal -->
+    <div class="modal fade" id="deleteWaypointModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Really delete this waypoint media file?</h4>
+            </div>
+            <div class="modal-body">
+             <p><span class="glyphicon glyphicon-exclamation-sign" style="float:left; font-size: 2.0em; color: red; margin:0 7px 25px 0;"> 
+             </span>This file will be permanently deleted and cannot be recovered. Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+              <button id="deleteConfirm" type="button" class="btn btn-danger">Delete Waypoint</button>
+            </div>
+          </div>
+        </div>
+    </div>
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
 <script src="{% static "waypoints/js/EditWaypoint.js" %}" type="text/javascript" defer></script>
 <script src="{% static "js/Layers.js" %}" type="text/javascript" defer></script>
 <script src="{% static "js/Config.js" %}" type="text/javascript" defer></script>
-<script src="http://code.jquerygeo.com/jquery.geo-1.0.0-b1.5.min.js"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="{% static "js/js-templates/js/tmpl.min.js" %}"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="{% static "js/js-load-image/js/load-image.all.min.js" %}"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="{% static "js/fileupload/js/jquery.iframe-transport.js" %}"></script>
+<!-- The basic File Upload plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload.js" %}"></script>
+<!-- The File Upload processing plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload-process.js" %}"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload-image.js" %}"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload-audio.js" %}"></script>
+<!-- The File Upload video preview plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload-video.js" %}"></script>
+<!-- The File Upload validation plugin -->
+<script src="{% static "js/fileupload/js/jquery.fileupload-validate.js" %}"></script>
+<!-- The File Upload user interface plugin -->
+<script  src="{% static "js/fileupload/js/jquery.fileupload-ui.js" %}"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script> 
+<script src="http://malsup.github.com/jquery.form.js"></script>
+
+{% verbatim %}
+<script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-upload fade">
+        <td>
+            <span class="preview"></span>
+        </td>
+        <td>
+            <p class="name">{%=file.name%}</p>
+            <strong class="error text-danger"></strong>
+        </td>
+        <!--
+        <td>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+        </td>
+        -->
+        <td>
+           
+            {% if (!i && !o.options.autoUpload) { %}
+                <button class="start" enabled/>
+            {% } %}
+            
+            {% if (!i) { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
+        </td>
+    </tr>
+{% } %}
+</script>
+
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+    <tr class="template-download ">
+        <td>
+            <span class="preview">
+                {% if (file.media_url && file.content_type.split('/')[0] === 'image'){ %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}"><img width=80 height=80 src="{%=file.media_url%}"/></a>
+                {% } %}
+                {% if (file.media_url && file.content_type.split('/')[0] === 'audio'){ %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}"><audio controls width="160"><source src="{%=file.media_url%}" type="{%=file.content_type%}"></source></audio></a>
+                {% } %}
+                {% if (file.media_url && file.content_type.split('/')[0] === 'video'){ %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}"><video class="video-js vjs-default-skin embed-responsive-item" width="160" height="140" controls><source src="{%=file.media_url%}"></source></video></a>
+                {% } %}
+            </span>
+        </td>
+        <td>
+            <p class="name">
+                {% if (file.media_url) { %}
+                    <a href="{%=file.media_url%}" title="{%=file.filename%}" download="{%=file.filename%}" {%=file.media_url?'data-gallery':''%}>{%=file.filename%}</a>
+                {% } else { %}
+                    <span>{%=file.filename%}</span>
+                {% } %}
+            </p>
+            {% if (file.error) { %}
+                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+            {% } %}
+        </td>
+        <!--
+        <td>
+            <p class="size">
+                <span>{%=file.size%} kb</span>
+            </p>
+        </td>
+       -->
+        <td>
+            {% if (file.url) { %}
+                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.url%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+                
+        <!--
+                <input type="checkbox" name="delete" value="1" class="toggle">
+            {% } else { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
+        </td>
+        -->
+    </tr>
+{% } %}
+</script>
+{% endverbatim %}
 
 <!-- load map -->
 <script type="text/javascript">

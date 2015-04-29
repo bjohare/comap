@@ -135,7 +135,7 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
     def get_media(self, obj):
         media = WaypointMedia.objects.filter(waypoint_id=obj.fid)
         serializer = WaypointMediaSerializer(media, many=True, context=self.context)
-        return serializer.data
+        return {'files': serializer.data}
     
     def get_route(self, obj):
         route = obj.route

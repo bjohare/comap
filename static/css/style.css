@@ -353,29 +353,27 @@ div#heading, div#detail-heading {
     background: transparent;
     width: 100%;
     height: 100%;
-    /*line-height: 1.5em;*/
     text-align: center;
     font-weight: bold;
-    border: 1px dashed #6B9430;
+    border: 2px solid lightgrey;
 }
 
 #dropzone.in {
     width: 100%;
     height: 100%;
-    /*font-size: larger;*/
-    border: 4px dashed #6B9430;
+    border: 4px dashed darkgrey;
 }
 
 #dropzone.hover {
-    /*background: grey;*/
+
 }
 
 #dropzone.fade {
-    -webkit-transition: all 1.0s ease-out;
-    -moz-transition: all 1.0s ease-out;
-    -ms-transition: all 1.0s ease-out;
-    -o-transition: all 1.0s ease-out;
-    transition: all 1.0s ease-out;
+    -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
     opacity: 1;
 }
 
@@ -406,6 +404,15 @@ button[data-toggle=popover] {
     margin: 10px 0 20px 0;
 }
 
+span.preview audio {
+    max-width: 160px;
+}
+
+span.preview video {
+    max-width: 160px;
+    max-height: 160px;
+}
+
 /* Slider - used for Volume bar and Seek bar */
 .vjs-default-skin .vjs-slider .vjs-play-progress {
   /* background-color-with-alpha */
@@ -422,4 +429,8 @@ button[data-toggle=popover] {
 
 .vjs-big-play-button {
     background-color: rgba(107, 148, 48, 0.7) !important;
+}
+
+.table-responsive {
+    border: none !important;
 }
