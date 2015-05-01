@@ -20,6 +20,7 @@ var ListWaypointsApp = OpenLayers.Class({
     
     initialize: function(){
         this.buildDeleteDialog();
+        $('.carousel').carousel();
     },
     
     main: function() {
@@ -38,21 +39,15 @@ var ListWaypointsApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var mbox_hike = Layers.MAP_BOX_HIKE;
-        var mbox_out = Layers.MAP_BOX_OUTDOORS;
         var bing_aerial = Layers.BING_AERIAL;
+        var tf_outdoors = Layers.OUTDOORS;
         var townlands = Layers.OSM_TOWNLANDS;
-        mbox_hike.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        mbox_out.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([mbox_hike, mbox_out, bing_aerial, townlands]);
-        
-        /*
-        var ocm = Layers.OCM;
-        ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
-        map.addLayers([ocm]);
-        */
-        
+        map.addLayers([tf_outdoors, bing_aerial]);
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial, townlands]);
+               
         /* Styles */
         var defaultLineStyle = new OpenLayers.Style({
             strokeColor: "#db337b",
@@ -74,7 +69,7 @@ var ListWaypointsApp = OpenLayers.Class({
         });
         
         var lineStyles = new OpenLayers.StyleMap(
-            {
+        {
                 "default": defaultLineStyle,
                 "select": selectLineStyle
         });
@@ -127,7 +122,9 @@ var ListWaypointsApp = OpenLayers.Class({
                 var fid = feature.fid;
                 var feat = feature.clone();
                 var attrs = feat.attributes;
+                var files = attrs.media.files;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
+                var group = feat.attributes.route.group.name;
                 
                 // irish grid ref
                 wgs84=new GT_WGS84();
@@ -136,15 +133,46 @@ var ListWaypointsApp = OpenLayers.Class({
                 gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
-                if (!(attrs.image_path == 'none_provided')) {
-                    $('.panel-body').find('span.image').html('<img id="waypoint-image" class="img-responsive" src="' + attrs.image_url + '"/>');
-                    $('#waypoint-image').css('display','block');
+                $('.panel-body').find('span.description').html(attrs.description);
+                // populate the carousel
+                if (files.length > 0) {
+                    // need to check for content_type here..
+                    // and only add images to the carousel
+                    $.each(files, function( index, file) {
+                        var content_type = file.content_type.split('/')[0];
+                        switch(content_type) {
+                            case 'image':
+                                var active = index === 0 ? 'active' : '';
+                                var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
+                                var slide = '<div class="item ' + active + '">' +
+                                            '<img src="' +  file.media_url + '"/>' +
+                                            '</div>'
+                                $('.carousel-inner').append(slide);
+                                $('.carousel-indicators').append(indicator);
+                                $('#carousel').css('display','block');
+                                $('#carousel').carousel('cycle'); 
+                                break;
+                            case 'audio':
+                                var audio = $('audio');
+                                audio.css('display','block');
+                                audio.append('<source src="' + file.media_url + '" type="' + file.content_type + '"/>');
+                                break;
+                            case 'video':
+                                var video = $('#video-panel');
+                                var vid = "vid_" + index;
+                                video.css('display','block');
+                                video.append('<video id="' + vid + '" preload controls class="video-js vjs-default-skin vjs-big-play-centered embed-responsive-item">' +
+                                                '<source src="' + file.media_url + '" type="' + file.content_type + '"/>' +
+                                             '</video>');
+                                videojs(vid, {"width":"auto", "height":"auto"});
+                                break;
+                        }
+                    });  
                 }
                 else {
-                    $('.panel-body').find('span.image').empty();
-                    $('#waypoint-image').css('display','block');
+                    $('#carousel').carousel('pause');
+                    $('#carousel').css('display','none');
                 }
-                $('.panel-body').find('span.description').html(attrs.description);
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
                 $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
                 $('.panel-body').find('span.longitude').html(geom.x.toFixed(4));
@@ -159,7 +187,20 @@ var ListWaypointsApp = OpenLayers.Class({
         waypoints.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
+            $('#carousel').css('display','none');
+            $('.carousel-inner').empty();
+            $('.carousel-indicators').empty();
             $('li.list-group-item').css('background-color','white').css('color','#526325');
+            //$('li.list-group-item').append('<span class="glyphicon glyphicon-chevron-right pull-right"></span>');
+            $('audio').css('display','none').empty();
+            $.each($('audio'), function () {
+                this.pause();
+                this.currentTime = 0;
+            });
+            $.each($('video'), function () {
+                videojs(this.id).dispose();
+            });
+            $('#video-panel').css('display','none').empty();
         });
         
         /* Add map controls */
@@ -181,12 +222,12 @@ var ListWaypointsApp = OpenLayers.Class({
         var numWaypoints = 0;
         
         /* Get the Routes geojson */
-        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data) {
+        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data, status, jqXHR) {
             var routeId = data.id;
             var props = data.properties;
             var waypts = data.properties.waypoints;
             routeName = data.properties.name;
-            if (props.length != 0) { // find a better test here..
+            if (jqXHR.status == 200) { 
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -205,7 +246,7 @@ var ListWaypointsApp = OpenLayers.Class({
             }
             
             if (waypts.features.length == 0) {
-                $('#map').css('display','none');
+                $('#waypoints-map-panel').css('display','none');
                 $('ul.list-group').css('display','none');
                 $('#detail-panel').css('display','none');
                 $('#detail-panel-body').css('display','none');

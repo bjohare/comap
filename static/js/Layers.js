@@ -18,12 +18,23 @@ Layers.LANDSCAPE = new OpenLayers.Layer.OSM("OSM Landscape",
                 {crossOriginKeyword: null}
             );
 
+var tf_options = {
+            layers: "basic",
+            attribution: "Testing",
+            isBaseLayer: true, visibility: true, displayInLayerSwitcher: true
+        }
+
 // http://www.thunderforest.com/outdoors/
 Layers.OUTDOORS = new OpenLayers.Layer.OSM("OSM Outdoors",
                 ["http://a.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png",
                  "http://b.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png",
                  "http://c.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png"],
-                {crossOriginKeyword: null}
+                 {layers: "basic",
+                 attribution: 'Maps ©' + '<a href="http://www.thunderforest.com">Thunderforest</a>, Data © ' + '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+                 isBaseLayer: true,
+                 visibility: true,
+                 displayInLayerSwitcher: true,
+                 crossOriginKeyword: null}
             );
 
 Layers.STAMEN_WATERCOLOR = new OpenLayers.Layer.OSM("Stamen Watercolor",

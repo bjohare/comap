@@ -43,7 +43,7 @@ html, body {
 
 #create-form-panel, #update-form-panel {
     width: 100%;
-    max-width: 960px;
+    /*max-width: 960px;*/
 }
 
 #map-panel {
@@ -61,11 +61,10 @@ html, body {
 }
 
 
-a {
+a, a.route-link {
     color: #526325;
     text-decoration: none;
 }
-
 
 
 div#title {
@@ -144,8 +143,12 @@ div#map {
     /*margin-left: 25px;*/
 }
 
-.error {
-    border: 1px dashed red;
+#form-select-owner {
+    display: none;
+}
+
+#create-route-panel {
+    display: none;
 }
 
 ul {
@@ -194,6 +197,12 @@ div#edit-waypoint-map {
     border:1px solid lightgrey;
     border-radius: 4px;
     margin-bottom: 15px !important;
+}
+
+input#the_geom, input#elevation {
+    width:1px;
+    height:1px;
+    float: right;
 }
 
 div#create-header {
@@ -309,4 +318,126 @@ div#heading, div#detail-heading {
 
 .panel-heading {
     color: #6b9430 !important;
+}
+
+.fileinput-button {
+  position: relative;
+  overflow: hidden;
+}
+.fileinput-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  -ms-filter: 'alpha(opacity=0)';
+  font-size: 200px;
+  direction: ltr;
+  cursor: pointer;
+}
+
+/* Fixes for IE < 8 */
+@media screen\9 {
+  .fileinput-button input {
+    filter: alpha(opacity=0);
+    font-size: 100%;
+    height: 100%;
+  }
+}
+
+#save {
+    
+}
+
+#fileupload {
+    margin-top: 25px;
+    color: #6B9430;
+}
+
+/* form submission dropzone */
+
+#dropzone {
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid lightgrey;
+}
+
+#dropzone.in {
+    width: 100%;
+    height: 100%;
+    border: 4px dashed darkgrey;
+}
+
+#dropzone.hover {
+
+}
+
+#dropzone.fade {
+    -webkit-transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+    opacity: 1;
+}
+
+.fileupload-buttonbar {
+    margin-right: 0px !important;
+}
+
+tr.template-upload div.progress {
+    display: none;
+}
+
+button.start {
+    display: none;
+}
+
+button[data-toggle=popover] {
+    background:transparent;
+    border: none;
+    
+}
+
+#carousel {
+    display: none;
+    margin-bottom: 10px;
+}
+
+#audio-panel, #video-panel {
+    margin: 10px 0 20px 0;
+}
+
+span.preview audio {
+    max-width: 160px;
+}
+
+span.preview video {
+    max-width: 160px;
+    max-height: 160px;
+}
+
+/* Slider - used for Volume bar and Seek bar */
+.vjs-default-skin .vjs-slider .vjs-play-progress {
+  /* background-color-with-alpha */
+  background-color: #6B9430 !important;
+  background-color: rgba(107, 148, 48, 0.9) !important;
+}
+
+.vjs-default-skin .vjs-volume-bar .vjs-volume-level {
+  /* background-color-with-alpha */
+  background-color: #6B9430 !important;
+  background-color: rgba(107, 148, 48, 0.9) !important;
+}
+
+
+.vjs-big-play-button {
+    background-color: rgba(107, 148, 48, 0.7) !important;
+}
+
+.table-responsive {
+    border: none !important;
 }

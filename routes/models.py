@@ -20,6 +20,7 @@ class Route(models.Model):
         db_table = 'routes'
     def __str__(self):
         return 'Route[fid: {}, name: {}, description: {}, created: {}, user: {}, group: {}]'.format(self.fid, self.name, self.description, self.created, self.user_id, self.group_id)
+        
 
 class TrackPoint(models.Model):
     """GPX track_points for a route"""

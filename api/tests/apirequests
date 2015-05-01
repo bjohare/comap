@@ -1,0 +1,11 @@
+# delete a waypointmedia entry
+curl -v -X DELETE http://waymarkers.org/comap/api/waypointmedia/:id -H 'Authorization: Token 02f097b212418444bdf75c48ada23e38c131489b'
+
+# create a waypointmedia entry
+curl -v --form media_file=@lakeside.jpg --form waypoint_id=1 -X POST http://waymarkers.org/comap/api/waypointmedia.json -H 'Authorization: Token 02f097b212418444bdf75c48ada23e38c131489b'
+
+
+# create a waypoint entry
+curl -v  --data "name=Test&description=Test Description&the_geom=POINT(-7.1143 54.3340)&route=66&elevation=201" -X POST http://waymarkers.org/comap/api/waypoints.json -H 'Authorization: Token 02f097b212418444bdf75c48ada23e38c131489b'
+
+

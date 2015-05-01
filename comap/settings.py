@@ -59,7 +59,9 @@ DEFAULT_APPS = (
 THIRD_PARTY_APPS = (
     'rest_framework',
     'rest_framework_gis',
+    'rest_framework.authtoken',
     'imagekit',
+    'django_nose',
 )
 
 LOCAL_APPS = (
@@ -82,7 +84,8 @@ MIDDLEWARE_CLASSES = (
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',), 
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',
+                                       'rest_framework.authentication.TokenAuthentication'),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',)
 }
 
@@ -92,7 +95,7 @@ WSGI_APPLICATION = 'comap.wsgi.application'
 
 # session settings
 SESSION_COOKIE_NAME='comap_sessionid'
-SESSION_COOKIE_DOMAIN='cloughjordan.ie'
+SESSION_COOKIE_DOMAIN='waymarkers.org'
 SESSION_COOKIE_PATH='/comap'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -190,3 +193,5 @@ LOGGING = {
 # Grappelli Settings
 
 GRAPPELLI_ADMIN_TITLE = 'CoMap Administration'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

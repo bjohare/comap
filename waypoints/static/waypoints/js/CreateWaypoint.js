@@ -16,14 +16,6 @@
 
 */
 
-/*
-        var wkt = new OpenLayers.Format.WKT();
-        var point = $('input#the_geom').val();
-        var geom = wkt.read(point).geometry;
-        $('span#lat').html('&nbsp;' + geom.y);
-        $('span#lng').html('&nbsp;' + geom.x);        
-*/
-
 var CreateWaypointApp = OpenLayers.Class({
     
     /* initial setup */
@@ -38,11 +30,80 @@ var CreateWaypointApp = OpenLayers.Class({
         $('#route').val(this.routeId);
         this.initForm();
         this.map = this.initMap();
+        $('[data-toggle="popover"]').popover();
+
 	},
 
     /* Initialize the form */
-    initForm: function(){
+    initForm: function() {
         console.log('Initializing form...');
+        
+         // Initialize the jQuery File Upload widget:
+        var fileUpload = $('#fileupload').fileupload({
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCredentials: true},
+            url: Config.WAYPOINT_MEDIA_API_URL + '.json',
+            type: 'POST',
+            //singleFileUploads: false,
+            autoUpload: false,
+            dropZone: $('#dropzone'),
+        });
+        
+        $('#fileupload').bind('fileuploadadded', function (e, data) {
+            $('#dz-message').css('display','none');
+            $('#dropzone').css('border','2px solid lightgrey');
+        });
+        
+        var that = this;
+        that.cancelled = 0;
+        $('#fileupload').bind('fileuploadfail', function (e, data) {
+            that.cancelled += 1;
+            var numFiles = data.originalFiles.length;
+            if (numFiles == that.cancelled) {
+                that.cancelled = 0;
+                console.log('All uploads cancelled');
+                $('#dz-message').css('display','block');
+            }
+        });
+        
+        
+        var that = this;
+        that.submitted = 0;
+        $('#fileupload').bind('fileuploadcompleted', function (e, data) {
+            that.submitted += 1;
+            var numFiles = data.getNumberOfFiles();
+            if (numFiles == that.submitted) {
+                that.submitted = 0;
+                console.log('All files submitted.');
+                $('#create-form-panel').css('display','none');
+                $('#create-info').css('display', 'block');
+            }
+        });
+        
+        $('#dropzone').bind('dragover', function (e) {
+            var dropZone = $('#dropzone');
+            dropZone.addClass('in');
+            var found = false,
+                node = e.target;
+            do {
+                if (node === dropZone[0]) {
+                    found = true;
+                    break;
+                }
+                node = node.parentNode;
+            } while (node != null);
+            if (found) {
+                dropZone.addClass('hover');
+            } else {
+                dropZone.removeClass('hover');
+            }
+        });
+        
+        $('#dropzone').bind('dragleave', function(e){
+           $('#dropzone').removeClass('in hover');
+        });
+    
+            
         $('#waypointForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
@@ -75,11 +136,12 @@ var CreateWaypointApp = OpenLayers.Class({
                     }
                 },
             }
+        }).on('success.field.fv', function(e, data) {
+            if (data.fv.getInvalidFields().length > 0) {    // There is invalid field
+                data.fv.disableSubmitButtons(true);
+            }
         });
-        
-        var progressbar = $('#progressbar').progressbar();
-        var that = this;
-        $('#progressbar').css("display","none");
+       
         $('#waypointForm').ajaxForm({
             url: Config.WAYPOINT_API_URL + ".json",
             beforeSubmit: function(arr, $form, options) {
@@ -89,15 +151,12 @@ var CreateWaypointApp = OpenLayers.Class({
                 arr[1].value = now.toISOString();
             },
             uploadProgress: function(event, position, total, percentComplete) {
-                progressbar.progressbar({value: percentComplete});
+                //progressbar.progressbar({value: percentComplete});
             },
             success: function(data, status, xrh) {
-                $('#progressbar').css("display","none");
-                $('#create-form-panel').css('display','none');
                 console.log('Created Waypoint.')
                 var props = xrh.responseJSON.properties;
                 var id = xrh.responseJSON.id;
-                $('#create-info').css("display", "block");
                 $('#create-info-heading').append('<h4>Waypoint created successfully</h4>');
                 $('#create-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
                 $('#create-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
@@ -110,12 +169,31 @@ var CreateWaypointApp = OpenLayers.Class({
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#create-info-panel').append('</p>');
+                
+                // get new waypoint id and post the media
+                var template = $('.template-upload');
+                var media = template.data('data');
+                if (media) {
+                    var waypointId = data.id;
+                    var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
+                    var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
+                    $('#fileupload').fileupload({
+                        formData: formData
+                    });
+                    $('.fileupload-buttonbar').find('.start').click();
+                }
+                else {
+                    $('#create-form-panel').css('display','none');
+                    $('#create-info').css('display', 'block');
+                }
+                
             },
             error: function(xhr, status, error){
                 $('#progressbar').css("display", "none");
                 console.log(error);
             },
         });
+        
     },
     
     /* map creation */
@@ -132,9 +210,17 @@ var CreateWaypointApp = OpenLayers.Class({
         var map = new OpenLayers.Map('edit-waypoint-map',  {options: mapOptions});
 		
 		/* add layers */
+        var bing_aerial = Layers.BING_AERIAL;
+        var tf_outdoors = Layers.OUTDOORS;
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial]);
+        
+        /*
 		var ocm = Layers.OCM;
 		ocm.options = {layers: "basic", isBaseLayer: false, visibility: false, displayInLayerSwitcher: true};
         map.addLayers([Layers.OCM]);
+        */
         
         // add the route layer to the map
         this.loadRouteVector();
@@ -148,8 +234,14 @@ var CreateWaypointApp = OpenLayers.Class({
 						lonlat.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
 						var lat = lonlat.lat.toPrecision(8);
 						var lon = lonlat.lon.toPrecision(8);
+						// irish grid ref
+                        wgs84=new GT_WGS84();
+                        wgs84.setDegrees(lat, lon);
+                        irish=wgs84.getIrish();
+                        gridref = irish.getGridRef(3);
 						$('#lat').html('&nbsp;' + lat);
 						$('#lng').html('&nbsp;' + lon);
+                        $('#gridref').html('&nbsp;' + gridref);
 						$('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
 					},
 					
@@ -174,8 +266,15 @@ var CreateWaypointApp = OpenLayers.Class({
             // update the geom on the form and trigger validation
             $('#the_geom').val('POINT(' + geom.x + ' ' + geom.y + ')');
             $('#the_geom').trigger("input");
-            var lat = geom.y;
-            var lon = geom.x;
+            var lat = geom.y.toPrecision(8);
+            var lon = geom.x.toPrecision(8);
+            wgs84=new GT_WGS84();
+            wgs84.setDegrees(lat, lon);
+            irish=wgs84.getIrish();
+            gridref = irish.getGridRef(3);
+            $('#lat').html('&nbsp;' + lat);
+            $('#lng').html('&nbsp;' + lon);
+            $('#gridref').html('&nbsp;' + gridref);
             $.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY+ '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
                   function(data){
                     var elevation = data.elevationProfile[0].height;
