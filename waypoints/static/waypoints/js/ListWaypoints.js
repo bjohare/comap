@@ -18,7 +18,9 @@
 
 var ListWaypointsApp = OpenLayers.Class({
     
-    initialize: function(){  
+    initialize: function(){
+        this.buildDeleteDialog();
+        $('.carousel').carousel();
     },
     
     main: function() {
@@ -37,10 +39,15 @@ var ListWaypointsApp = OpenLayers.Class({
 
         map = new OpenLayers.Map('map', {options: mapOptions});
         
-        var ocm = Layers.OCM;
-        ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
-        map.addLayers([ocm]);
-        
+        var bing_aerial = Layers.BING_AERIAL;
+        var tf_outdoors = Layers.OUTDOORS;
+        var townlands = Layers.OSM_TOWNLANDS;
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial]);
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial, townlands]);
+               
         /* Styles */
         var defaultLineStyle = new OpenLayers.Style({
             strokeColor: "#db337b",
@@ -62,7 +69,7 @@ var ListWaypointsApp = OpenLayers.Class({
         });
         
         var lineStyles = new OpenLayers.StyleMap(
-            {
+        {
                 "default": defaultLineStyle,
                 "select": selectLineStyle
         });
@@ -109,24 +116,67 @@ var ListWaypointsApp = OpenLayers.Class({
         
         this.buildWaypointList(waypoints, selectControl);
         
-        this.buildDeleteDialog();
-        
         /* feature selection event handling */
         waypoints.events.register("featureselected", this, function(e) {
                 var feature = e.feature;
                 var fid = feature.fid;
                 var feat = feature.clone();
                 var attrs = feat.attributes;
+                var files = attrs.media.files;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
+                var group = feat.attributes.route.group.name;
+                
+                // irish grid ref
+                wgs84=new GT_WGS84();
+                wgs84.setDegrees(geom.y, geom.x);
+                irish=wgs84.getIrish();
+                gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
-                if (!attrs.image_path == 'none_provided') {
-                    $('.panel-body').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
-                }
                 $('.panel-body').find('span.description').html(attrs.description);
+                // populate the carousel
+                if (files.length > 0) {
+                    // need to check for content_type here..
+                    // and only add images to the carousel
+                    $.each(files, function( index, file) {
+                        var content_type = file.content_type.split('/')[0];
+                        switch(content_type) {
+                            case 'image':
+                                var active = index === 0 ? 'active' : '';
+                                var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
+                                var slide = '<div class="item ' + active + '">' +
+                                            '<img src="' +  file.media_url + '"/>' +
+                                            '</div>'
+                                $('.carousel-inner').append(slide);
+                                $('.carousel-indicators').append(indicator);
+                                $('#carousel').css('display','block');
+                                $('#carousel').carousel('cycle'); 
+                                break;
+                            case 'audio':
+                                var audio = $('audio');
+                                audio.css('display','block');
+                                audio.append('<source src="' + file.media_url + '" type="' + file.content_type + '"/>');
+                                break;
+                            case 'video':
+                                var video = $('#video-panel');
+                                var vid = "vid_" + index;
+                                video.css('display','block');
+                                video.append('<video id="' + vid + '" preload controls class="video-js vjs-default-skin vjs-big-play-centered embed-responsive-item">' +
+                                                '<source src="' + file.media_url + '" type="' + file.content_type + '"/>' +
+                                             '</video>');
+                                videojs(vid, {"width":"auto", "height":"auto"});
+                                break;
+                        }
+                    });  
+                }
+                else {
+                    $('#carousel').carousel('pause');
+                    $('#carousel').css('display','none');
+                }
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
                 $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
                 $('.panel-body').find('span.longitude').html(geom.x.toFixed(4));
+                $('.panel-body').find('span.irishgrid').html(gridref);
                 $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
                 $('.panel-body').find('a.editlink').prop('href','/comap/waypoints/edit/' + fid);
                 $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
@@ -137,7 +187,20 @@ var ListWaypointsApp = OpenLayers.Class({
         waypoints.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
+            $('#carousel').css('display','none');
+            $('.carousel-inner').empty();
+            $('.carousel-indicators').empty();
             $('li.list-group-item').css('background-color','white').css('color','#526325');
+            //$('li.list-group-item').append('<span class="glyphicon glyphicon-chevron-right pull-right"></span>');
+            $('audio').css('display','none').empty();
+            $.each($('audio'), function () {
+                this.pause();
+                this.currentTime = 0;
+            });
+            $.each($('video'), function () {
+                videojs(this.id).dispose();
+            });
+            $('#video-panel').css('display','none').empty();
         });
         
         /* Add map controls */
@@ -159,12 +222,12 @@ var ListWaypointsApp = OpenLayers.Class({
         var numWaypoints = 0;
         
         /* Get the Routes geojson */
-        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data) {
+        $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data, status, jqXHR) {
             var routeId = data.id;
             var props = data.properties;
             var waypts = data.properties.waypoints;
             routeName = data.properties.name;
-            if (props.length != 0) { // find a better test here..
+            if (jqXHR.status == 200) { 
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -182,8 +245,8 @@ var ListWaypointsApp = OpenLayers.Class({
                 map.zoomToExtent(route.getDataExtent());
             }
             
-            if (waypts.length == 0) {
-                $('#map').css('display','none');
+            if (waypts.features.length == 0) {
+                $('#waypoints-map-panel').css('display','none');
                 $('ul.list-group').css('display','none');
                 $('#detail-panel').css('display','none');
                 $('#detail-panel-body').css('display','none');
@@ -194,33 +257,31 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('#panel').html(panelText);
                 $('#panel').append('<p><span><strong><hr/></p>');
                 $('#panel').append('<p>');
-                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-primary"><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Waypoint</button></a>');
                 $('#panel').append('</p>');
             }
             else {
-                $('#map').css('visibility','visible');
+                $('#waypoints-map-panel').css('visibility','visible');
+                //$('#map').css('visibility','visible');
                 $('#detail-panel').css('visibility','visible');
                 $('#detail-panel-body').css('display','none');
                 var heading = '<h5>' + routeName + '</h5>';
                 $('#heading').html(heading);
                 $('#panel').html('<p>Here is a list of waypoints for the ' + routeName + ' route.</p>');
-                $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button><span class="glyphicon glyphicon-plus"></span> Add a new waypoint..</button></a>');
+                $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new waypoint</button></a>');
                 // add waypoints to the list..
                 $('ul.list-group').empty();
-                $.each(waypts, function(i){
-                    var name = waypts[i].properties.name;
-                    var id = waypts[i].id;
+                var features = waypts.features;
+                $.each(features, function(i){
+                    var name = features[i].properties.name;
+                    var id = features[i].id;
                     $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
                 });
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                         'externalProjection': new OpenLayers.Projection("EPSG:4326")
                 });
-                var waypointsGeoJSON = {
-                    type: "FeatureCollection",
-                    features: waypts
-                }
-                var features = geojson.read(waypointsGeoJSON);
+                var features = geojson.read(waypts);
                 waypoints.addFeatures(features);
                 selectControl.unselectAll();
                 waypoints.events.triggerEvent('featureunselected');
@@ -236,6 +297,7 @@ var ListWaypointsApp = OpenLayers.Class({
     },
     
     buildDeleteDialog: function(){
+        
         var that = this;
         var options = {
             dataType: 'json',
@@ -256,21 +318,18 @@ var ListWaypointsApp = OpenLayers.Class({
             },
         }
         
-        $('#dialog-confirm').dialog({
-           resizable: false,
-           height:200,
-           width:400,
-           autoOpen: false,
-           modal: true,
-           buttons: {
-                "Delete": function() {
-                    $('#deleteForm').ajaxSubmit(options);
-                    $( this ).dialog( "close" );
-                },
-                "Cancel": function() {
-                    $( this ).dialog( "close" );
-                }
-            }
+       var modalOpts = {
+            keyboard: true,
+            backdrop: 'static',
+        }
+        
+        $("#btnDelete").click(function(){
+            $("#deleteWaypointModal").modal(modalOpts, 'show');
+        });
+        
+        $("#deleteConfirm").click(function(){
+            $('#deleteForm').ajaxSubmit(options);
+            $("#deleteWaypointModal").modal('hide');
         });
     }
 });

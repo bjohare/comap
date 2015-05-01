@@ -61,6 +61,7 @@ THIRD_PARTY_APPS = (
     'rest_framework_gis',
     'rest_framework.authtoken',
     'imagekit',
+    'django_nose',
 )
 
 LOCAL_APPS = (
@@ -192,3 +193,5 @@ LOGGING = {
 # Grappelli Settings
 
 GRAPPELLI_ADMIN_TITLE = 'CoMap Administration'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

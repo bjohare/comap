@@ -26,7 +26,80 @@ var EditWaypointApp = OpenLayers.Class({
 
     /* Initialize the form */
     initForm: function(){
-        console.log('Initializing form...');
+        
+         // Initialize the jQuery File Upload widget:
+        var fileUpload = $('#fileupload').fileupload({
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCredentials: true},
+            url: Config.WAYPOINT_MEDIA_API_URL + '.json',
+            type: 'POST',
+            autoUpload: false,
+            dropZone: $('#dropzone'),
+            previewMaxWidth: 100,
+            previewMaxHeight: 100,
+        });
+        
+        $('#fileupload').bind('fileuploaddestroy', function (e, data) {
+            var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+            var settings = {
+                'accepts': 'application/json',
+                'method': 'POST',
+                'context': data.context,
+                'data': {'_method': 'DELETE',
+                         'csrfmiddlewaretoken': csrftoken
+                }
+            }
+            console.log('Deleting: ' + data.url);
+            $.ajax(data.url, settings).success(function(data, status, jqXHR){
+                $(this).fadeOut("slow", function(){
+                    this.remove();
+                });
+            });
+            
+        });
+        
+        var that = this;
+        that.submitted = 0;
+        $('#fileupload').bind('fileuploadcompleted', function (e, data) {
+            that.submitted += 1;
+            var numFiles = data.files.length;
+            if (numFiles == that.submitted) {
+                that.submitted = 0;
+                console.log('All files submitted.');
+                $('#update-form-panel').css('display','none');
+                $('#update-info').css('display', 'block');
+            }
+        });
+                
+        $('#dropzone').bind('dragover', function (e) {
+            var dropZone = $('#dropzone');
+            dropZone.addClass('in');
+            var found = false,
+                node = e.target;
+            do {
+                if (node === dropZone[0]) {
+                    found = true;
+                    break;
+                }
+                node = node.parentNode;
+            } while (node != null);
+            if (found) {
+                dropZone.addClass('hover');
+            } else {
+                dropZone.removeClass('hover');
+            }
+        });
+        
+        $('#dropzone').bind('drop dragleave', function(e){
+           $('#dropzone').removeClass('in hover');
+        });
+        
+         $('#save').bind('click', function(e){
+           $('#dropzone').css('display','none');
+           $('.fileinput-button').prop('disabled', true);
+        });
+        
+        
         $('#waypointForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
@@ -61,7 +134,7 @@ var EditWaypointApp = OpenLayers.Class({
             }
         });
         
-        var progressbar = $('#progressbar').progressbar();
+        //var progressbar = $('#progressbar').progressbar();
         var that = this;
         $('#progressbar').css("display","none");
         $('#waypointForm').ajaxForm({
@@ -73,15 +146,12 @@ var EditWaypointApp = OpenLayers.Class({
                 this.url = Config.WAYPOINT_API_URL + '/' + $('#fid').val();
             },
             uploadProgress: function(event, position, total, percentComplete) {
-                progressbar.progressbar({value: percentComplete});
+                //progressbar.progressbar({value: percentComplete});
             },
             success: function(data, status, xrh) {
-                $('#progressbar').css("display","none");
-                $('#update-form-panel').css('display','none');
                 console.log('Updated Waypoint.')
                 var props = xrh.responseJSON.properties;
                 var id = xrh.responseJSON.id;
-                $('#update-info').css("display", "block");
                 $('#update-info-heading').append('<h4>Waypoint updated successfully</h4>');
                 $('#update-info-panel').append('<p><span><strong>Waypoint name:</strong> ' + props.name + '</span></p>');
                 $('#update-info-panel').append('<p><span><strong>Description:</strong> ' + props.description + '</span></p>');
@@ -94,6 +164,23 @@ var EditWaypointApp = OpenLayers.Class({
                 $('#update-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
                 $('#update-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#update-info-panel').append('</p>');
+                
+                 // get new waypoint id and post the media
+                var template = $('.template-upload');
+                var media = template.data('data');
+                if (media) {
+                    var waypointId = id;
+                    var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
+                    var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
+                    $('#fileupload').fileupload({
+                        formData: formData
+                    });
+                    $('.fileupload-buttonbar').find('.start').click();
+                }
+                else {
+                    $('#update-form-panel').css('display','none');
+                    $('#update-info').css('display', 'block');
+                }
             },
             error: function(xhr, status, error){
                 $('#progressbar').css("display", "none");
@@ -116,9 +203,17 @@ var EditWaypointApp = OpenLayers.Class({
         var map = new OpenLayers.Map('edit-waypoint-map',  {options: mapOptions});
 		
 		/* add layers */
+        var bing_aerial = Layers.BING_AERIAL;
+        var tf_outdoors = Layers.OUTDOORS;
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        map.addLayers([tf_outdoors, bing_aerial]);
+        
+        /*
 		var ocm = Layers.OCM;
 		ocm.options = {layers: "basic", isBaseLayer: false, visibility: false, displayInLayerSwitcher: true};
         map.addLayers([Layers.OCM]);
+        */
         
         var waypoints = new OpenLayers.Layer.Vector("Waypoints", {
             styleMap: this.getPointStyleMap(),
@@ -129,8 +224,14 @@ var EditWaypointApp = OpenLayers.Class({
 						lonlat.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
 						var lat = lonlat.lat.toPrecision(8);
 						var lon = lonlat.lon.toPrecision(8);
+                        // irish grid ref
+                        wgs84=new GT_WGS84();
+                        wgs84.setDegrees(lat, lon);
+                        irish=wgs84.getIrish();
+                        gridref = irish.getGridRef(3);
 						$('#lat').html('&nbsp;' + lat);
 						$('#lng').html('&nbsp;' + lon);
+                        $('#gridref').html('&nbsp;' + gridref);
 						$('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
 					},
 					
@@ -147,14 +248,20 @@ var EditWaypointApp = OpenLayers.Class({
         
 		// TODO: map zoom and pan causes this to fire.. so bit buggy.. as map gets reset
 		waypoints.events.register("featureadded", selectControl, function(e){
-			console.log('featureadded event fired..');
 			var geom = e.feature.geometry.clone();
             geom.transform('EPSG:3857', 'EPSG:4326');
             // update the geom on the form and trigger validation
             $('#the_geom').val('POINT(' + geom.x + ' ' + geom.y + ')');
-            $('#the_geom').trigger("input");
-            var lat = geom.y;
-            var lon = geom.x;
+            //$('#the_geom').trigger("input");
+            var lat = geom.y.toPrecision(8);
+            var lon = geom.x.toPrecision(8);
+            wgs84=new GT_WGS84();
+            wgs84.setDegrees(lat, lon);
+            irish=wgs84.getIrish();
+            gridref = irish.getGridRef(3);
+            $('#lat').html('&nbsp;' + lat);
+            $('#lng').html('&nbsp;' + lon);
+            $('#gridref').html('&nbsp;' + gridref);
             $.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY+ '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
                   function(data){
                     var elevation = data.elevationProfile[0].height;
@@ -202,10 +309,13 @@ var EditWaypointApp = OpenLayers.Class({
         var fid = id;
         this.routeId = -1;
         var waypointUrl = Config.WAYPOINT_API_URL + '/' + id + '.json';
-        console.log(waypointUrl);
         var that = this;
         $.getJSON(waypointUrl, function(data){
                 var props = data.properties;
+                //populate the media template
+                var files = props.media;
+                var template = tmpl('template-download', files);
+                $('.files').append(template);
                 that.routeId = data.properties.route.fid;
                 if (props.length == 0) {
                     alert('Error, no features found');
@@ -215,6 +325,7 @@ var EditWaypointApp = OpenLayers.Class({
                     $('#name').val(props.name);
                     $('#description').val(props.description);
                     $('#route').val(that.routeId);
+                    $('#update-form-heading').html('<h5>Update the ' + props.name + ' waypoint</h5>');
                     var geojson = new OpenLayers.Format.GeoJSON({
                                     'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                                     'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -222,14 +333,12 @@ var EditWaypointApp = OpenLayers.Class({
                     var features = geojson.read(data);
                     waypoints.addFeatures(features);
                     var jsonUrl = Config.TRACK_API_URL + '/' + that.routeId + '.json';
-                    console.log(jsonUrl);
                     $.getJSON(jsonUrl, function(data){
                         var geojson = new OpenLayers.Format.GeoJSON({
                                     'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                                     'externalProjection': new OpenLayers.Projection("EPSG:4326")
                             });
                             var routeName = data.properties.name;
-                            $('#update-form-heading').html('<h5>Add a waypoint to the ' + routeName + ' route</h5>');
                             var route = new OpenLayers.Layer.Vector(routeName, {
                             styleMap: that.getLineStyleMap()
                             });
