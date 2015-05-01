@@ -1,4 +1,4 @@
-import logging, sys, pdb, json
+import logging, sys, pdb, json, os
 
 from rest_framework.reverse import reverse
 from django.test import TestCase
@@ -14,7 +14,7 @@ from api.views import (WaypointMediaViewSet, WaypointViewSet)
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
-class WaypointMediaViewSetTest(TestCase):
+class TestWaypointMediaViewSet(TestCase):
     
     def setUp(self):
         self.factory = APIRequestFactory(format='multipart')
@@ -24,28 +24,29 @@ class WaypointMediaViewSetTest(TestCase):
         )
         self.user.groups = [self.group]
         linestring = GEOSGeometry('MULTILINESTRING((-7.10411262698471 54.3239101488143,-7.10412142798305 54.3239141721278,-7.10410986095667 54.3239162676036,-7.10410818457604 54.3238997552544,-7.1040909178555 54.3239010125399))')
-        Route.objects.create(name='TestRoute', description='Test Route Description', the_geom=linestring, user_id=1, group_id=1, created='2012-05-20 14:10:31', image_file='/image.jpg')
+        Route.objects.create(fid=1, name='TestRoute', description='Test Route Description', the_geom=linestring, user_id=1, group_id=1, created='2012-05-20 14:10:31', image_file='/image.jpg')
         point = GEOSGeometry('POINT (-7.102992720901966 54.326739795506001)')
-        Waypoint.objects.create(name='Ballycapple Castle', description='Some descriptive text',
+        Waypoint.objects.create(fid=1, name='Ballycapple Castle', description='Some descriptive text',
                                 elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)
     
     
     def test_create_media(self):
-        logging.debug('In testCreate')
-        f = open('/home/ubuntu/www/waymarkers/comap/api/tests/loughderg.jpg', 'rb')
+        path = os.path.dirname(os.path.realpath(__file__))
+        f = open(path + '/loughderg.jpg', 'rb')
         request = self.factory.post('/api/waypointmedia.json', {'files[]':  f, 'group_id': 1, 'waypoint_id': 1, 'route_id': 1}, format='multipart')
         f.close()
         force_authenticate(request, user=self.user)
         view = WaypointMediaViewSet.as_view({'post':'create'})
         response = view(request)
         fid = response.data['files'][0]['fid']
+        logging.debug('Fid is: ' + str(fid))
         media = WaypointMedia.objects.get(fid=fid)
         # clean up
         media.delete()
         
         
 
-class WaypointTestCase(TestCase):
+class TestWaypointViewSet(TestCase):
     
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -57,16 +58,6 @@ class WaypointTestCase(TestCase):
         linestring = GEOSGeometry('MULTILINESTRING((-7.10411262698471 54.3239101488143,-7.10412142798305 54.3239141721278,-7.10410986095667 54.3239162676036,-7.10410818457604 54.3238997552544,-7.1040909178555 54.3239010125399))')
         Route.objects.create(fid=1,name='TestRoute', description='Test Route Description', the_geom=linestring, user_id=self.user.id, group_id=self.group.id, created='2012-05-20 14:10:31', image_file='/image.jpg')
     
-    def test_list_waypoints(self):
-        Waypoint.objects.create(fid=1, name='Ballycapple Castle', description='Some descriptive text',
-                                elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)
-        video = SimpleUploadedFile("file.mp4", "file_content", content_type="video/mp4")
-        request = self.factory.post('/api/waypointmedia.json', {'media_file':  video, 'group_id': 1, 'waypoint_id': 1, 'route_id': 1}, format='multipart')
-        force_authenticate(request, user=self.user)
-        view = WaypointMediaViewSet.as_view({'post':'create'})
-        response = view(request)
-        media = WaypointMedia.objects.get(fid=response.data['fid'])
-        pass
     
     def test_create_waypoint(self):
         request_data = {
@@ -124,7 +115,7 @@ class WaypointTestCase(TestCase):
             logging.debug('Expected: Waypoint not found')
         self.assertIsNone(wp)
         
-    def test_list_waypoints(self):
+    def test_list_waypoints_for_route(self):
         point = GEOSGeometry('POINT (-7.102992720901966 54.326739795506001)')
         wp1 = Waypoint.objects.create(name='Ballycapple Castle 1', description='Some descriptive text',
                                 elevation=223.45, created='2012-05-20 14:10:31', the_geom = point, route_id=1)

@@ -170,7 +170,7 @@ LOGGING = {
         'django': {
             'handlers':['file'],
             'propagate': True,
-            'level':'DEBUG',
+            'level':'INFO',
         },
         'waypoints': {
             'handlers': ['file'],

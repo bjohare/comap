@@ -103,7 +103,6 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
         data = {}
         try:
             original_file = request.FILES['files[]']
-            logging.debug(type(original_file))
             name = original_file.name.replace(' ', '_').lower()
             content_type = original_file.content_type
             size = original_file.size

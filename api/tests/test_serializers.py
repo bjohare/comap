@@ -16,7 +16,7 @@ from api.serializers import WaypointSerializer
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 
-class WaypointSerializerTestCase(TestCase):
+class WaypointSerializerTest(TestCase):
     
     def setUp(self):
         self.group = Group.objects.create(name='Knockatallon Ramblers')

@@ -225,6 +225,7 @@ class WaypointMediaSerializer(serializers.ModelSerializer):
     
     def to_internal_value(self, data):
         waypoint_id = data['waypoint_id']
+        logger.debug(waypoint_id)
         waypoint = Waypoint.objects.get(fid=waypoint_id)
         waypoint_data = {'fid': waypoint_id, 'name': waypoint.name}
         filename = data['filename']
