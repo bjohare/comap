@@ -47,13 +47,7 @@ var ListWaypointsApp = OpenLayers.Class({
         map.addLayers([tf_outdoors, bing_aerial]);
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         map.addLayers([tf_outdoors, bing_aerial, townlands]);
-        
-        /*
-        var ocm = Layers.OCM;
-        ocm.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: false};
-        map.addLayers([ocm]);
-        */
-        
+               
         /* Styles */
         var defaultLineStyle = new OpenLayers.Style({
             strokeColor: "#db337b",
@@ -130,6 +124,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 var attrs = feat.attributes;
                 var files = attrs.media.files;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
+                var group = feat.attributes.route.group.name;
                 
                 // irish grid ref
                 wgs84=new GT_WGS84();

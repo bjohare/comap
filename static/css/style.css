@@ -61,11 +61,10 @@ html, body {
 }
 
 
-a {
+a, a.route-link {
     color: #526325;
     text-decoration: none;
 }
-
 
 
 div#title {
@@ -142,6 +141,14 @@ div#map {
 
 #gpxForm, #editGpxForm{
     /*margin-left: 25px;*/
+}
+
+#form-select-owner {
+    display: none;
+}
+
+#create-route-panel {
+    display: none;
 }
 
 ul {

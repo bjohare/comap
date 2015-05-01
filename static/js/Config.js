@@ -6,3 +6,4 @@ Config.TRACK_API_URL = '/comap/api/tracks';
 Config.WAYPOINT_API_URL = '/comap/api/waypoints';
 Config.WAYPOINT_MEDIA_API_URL = '/comap/api/waypointmedia'
 Config.TRACKPOINT_API_URL = '/comap/api/points';
+Config.USER_API_URL = '/comap/api/user';

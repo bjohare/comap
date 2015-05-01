@@ -132,22 +132,52 @@ var RouteApp = OpenLayers.Class({
         // get the routes from the tracks api and build the page..
         $.getJSON(Config.TRACK_API_URL, function(data){
             var feats = data.features;
+            var foundGroups = [];
+            $.each(feats, function(i){
+                var group = feats[i].properties.group.name;
+                foundGroups.push(group);
+            });
+            var groups = _.uniq(foundGroups);
+            $('#routes').empty();
+            $.each(groups, function(i){
+                var group = groups[i];
+                var groupId = group.replace(' ', '-').toLowerCase();
+                var html =  '<div class="panel panel-default">' +
+                                '<div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>' +
+                                    '<div id="heading"><h5>' + group + '</h5></div></div>' +
+                                '<div id="panel" class="panel-body"><p>Here is a list of Routes for ' + group + '</div>' +
+                                '<ul id="' + groupId + '"' + 'class="list-group"></ul>' +
+                            '</div>';
+                $('#routes').append(html);
+                $.each(feats, function(j){
+                    var feature = feats[j];
+                    var name = feature.properties.name;
+                    var id = feature.id;
+                    var featGroup = feature.properties.group.name;
+                    if (group === featGroup) {
+                        $('ul#' + groupId).append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>'); 
+                    }
+                });
+            });
+            $('#routes').append('<div id="create-link" class="listlink"></div>');
+            $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
             $('#routes-map-panel').css('visibility','visible');
-            //$('#map').css('visibility','visible');
             $('#detail-panel').css('visibility','visible');
             $('#detail-panel-body').css('display','none');
-            var group = feats[0].properties.group.name;
-            var heading = '<h5>' + group + '</h5>';
-            $('#heading').html(heading);
-            $('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
-            $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
+            //var group = feats[0].properties.group.name;
+            //var heading = '<h5>' + group + '</h5>';
+            //$('#heading').html(heading);
+            //$('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
+            
             // add waypoints to the list..
+            /*
             $('ul.list-group').empty();
             $.each(feats, function(i){
                 var name = feats[i].properties.name;
                 var id = feats[i].id;
                 $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
             });
+            */
             var geojson = new OpenLayers.Format.GeoJSON({
                     'internalProjection': new OpenLayers.Projection("EPSG:3857"),
                     'externalProjection': new OpenLayers.Projection("EPSG:4326")
@@ -155,7 +185,7 @@ var RouteApp = OpenLayers.Class({
             var features = geojson.read(data);
             routes.addFeatures(features);
             map.zoomToExtent(routes.getDataExtent());
-            $( "#list a" ).bind( "click", function() {
+            $( "a.route-link" ).bind( "click", function() {
                 var fid = $(this).attr("id");
                 var feature = routes.getFeatureByFid(fid);
                 selectControl.unselectAll();

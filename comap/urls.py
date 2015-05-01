@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 from api import views
-from api.views import list_tracks
+from api.views import list_tracks, list_user_groups
 from django.contrib import admin
 admin.autodiscover()
 
@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^comap/api/', include(router.urls, namespace='api')),
     url(r'^comap/api/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^comap/api/routes', list_tracks),
+    url(r'^comap/api/user/$', list_user_groups),
     url(r'^comap/waypoints/', include('waypoints.urls', namespace='waypoints')),
     url(r'^comap/routes/', include('routes.urls', namespace='routes')),
     url(r'^grappelli/', include('grappelli.urls')), 

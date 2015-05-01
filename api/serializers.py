@@ -57,6 +57,21 @@ class ComapGeoFeatureModelSerializer(geo_serializers.GeoFeatureModelSerializer):
 
         return ret
 
+class GroupSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    
+    
+class UserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    
+
+class UserGroupSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    groups = GroupSerializer(many=True)
+    
 
 class SimpleRouteSerializer(serializers.Serializer):
     """ Simple serializer to provide a subset of Route fields"""
@@ -66,6 +81,7 @@ class SimpleRouteSerializer(serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="api:tracks-detail",
     )
+    group = GroupSerializer()
     
 
 class SimpleWaypointSerializer(serializers.Serializer):
@@ -77,17 +93,6 @@ class SimpleWaypointSerializer(serializers.Serializer):
         view_name="api:waypoints-detail",
     )
     
-    
-class UserSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    username = serializers.CharField()
-    
-
-class GroupSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-
-
 
 class WaypointSerializer(ComapGeoFeatureModelSerializer):
     """
