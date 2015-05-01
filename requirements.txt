@@ -4,6 +4,7 @@ GDAL==1.11.1
 Pillow==2.7.0
 argparse==1.2.1
 click==3.3
+coverage==3.7.1
 django-appconf==1.0.1
 django-filter==0.9.2
 django-grappelli==2.6.3
