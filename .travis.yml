@@ -2,8 +2,6 @@ language: python
 python:
   - "2.7"
 
-sudo:required
-
 before_install:
     - sudo mv /etc/apt/sources.list.d/pgdg-source.list* /tmp
     - sudo apt-get -qq remove postgis
