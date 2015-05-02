@@ -7,9 +7,8 @@ before_install:
     - sudo apt-get remove -y libgdal1
     - sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
     - sudo apt-get update -y
-    - sudo apt-get install -y gdal-bin
+    - sudo apt-get install -y libgdal-dev libproj-dev gdal-bin binutils
     - sudo apt-get install python-gdal
-    - sudo apt-get install -y libgdal-dev
     - export CPLUS_INCLUDE_PATH=/usr/include/gdal
     - export C_INCLUDE_PATH=/usr/include/gdal
 
@@ -20,8 +19,8 @@ addons:
   postgresql: "9.3"
 
 before_script:
-  - psql -c 'create database waymarkers;' -U gis 
+  - psql -c 'create database waymarkers;' -U postgres 
   - psql -U postgres -c "create extension postgis"
 
 # command to run tests
-script: ./manage.py test
+script: ./manage.py test -v2
