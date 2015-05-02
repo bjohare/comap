@@ -11,13 +11,13 @@ before_install:
     - sudo apt-get install -y libgdal-dev libproj-dev gdal-bin binutils
     - export CPLUS_INCLUDE_PATH=/usr/include/gdal
     - export C_INCLUDE_PATH=/usr/include/gdal
-    - sudo apt-get install postgresql-9.1-postgis
+    - sudo apt-get install postgresql-9.3-postgis-scripts
 
 # command to install dependencies
 install: "pip install -r requirements.txt"
 
-#addons:
-#  postgresql: "9.3"
+addons:
+  postgresql: "9.3"
 
 before_script:
   - psql -c 'create database waymarkers;' -U postgres 
