@@ -7,7 +7,7 @@ before_install:
     #- sudo apt-get remove postgis libgdal1 libpq5 libpq-dev postgresql-9.1-postgis postgresql-9.2-postgis postgresql-9.3-postgis postgresql-9.1 postgresql-9.2 postgresql-9.3 libgdal1
     - sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
     - sudo apt-get update -qq
-    - sudo apt-get install python-gdal
+    - sudo apt-get install python-gdal postgresql-9.3-postgis-2.1
     - sudo apt-get install -y libgdal-dev libproj-dev gdal-bin binutils
     - export CPLUS_INCLUDE_PATH=/usr/include/gdal
     - export C_INCLUDE_PATH=/usr/include/gdal
@@ -15,8 +15,8 @@ before_install:
 # command to install dependencies
 install: "pip install -r requirements.txt"
 
-#addons:
-#  postgresql: "9.1"
+addons:
+  postgresql: "9.3"
 
 before_script:
   - psql -c 'SELECT postgis_full_version();' -U postgres
