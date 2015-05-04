@@ -60,6 +60,10 @@ html, body {
     margin-bottom: 1.5em;
 }
 
+i[data-fv-icon-for="gpxfile"] {
+    display: none !important;
+}
+
 
 a, a.route-link {
     color: #526325;
