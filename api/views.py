@@ -347,8 +347,14 @@ Public endpoint for listing routes
 @api_view(('GET',))
 @permission_classes((permissions.AllowAny,))
 def list_tracks(request, format=None):
+    """List all routes or filter by group id"""
+    
     group_id = request.QUERY_PARAMS.get('group_id', -1)
-    routes = Route.objects.filter(group_id=group_id)
+    routes = None
+    if (group_id == -1):
+        routes = Route.objects.all()
+    else:
+        routes = Route.objects.filter(group_id=group_id)
     serializer = RouteSerializer(routes,  many=True, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
