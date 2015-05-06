@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, settings_private
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -103,17 +103,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 # django.db.backends.postgresql_psycopg2
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'waymarkers',
-        'OPTIONS': {
-            'options': '-c search_path=waymarkers,public'
-        },
-        'USER': 'gis',
-        'PASSWORD': 'al1ngton',
-    },
-}
+# see settings_private.py
+DATABASES = settings_private.DATABASES
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
