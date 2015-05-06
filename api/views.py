@@ -57,7 +57,9 @@ class JSONResponse(HttpResponse):
 
 class WaypointViewSet(viewsets.ModelViewSet):
     """
-    Viewset for handling api operations on Waypoints
+    Handles api operations on Waypoints.
+    Use query param 'group_id=:id' to filter by group.
+    
     """
     queryset = Waypoint.objects.filter(visible=True)
     serializer_class = WaypointSerializer
@@ -359,12 +361,4 @@ def list_tracks(request, format=None):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-"""
-@api_view(('GET',))
-def api_root(request, format=None):
-    return Response({
-        'waypoints': reverse('waypoints-list', request=request, format=format),
-        'points': reverse('points-list', request=request, format=format),
-        #'tracks': reverse('tracks-list', request=request, format=format),
-})
-"""
+

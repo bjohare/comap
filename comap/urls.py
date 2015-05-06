@@ -14,7 +14,8 @@ router.register(r'tracks', views.RouteViewSet, base_name='tracks')
 router.register(r'points', views.TrackPointViewSet, base_name='points')
 
 urlpatterns = patterns('',
-    url(r'^comap/$', TemplateView.as_view(template_name='comap/index.html')),
+    #url(r'^comap/$', TemplateView.as_view(template_name='comap/index.html')),
+    url(r'^comap/$', 'django.contrib.auth.views.login', {'template_name': 'comap/login.html'}),
     url(r'^comap/login/$', 'django.contrib.auth.views.login', {'template_name': 'comap/login.html'}),
     url(r'^comap/logout/$', 'django.contrib.auth.views.logout', {'template_name': 'comap/logout.html'}),
     url(r'^comap/api/', include(router.urls, namespace='api')),
