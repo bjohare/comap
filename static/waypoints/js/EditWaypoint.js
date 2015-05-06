@@ -242,7 +242,9 @@ var EditWaypointApp = OpenLayers.Class({
         // add the route and waypoint features to the map
         this.loadVectors(waypoints);
 		
-		var selectControl = new OpenLayers.Control.SelectFeature([waypoints]);
+		var selectControl = new OpenLayers.Control.SelectFeature(waypoints,{
+            id: 'selectControl'
+        });
 		map.addControl(selectControl);
 		selectControl.activate();
         
@@ -296,7 +298,7 @@ var EditWaypointApp = OpenLayers.Class({
 		modifyControl.activate();
 		
 		map.addControl(new OpenLayers.Control.LayerSwitcher());
-        map.zoomToExtent(new OpenLayers.Bounds(-8.06,52.94,-7.92,53.01).transform("EPSG:4326", "EPSG:3857"));       
+        map.zoomToExtent(waypoints.getDataExtent(), true);    
         
         return map;
     },
@@ -345,7 +347,11 @@ var EditWaypointApp = OpenLayers.Class({
                             that.map.addLayers([route]);
                             var features = geojson.read(data);
                             route.addFeatures(features);
-                            that.map.zoomToExtent(route.getDataExtent());
+                            var waypoint = waypoints.features[0];
+                            var bounds = waypoint.geometry.bounds;
+                            var selectControl = that.map.getControlsBy('id','selectControl')[0];
+                            selectControl.select(waypoint);
+                            that.map.zoomToExtent(bounds, true);
                     }).fail(function(data){
                         console.log('Failed to load route features..');
                     });
