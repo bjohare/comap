@@ -97,6 +97,7 @@ var RouteApp = OpenLayers.Class({
                 var feat = feature.clone();
                 var attrs = feat.attributes;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
+                map.zoomToExtent(feature.geometry.bounds, false);
                 $('#detail-panel-body').css('display','block');
                 $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
                 if (!attrs.image_path == 'none_provided') {
@@ -117,6 +118,10 @@ var RouteApp = OpenLayers.Class({
             $('#detail-heading').html('<h5>Select a route</h5>');
             $('#detail-panel-body').css('display','none');
             $('li.list-group-item').css('background-color','white').css('color','#526325');
+        });
+        
+        $('#reset-map').bind('click', function(e){
+             map.zoomToExtent(routes.getDataExtent());
         });
         
         /* Add map controls */

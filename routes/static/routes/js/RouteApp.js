@@ -119,6 +119,7 @@ var RouteApp = OpenLayers.Class({
             $('li.list-group-item').css('background-color','white').css('color','#526325');
         });
         
+        
         /* Add map controls */
         map.addControl(new OpenLayers.Control.ScaleLine());
         map.addControl(new OpenLayers.Control.LayerSwitcher());

@@ -125,7 +125,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 var files = attrs.media.files;
                 var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
                 var group = feat.attributes.route.group.name;
-                
+                map.zoomToExtent(feature.geometry.bounds, true);
                 // irish grid ref
                 wgs84=new GT_WGS84();
                 wgs84.setDegrees(geom.y, geom.x);
@@ -243,6 +243,10 @@ var ListWaypointsApp = OpenLayers.Class({
                 map.addLayers([route]);
                 route.addFeatures(features);
                 map.zoomToExtent(route.getDataExtent());
+                
+                $('#reset-map').bind('click', function(e){
+                    map.zoomToExtent(route.getDataExtent());
+                });
             }
             
             if (waypts.features.length == 0) {

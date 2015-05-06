@@ -407,6 +407,7 @@ button[data-toggle=popover] {
 #carousel {
     display: none;
     margin-bottom: 10px;
+    max-width: 500px;
 }
 
 #audio-panel, #video-panel {
@@ -448,17 +449,9 @@ pre.prettyprint {
     margin-top: 10px;
 }
 
-/*
-circle {
-    fill: green;
-    stroke: green;
-    stroke-width: 2px;
-    fill-opacity: 0.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: none;
-    pointer-events: visiblepainted;
-    cursor: inherit;
-    r: 10;
+#reset-map {
+    background: transparent;
+    font-size: 1.5em;
+    color: #6b9430;
 }
-*/
+
