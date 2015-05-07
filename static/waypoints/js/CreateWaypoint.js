@@ -44,16 +44,18 @@ var CreateWaypointApp = OpenLayers.Class({
             //xhrFields: {withCredentials: true},
             url: Config.WAYPOINT_MEDIA_API_URL + '.json',
             type: 'POST',
-            //singleFileUploads: false,
             autoUpload: false,
             dropZone: $('#dropzone'),
+            previewMaxWidth: 100,
+            previewMaxHeight: 100,
         });
         
+        /*
         $('#fileupload').bind('fileuploadadded', function (e, data) {
-            $('#dz-message').css('display','none');
+            //$('#dz-message').css('display','none');
             $('#dropzone').css('border','2px solid lightgrey');
         });
-        
+        */
         var that = this;
         that.cancelled = 0;
         $('#fileupload').bind('fileuploadfail', function (e, data) {
@@ -99,7 +101,7 @@ var CreateWaypointApp = OpenLayers.Class({
             }
         });
         
-        $('#dropzone').bind('dragleave', function(e){
+        $('#dropzone').bind('drop dragleave', function(e){
            $('#dropzone').removeClass('in hover');
         });
     

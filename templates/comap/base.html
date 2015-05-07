@@ -58,10 +58,9 @@
               <ul class="dropdown-menu" role="menu">
               <li><a href="/comap/routes"><span class="glyphicon glyphicon-list"></span> List Routes</a></li>
               <li><a href="/comap/routes/create"><span class="glyphicon glyphicon-upload"></span> Add Route</a></li>
-              <li><a href="/comap/api/"><span class="glyphicon glyphicon-book"></span> Browse API</a></li>
               </ul>
               </li>
-              
+              <li><a href="/comap/api/"><span class="glyphicon glyphicon-book"></span> Browse API</a></li>
               {% if user.is_authenticated %}
               <li id="logout" class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.username }} <span class="caret"></span></a>

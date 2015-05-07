@@ -7,7 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import FileField
+from rest_framework import views
 from rest_framework import viewsets
+from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import status
@@ -35,7 +37,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from routes.models import Route, TrackPoint
 from routes.gpx import GPXProc
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, list_route
 from waypoints.models import Waypoint, WaypointMedia
 from serializers import (WaypointSerializer, RouteSerializer,
                          TrackPointSerializer, WaypointMediaSerializer, UserGroupSerializer)
@@ -323,7 +325,10 @@ class RouteViewSet(viewsets.ModelViewSet):
 
 
 class TrackPointViewSet(viewsets.ModelViewSet):
-    
+    """
+    API endpoint for listing route track points.
+    Use query param 'route_id=:id' to get the points for a route.
+    """
     serializer_class = TrackPointSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -335,30 +340,31 @@ class TrackPointViewSet(viewsets.ModelViewSet):
             return TrackPoint.objects.filter(route_id=route_id)
 
 
-@api_view(('GET',))
-@permission_classes((permissions.IsAuthenticated,))
-def list_user_groups(request, format=None):
-    user = request.user
-    groups = user.groups
-    serializer = UserGroupSerializer(user)
-    return JSONResponse(serializer.data, status=status.HTTP_200_OK)
-
-"""
-Public endpoint for listing routes
-"""
-@api_view(('GET',))
-@permission_classes((permissions.AllowAny,))
-def list_tracks(request, format=None):
-    """List all routes or filter by group id"""
+class PublicRouteViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint to get a list of publicly viewable Routes.
+    Used for public facing sites where authentication is not required.
+    """
+    serializer_class = RouteSerializer
+    permission_classes = (permissions.AllowAny,)
     
-    group_id = request.QUERY_PARAMS.get('group_id', -1)
-    routes = None
-    if (group_id == -1):
-        routes = Route.objects.all()
-    else:
-        routes = Route.objects.filter(group_id=group_id)
-    serializer = RouteSerializer(routes,  many=True, context={'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        group_id = self.request.QUERY_PARAMS.get('group_id', -1)
+        if (group_id == -1):
+            return Route.objects.all()
+        else:
+            return Route.objects.filter(group_id=group_id)
 
 
-
+class GetUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint to get the currently logged in user.
+    """
+    serializer_class = UserGroupSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get_queryset(self):
+        user = self.request.user
+        logger.debug('User id: {0}'.format(user.id))
+        return User.objects.filter(id=user.id)
+    

@@ -183,7 +183,12 @@ LOGGING = {
             'handlers': ['file'],
             'propagate': True,
             'level': 'DEBUG',
-        }, 
+        },
+        'comap': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },    
     }
 }
 
