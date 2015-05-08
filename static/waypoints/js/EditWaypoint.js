@@ -37,6 +37,8 @@ var EditWaypointApp = OpenLayers.Class({
             dropZone: $('#dropzone'),
             previewMaxWidth: 100,
             previewMaxHeight: 100,
+            maxNumberOfFiles: 2,
+            maxFileSize: 10000000,
         });
         
         $('#fileupload').bind('fileuploaddestroy', function (e, data) {
@@ -56,6 +58,15 @@ var EditWaypointApp = OpenLayers.Class({
                 });
             });
             
+        });
+        
+        
+        $('#fileupload').bind('fileuploadprocessfail', function(e, data){
+            console.log('processfail', data.files[data.index].name);
+            if (data.files.error) {
+                //$('.fileinput-button').prop('disabled', true);
+                //$('#save').prop('disabled', true);
+            }
         });
         
         var that = this;
@@ -169,6 +180,10 @@ var EditWaypointApp = OpenLayers.Class({
                 var template = $('.template-upload');
                 var media = template.data('data');
                 if (media) {
+                    if (media.files.error) {
+                        alert('Please fix form errors.');
+                        return;
+                    }
                     var waypointId = id;
                     var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
                     var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};

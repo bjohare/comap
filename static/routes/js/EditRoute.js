@@ -141,7 +141,7 @@ var EditRoute = OpenLayers.Class({
         this.groupId = groupId;
         var that = this;
         $.getJSON(Config.USER_API_URL, function(data){
-            var groups = data.groups;
+            var groups = data[0].groups;
             if (groups.length > 1) {
                 var select = '<select id="group" class="form-control" name="group">';
                 $.each(groups, function(i){

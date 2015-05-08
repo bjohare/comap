@@ -195,7 +195,7 @@ var ListWaypointsApp = OpenLayers.Class({
             $('audio').css('display','none').empty();
             $.each($('audio'), function () {
                 this.pause();
-                this.currentTime = 0;
+                //this.currentTime = 0;
             });
             $.each($('video'), function () {
                 videojs(this.id).dispose();

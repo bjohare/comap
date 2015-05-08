@@ -48,6 +48,8 @@ var CreateWaypointApp = OpenLayers.Class({
             dropZone: $('#dropzone'),
             previewMaxWidth: 100,
             previewMaxHeight: 100,
+            maxNumberOfFiles: 2,
+            maxFileSize: 10000000,
         });
         
         /*
@@ -80,6 +82,10 @@ var CreateWaypointApp = OpenLayers.Class({
                 $('#create-form-panel').css('display','none');
                 $('#create-info').css('display', 'block');
             }
+        });
+        
+        $('#fileupload').bind('fileuploadchange', function(e, data){
+            console.log('changed...')
         });
         
         $('#dropzone').bind('dragover', function (e) {
