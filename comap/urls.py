@@ -5,8 +5,7 @@ from api import views
 from django.contrib import admin
 admin.autodiscover()
 
-
-       
+      
 # api endpoints
 router = DefaultRouter(trailing_slash=False)
 router.register(r'waypoints', views.WaypointViewSet, base_name='waypoints')
@@ -28,4 +27,5 @@ urlpatterns = patterns('',
     url(r'^comap/routes/', include('routes.urls', namespace='routes')),
     url(r'^grappelli/', include('grappelli.urls')), 
     url(r'^comap/admin/', include(admin.site.urls)),
+    url(r'^comap/docs/', include('rest_framework_swagger.urls')),
 )

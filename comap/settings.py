@@ -63,6 +63,7 @@ THIRD_PARTY_APPS = (
     'rest_framework.authtoken',
     'imagekit',
     'django_nose',
+    'rest_framework_swagger',
 )
 
 LOCAL_APPS = (

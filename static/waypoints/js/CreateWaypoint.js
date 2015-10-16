@@ -48,7 +48,7 @@ var CreateWaypointApp = OpenLayers.Class({
             dropZone: $('#dropzone'),
             previewMaxWidth: 100,
             previewMaxHeight: 100,
-            maxNumberOfFiles: 2,
+            maxNumberOfFiles: 5,
             maxFileSize: 10000000,
         });
         

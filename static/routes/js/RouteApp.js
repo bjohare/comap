@@ -44,7 +44,7 @@ var RouteApp = OpenLayers.Class({
         
         bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         map.addLayers([tf_outdoors, bing_aerial]);
-        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
+        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
         map.addLayers([tf_outdoors, bing_aerial, townlands]);
         
         /* Styles */
@@ -55,9 +55,9 @@ var RouteApp = OpenLayers.Class({
         });
         
         var selectStyle = new OpenLayers.Style({
-            strokeColor: "yellow",
+            strokeColor: "#6B9430",
             strokeWidth: 3.5,
-            strokeDashstyle: "dashdot",
+            strokeDashstyle: "dash",
             label: '${name}',
             labelAlign: "lm",
             labelXOffset: "20",
@@ -108,7 +108,8 @@ var RouteApp = OpenLayers.Class({
                 $('.panel-body').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
                 $('.panel-body').find('a.download').prop('href',attrs.gpx_url);
                 $('.panel-body').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
-                $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
+                $('li[id=' + fid + ']').css('background-color','#6B9430').css('color', 'white');
+                $('li[id=' + fid + '] a').css('color', 'white');
                 $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
                 
         });
@@ -117,7 +118,8 @@ var RouteApp = OpenLayers.Class({
         routes.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a route</h5>');
             $('#detail-panel-body').css('display','none');
-            $('li.list-group-item').css('background-color','white').css('color','#526325');
+            $('li.list-group-item').css('background-color','white');
+            $('li.list-group-item a').css('color','#526325');
         });
         
         $('#reset-map').bind('click', function(e){
@@ -160,7 +162,7 @@ var RouteApp = OpenLayers.Class({
                     var id = feature.id;
                     var featGroup = feature.properties.group.name;
                     if (group === featGroup) {
-                        $('ul#' + groupId).append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>'); 
+                        $('ul#' + groupId).append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a><span class="glyphicon glyphicon-chevron-right pull-right"></span></li>'); 
                     }
                 });
             });

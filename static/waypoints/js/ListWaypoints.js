@@ -20,7 +20,7 @@ var ListWaypointsApp = OpenLayers.Class({
     
     initialize: function(){
         this.buildDeleteDialog();
-        $('.carousel').carousel();
+        //$('.carousel').carousel('pause');
     },
     
     main: function() {
@@ -56,7 +56,7 @@ var ListWaypointsApp = OpenLayers.Class({
         });
         
         var selectLineStyle = new OpenLayers.Style({
-            strokeColor: "yellow",
+            strokeColor: "#6B9430",
             strokeWidth: 3.5,
             strokeDashstyle: "dashdot",
             label: " ${name}",
@@ -85,7 +85,7 @@ var ListWaypointsApp = OpenLayers.Class({
         
         var selectPointStyle = new OpenLayers.Style({
             pointRadius: 10,
-            fillColor: "yellow",
+            fillColor: "#6B9430",
             label: " ${name}",
             labelAlign: "lm",
             labelXOffset: "20",
@@ -138,18 +138,24 @@ var ListWaypointsApp = OpenLayers.Class({
                 if (files.length > 0) {
                     // need to check for content_type here..
                     // and only add images to the carousel
+                    var numImages = 0;
                     $.each(files, function( index, file) {
                         var content_type = file.content_type.split('/')[0];
                         switch(content_type) {
                             case 'image':
-                                var active = index === 0 ? 'active' : '';
+                                numImages += 1;
+                                if (numImages === 1) {
+                                    // initialize it on first pass
+                                    $('#carousel').carousel();
+                                    $('#carousel').css('display','block');
+                                }
+                                var active = numImages === 1 ? 'active' : '';
                                 var indicator = '<li data-target="#carousel" data-slide-to="' + index + '" class="' + active+ '"></li>';
                                 var slide = '<div class="item ' + active + '">' +
                                             '<img src="' +  file.media_url + '"/>' +
                                             '</div>'
                                 $('.carousel-inner').append(slide);
                                 $('.carousel-indicators').append(indicator);
-                                $('#carousel').css('display','block');
                                 $('#carousel').carousel('cycle'); 
                                 break;
                             case 'audio':
@@ -179,7 +185,8 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('.panel-body').find('span.irishgrid').html(gridref);
                 $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
                 $('.panel-body').find('a.editlink').prop('href','/comap/waypoints/edit/' + fid);
-                $('li[id=' + fid + ']').css('background-color','yellow').css('color', 'red');
+                $('li[id=' + fid + ']').css('background-color','#6B9430').css('color', 'white');
+                $('li[id=' + fid + '] a').css('color', 'white');
                 $('#deleteForm').prop('action', Config.WAYPOINT_API_URL + '/' + fid);
         });
         
@@ -187,11 +194,12 @@ var ListWaypointsApp = OpenLayers.Class({
         waypoints.events.register("featureunselected", this, function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
-            $('#carousel').css('display','none');
             $('.carousel-inner').empty();
             $('.carousel-indicators').empty();
-            $('li.list-group-item').css('background-color','white').css('color','#526325');
-            //$('li.list-group-item').append('<span class="glyphicon glyphicon-chevron-right pull-right"></span>');
+            $('#carousel').carousel('pause');
+            $('#carousel').css('display','none');
+            $('li.list-group-item').css('background-color','white');
+            $('li.list-group-item a').css('color','#526325');
             $('audio').css('display','none').empty();
             $.each($('audio'), function () {
                 this.pause();
@@ -217,7 +225,7 @@ var ListWaypointsApp = OpenLayers.Class({
         var parts = url.split('/');
         var routeId = parts[6];
         console.log('Loading waypoints for route with id: ' + routeId);
-        var waypointUrl = Config.WAYPOINT_API_URL + '.json?route_id=' + routeId;
+        //var waypointUrl = Config.WAYPOINT_API_URL + '.json?route_id=' + routeId;
         var routeName = '';
         var numWaypoints = 0;
         
@@ -279,7 +287,7 @@ var ListWaypointsApp = OpenLayers.Class({
                 $.each(features, function(i){
                     var name = features[i].properties.name;
                     var id = features[i].id;
-                    $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
+                    $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a><span class="glyphicon glyphicon-chevron-right pull-right"></span></li>');
                 });
                 var geojson = new OpenLayers.Format.GeoJSON({
                         'internalProjection': new OpenLayers.Projection("EPSG:3857"),
@@ -297,6 +305,17 @@ var ListWaypointsApp = OpenLayers.Class({
                 selectControl.unselectAll();
                 selectControl.select(feature);
             });
+        }).fail(function() {
+            console.log( "failed to get route..." );
+            $('#waypoints-map-panel').css('display','none');
+            $('ul.list-group').css('display','none');
+            $('#detail-panel').css('display','none');
+            $('#detail-panel-body').css('display','none');
+            $('#create-link').empty();
+            var heading = '<h5>No Waypoints</h5>';
+            var panelText = '<h5>No route found.</h5>';
+            $('#heading').html(heading);
+            $('#panel').html(panelText);
         });
     },
     

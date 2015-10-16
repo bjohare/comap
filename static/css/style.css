@@ -455,3 +455,7 @@ pre.prettyprint {
     color: #6b9430;
 }
 
+li.list-group-item span {
+    color: white;
+}
+
