@@ -9,7 +9,7 @@ django-nose==1.3
 djangorestframework==3.0.5
 djangorestframework-gis==0.8
 Fiona==1.4.8
-GDAL==1.10.0
+GDAL==1.11.2
 gpsbabel==1.1.1
 nose==1.3.4
 pilkit==1.1.12

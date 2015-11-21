@@ -32,11 +32,11 @@ class Waypoint(models.Model):
     updated = models.DateTimeField(null=True)
     the_geom = models.PointField(blank=True, null=True, srid=4326)
     route = models.ForeignKey('routes.Route', related_name='waypoints')
-    visible = models.BooleanField(default=True)
+    visible = models.BooleanField(default=False)
     objects = models.GeoManager()
     
     def __str__(self):
-        return 'Waypoint[fid: {}, name: {}, description: {}, created: {}, route: {}]'.format(self.fid, self.name, self.description, self.created, self.route_id)
+        return 'Name: {name}, Route: {route}, Visible: {visible}'.format(name = self.name, route = self.route.name, visible = self.visible)
     
     class Meta:
         managed = True

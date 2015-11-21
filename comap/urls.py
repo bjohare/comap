@@ -27,5 +27,5 @@ urlpatterns = patterns('',
     url(r'^comap/routes/', include('routes.urls', namespace='routes')),
     url(r'^grappelli/', include('grappelli.urls')), 
     url(r'^comap/admin/', include(admin.site.urls)),
-    url(r'^comap/docs/', include('rest_framework_swagger.urls')),
+    #url(r'^comap/docs/', include('rest_framework_swagger.urls')),
 )

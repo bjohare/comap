@@ -186,6 +186,33 @@ class RouteSerializer(ComapGeoFeatureModelSerializer):
         return instance
     
     def get_visible_waypoints(self, obj):
+        waypoints = Waypoint.objects.filter(route_id=obj.fid)
+        serializer = WaypointSerializer(waypoints, many=True, context=self.context)
+        logger.debug(serializer.data)
+        return serializer.data
+    
+    def get_gpx_url(self, obj):
+        group = obj.group
+        group_name = group.name.replace(" ", "_").lower()
+        return '{0}/{1}/{2}/{3}'.format(settings.MEDIA_URL + str(group.id), obj.fid, 'gpx', obj.gpx_file)
+    
+    
+class PublicRouteSerializer(ComapGeoFeatureModelSerializer):
+    
+    user = UserSerializer()
+    group = GroupSerializer()
+    waypoints = serializers.SerializerMethodField('get_visible_waypoints')
+    gpx_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Route
+        geo_field = 'the_geom'
+        id_field = 'fid'
+        fields = ('fid','name','description','created','image_file', 'gpx_file', 'gpx_url', 'user', 'group', 'waypoints')
+        read_only_fields = ('media_url')
+
+    
+    def get_visible_waypoints(self, obj):
         waypoints = Waypoint.objects.filter(route_id=obj.fid, visible=True)
         serializer = WaypointSerializer(waypoints, many=True, context=self.context)
         logger.debug(serializer.data)

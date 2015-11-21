@@ -39,7 +39,7 @@ from routes.gpx import GPXProc
 
 from rest_framework.decorators import api_view, permission_classes, list_route
 from waypoints.models import Waypoint, WaypointMedia
-from serializers import (WaypointSerializer, RouteSerializer,
+from serializers import (WaypointSerializer, RouteSerializer, PublicRouteSerializer,
                          TrackPointSerializer, WaypointMediaSerializer, UserGroupSerializer)
 
 # Get an instance of a logger
@@ -345,7 +345,7 @@ class PublicRouteViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint to get a list of publicly viewable Routes.
     Used for public facing sites where authentication is not required.
     """
-    serializer_class = RouteSerializer
+    serializer_class = PublicRouteSerializer
     permission_classes = (permissions.AllowAny,)
     
     def get_queryset(self):

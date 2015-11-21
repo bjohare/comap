@@ -63,7 +63,6 @@ THIRD_PARTY_APPS = (
     'rest_framework.authtoken',
     'imagekit',
     'django_nose',
-    'rest_framework_swagger',
 )
 
 LOCAL_APPS = (
@@ -139,7 +138,7 @@ STATICFILES_DIRS = (
 )
 
 MEDIA_URL = '/comap/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join('/home/waymarkers', 'media')
 
 # root storage for uploaded gpx files
 GPX_ROOT = os.path.join(BASE_DIR, 'media/gpx/')
