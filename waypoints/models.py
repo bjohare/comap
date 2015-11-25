@@ -74,11 +74,10 @@ def delete_waypointmedia(sender, instance, **kwargs):
     logger.debug('Deleting WaypointMedia file: {0}'.format(instance.file.name))
     instance.file.delete(False)
 
-# force deletion of the waypoint directory when model instance is deleted.
-
 
 @receiver(post_delete, sender=Waypoint)
 def delete_waypoint_dir(sender, instance, **kwargs):
+    # force deletion of the waypoint directory when model instance is deleted.
     route = instance.route
     group = route.group
     path = '{0}/{1}/{2}/waypoints/{3}'.format(
