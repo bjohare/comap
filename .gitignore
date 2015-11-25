@@ -65,10 +65,6 @@ target/
 media/*
 */migrations/*
 
-
-# Django Settings
-settings_private.py
-
 # sublimetext
 *.sublime-*
 
