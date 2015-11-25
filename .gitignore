@@ -64,6 +64,7 @@ target/
 
 media/*
 */migrations/*
+secret.py
 
 # sublimetext
 *.sublime-*
