@@ -69,3 +69,6 @@ media/*
 # Django Settings
 settings_private.py
 
+# sublimetext
+*.sublime-*
+

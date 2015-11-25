@@ -3,8 +3,8 @@ from rest_framework_gis import serializers as geo_serializers
 from rest_framework_gis import fields as geo_fields
 from rest_framework import serializers
 from datetime import datetime
-from comap import settings
 
+from django.conf import settings
 from django.contrib.auth.models import User, Group
 from waypoints.models import Waypoint, WaypointMedia
 from routes.models import Route, TrackPoint

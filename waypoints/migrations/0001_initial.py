@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import waypoints.models
 import django.contrib.gis.db.models.fields
 
@@ -9,7 +9,7 @@ import django.contrib.gis.db.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('routes', '0003_auto_20150128_1753'),
+        ('routes', '0001_initial'),
     ]
 
     operations = [
@@ -23,14 +23,13 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now=True)),
                 ('updated', models.DateTimeField(null=True)),
                 ('the_geom', django.contrib.gis.db.models.fields.PointField(srid=4326, null=True, blank=True)),
-                ('visible', models.BooleanField(default=True)),
+                ('visible', models.BooleanField(default=False)),
                 ('route', models.ForeignKey(related_name='waypoints', to='routes.Route')),
             ],
             options={
                 'db_table': 'waypoints',
                 'managed': True,
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='WaypointMedia',
@@ -41,13 +40,12 @@ class Migration(migrations.Migration):
                 ('size', models.IntegerField()),
                 ('file', models.FileField(max_length=255, upload_to=waypoints.models.get_upload_path)),
                 ('created', models.DateTimeField(auto_now=True)),
-                ('updated', models.DateTimeField(blank=True)),
+                ('updated', models.DateTimeField(auto_now=True)),
                 ('waypoint', models.ForeignKey(related_name='waypoint_media', to='waypoints.Waypoint')),
             ],
             options={
                 'db_table': 'waypoint_media',
                 'managed': True,
             },
-            bases=(models.Model,),
         ),
     ]

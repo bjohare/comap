@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 from django.conf import settings
 import django.contrib.gis.db.models.fields
 
@@ -9,7 +9,7 @@ import django.contrib.gis.db.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0001_initial'),
+        ('auth', '0006_require_contenttypes_0002'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField()),
                 ('name', models.CharField(max_length=100)),
                 ('description', models.CharField(max_length=65000)),
-                ('image_file', models.ImageField(upload_to=b'')),
-                ('gpx_file', models.FileField(upload_to=b'')),
+                ('image_file', models.CharField(max_length=100)),
+                ('gpx_file', models.CharField(max_length=100)),
                 ('the_geom', django.contrib.gis.db.models.fields.MultiLineStringField(srid=4326)),
                 ('group', models.ForeignKey(related_name='route_groups', to='auth.Group')),
                 ('user', models.ForeignKey(related_name='route_user', to=settings.AUTH_USER_MODEL)),
@@ -31,7 +31,6 @@ class Migration(migrations.Migration):
                 'db_table': 'routes',
                 'managed': True,
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='TrackPoint',
@@ -46,6 +45,5 @@ class Migration(migrations.Migration):
                 'db_table': 'track_points',
                 'managed': True,
             },
-            bases=(models.Model,),
         ),
     ]

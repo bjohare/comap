@@ -1,6 +1,7 @@
 import logging, os, shutil, pdb
-import comap
+
 from datetime import datetime
+from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404
@@ -18,7 +19,7 @@ from rest_framework import generics
 from rest_framework import filters
 from rest_framework.reverse import reverse
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
-from rest_framework.parsers import FormParser,MultiPartParser
+from rest_framework.parsers import FormParser , MultiPartParser
 from rest_framework.response import Response
 
 from imagekit import ImageSpec
@@ -39,13 +40,13 @@ from routes.gpx import GPXProc
 
 from rest_framework.decorators import api_view, permission_classes, list_route
 from waypoints.models import Waypoint, WaypointMedia
-from serializers import (WaypointSerializer, RouteSerializer, PublicRouteSerializer,
-                         TrackPointSerializer, WaypointMediaSerializer, UserGroupSerializer)
+from serializers import (WaypointSerializer, RouteSerializer, PublicRouteSerializer, TrackPointSerializer, WaypointMediaSerializer, UserGroupSerializer)
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+
 
 class JSONResponse(HttpResponse):
     """
@@ -55,18 +56,17 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
-        
+
 
 class WaypointViewSet(viewsets.ModelViewSet):
     """
     Handles api operations on Waypoints.
     Use query param 'group_id=:id' to filter by group.
-    
     """
     queryset = Waypoint.objects.filter(visible=True)
     serializer_class = WaypointSerializer
     parser_classes = (FormParser, MultiPartParser)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly),
     filter_backends = (filters.OrderingFilter,)
     ordering = ('-created',)
     
@@ -81,7 +81,7 @@ class WaypointViewSet(viewsets.ModelViewSet):
         waypoint = get_object_or_404(queryset, pk=pk)
         serializer = WaypointSerializer(waypoint, context={'request': request})
         return Response(serializer.data)
-    
+
 
 class WaypointMediaViewSet(viewsets.ModelViewSet):
     """API endpoint for WaypointMedia operations."""
@@ -304,7 +304,7 @@ class RouteViewSet(viewsets.ModelViewSet):
     
     def get_or_create_route_media_tree(self, fid, group_id):
         user = self.request.user
-        route_dir = '{0}/{1}/{2}'.format(comap.settings.MEDIA_ROOT, str(group_id), fid)
+        route_dir = '{0}/{1}/{2}'.format(settings.MEDIA_ROOT, str(group_id), fid)
         gpx_dir = '{0}/gpx/'.format(route_dir)
         rt_image_dir = '{0}/images/'.format(route_dir)
         rt_wp_dir = '{0}/waypoints/'.format(route_dir)

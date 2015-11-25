@@ -1,4 +1,4 @@
-import logging, json, comap, os, pwd
+import logging, json, os, pwd
 from datetime import datetime
 
 # Get an instance of a logger
@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.files.storage import FileSystemStorage
 from django.views import generic
@@ -77,7 +78,7 @@ class RouteAddView(generic.FormView):
         logger.debug("User is: {0}, Group is: {1}".format(user.username, group_name))
         try:
             gpxfile = form.files['gpxfile']
-            gpx_group_path = comap.settings.GPX_ROOT + self.__module__.split('.')[0] + '/' + group_name
+            gpx_group_path = settings.GPX_ROOT + self.__module__.split('.')[0] + '/' + group_name
             gpx_path = gpx_group_path + '/%s' % gpxfile.name
             logger.debug("Checking for path [{0}]..".format(gpx_group_path))
             if not os.path.isdir(gpx_group_path):

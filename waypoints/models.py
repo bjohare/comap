@@ -2,13 +2,13 @@ from __future__ import unicode_literals
 
 import logging, shutil, os
 
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 
 from routes.models import Route
-from comap import settings
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -42,14 +42,14 @@ class Waypoint(models.Model):
         managed = True
         db_table = 'waypoints'
 
-  
+
 class WaypointMedia(models.Model):
     fid = models.AutoField(primary_key=True)
     content_type = models.CharField(max_length=100, blank=False)
     filename = models.CharField(max_length=100, blank=False)
     size = models.IntegerField()
-    file = models.FileField(max_length=255, upload_to=get_upload_path)
-    waypoint = models.ForeignKey(Waypoint, related_name='waypoint_media')
+    file = models.FileField(max_length=255, upload_to=get_upload_path) 
+   waypoint = models.ForeignKey(Waypoint, related_name='waypoint_media')
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now=True)
     
