@@ -1,8 +1,8 @@
-import logging, json, os, pwd
+import logging
+import json
+import os
+import pwd
 from datetime import datetime
-
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
 
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
@@ -27,27 +27,29 @@ from django.contrib.gis.geos import GEOSGeometry
 
 from datetime import datetime
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 class RouteListView(generic.ListView):
+
     """
     View to render list of routes. Filtered by group.
     """
     template_name = 'routes/list.html'
     context_object_name = 'routes_list'
-    
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(RouteListView, self).dispatch(*args, **kwargs)
-    
-   
+
     def get_queryset(self):
         user = self.request.user
         logger.debug("Username is: {0}".format(user.username))
         group = user.groups.get()
         logger.debug("Listing Routes for group {0}".format(group.name))
         return Route.objects.filter(group_id=group.id)
-    
-       
+
     def get_context_data(self, *args, **kwargs):
         context = super(RouteListView, self).get_context_data(**kwargs)
         user = self.request.user
@@ -57,38 +59,41 @@ class RouteListView(generic.ListView):
         context['user'] = user
         context['group'] = group
         return context
-    
+
 
 class RouteAddView(generic.FormView):
     template_name = 'routes/create.html'
     form_class = RouteAddForm
     success_url = '/route/add/'
-    
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(RouteAddView, self).dispatch(*args, **kwargs)
-    
-    
+
     def form_valid(self, form):
         logger.debug('Route creation form is valid...')
         gpx_path = ''
         user = self.request.user
-        group = user.groups.get() 
+        group = user.groups.get()
         group_name = group.name.replace(" ", "_").lower()
-        logger.debug("User is: {0}, Group is: {1}".format(user.username, group_name))
+        logger.debug(
+            "User is: {0}, Group is: {1}".format(user.username, group_name))
         try:
             gpxfile = form.files['gpxfile']
-            gpx_group_path = settings.GPX_ROOT + self.__module__.split('.')[0] + '/' + group_name
+            gpx_group_path = settings.GPX_ROOT + \
+                self.__module__.split('.')[0] + '/' + group_name
             gpx_path = gpx_group_path + '/%s' % gpxfile.name
             logger.debug("Checking for path [{0}]..".format(gpx_group_path))
             if not os.path.isdir(gpx_group_path):
                 try:
-                    logger.debug("No root gpx directory for group {0}.. creating..".format(group_name))
+                    logger.debug(
+                        "No root gpx directory for group {0}.. creating..".format(group_name))
                     os.makedirs(gpx_group_path, 0770)
                     #uid, gid =  pwd.getpwnam('ubuntu').pw_uid, pwd.getpwnam('www-data').pw_uid
                     #os.chown(gpx_group_path, uid, gid)
                 except OSError as e:
-                    errstr = "Error creating root gpx directory: {0} : {2}".format(gpx_group_path, e)
+                    errstr = "Error creating root gpx directory: {0} : {2}".format(
+                        gpx_group_path, e)
                     logger.debug(errstr)
                     return HttpResponse(content=errstr, status=400)
             logger.debug('Storing gpxfile to: %s' % gpx_path)
@@ -123,14 +128,14 @@ class RouteAddView(generic.FormView):
         """
         # construct the route here but dont save until we extract the track
         route = Route(name=route_name, description=route_description,
-                                     created=created, image_path='none_provided', user_id=user.id, group_id=group.id)
+                      created=created, image_path='none_provided', user_id=user.id, group_id=group.id)
         gpx = GPXProc(gpx_path, route)
         gpx.process_gpx()
-        
+
         layer = None
         response = {}
         return HttpResponse(content='ok')
-    
+
     def form_invalid(self, form):
         logger.error('invalid form')
         logger.error(form.errors)

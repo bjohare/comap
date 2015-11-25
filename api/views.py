@@ -120,7 +120,7 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
             name = original_file.name.replace(' ', '_').lower()
             content_type = original_file.content_type
             size = original_file.size
-            waypoint_id = request.DATA['waypoint_id']
+            waypoint_id = request.data['waypoint_id']
             data = {'filename': name, 'size': size,
                     'waypoint_id': waypoint_id, 'content_type': content_type}
             if (content_type in self.IMAGE_TYPES):
@@ -180,7 +180,7 @@ class RouteViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         user = self.request.user
-        group_id = request.DATA['group']
+        group_id = request.data['group']
         group = Group.objects.get(id=group_id)
         gpx_file = ''
         temp_gpx_file = ''
@@ -199,8 +199,8 @@ class RouteViewSet(viewsets.ModelViewSet):
         # construct the route
         route_image_file = ''
         created = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        route_name = request.DATA['name']
-        route_description = request.DATA['description']
+        route_name = request.data['name']
+        route_description = request.data['description']
         gpx = GPXProc(temp_gpx_file)
         the_geom = gpx.get_track()
         user_data = {'id': user.id, 'username': user.username}
@@ -246,7 +246,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         logger.debug('Updating route with id: %s' % pk)
         partial = kwargs.pop('partial', False)
         user = self.request.user
-        group_id = request.DATA['group']
+        group_id = request.data['group']
         group = Group.objects.get(id=group_id)
         gpx_file = ''
         group_name = group.name.replace(" ", "_").lower()
@@ -291,8 +291,8 @@ class RouteViewSet(viewsets.ModelViewSet):
             logger.error(e)
             logger.debug('No gpx file uploaded')
         created = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        name = request.DATA['name']
-        description = request.DATA['description']
+        name = request.data['name']
+        description = request.data['description']
         user_data = {'id': user.id, 'username': user.username}
         group_data = {'id': group.id, 'name': group.name}
         data = {'name': name, 'description': description, 'the_geom': the_geom, 'created': created,

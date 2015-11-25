@@ -104,8 +104,8 @@
 {% block corejs %}
 {{ block.super }}
 <script src="http://malsup.github.com/jquery.form.js"></script>
-<script src="{% static "waypoints/js/CreateWaypoint.js" %}" type="text/javascript" defer></script>
-<script src="{% static "js/Layers.js" %}" type="text/javascript" defer></script>
+<script src="{% static "ui/js/CreateWaypoint.js" %}" type="text/javascript" defer></script>
+<script src="{% static "ui/js/Layers.js" %}" type="text/javascript" defer></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
 <script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
@@ -117,24 +117,24 @@
 <!-- blueimp Gallery script -->
 <script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="{% static "js/fileupload/js/jquery.iframe-transport.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.iframe-transport.js" %}"></script>
 <!-- The basic File Upload plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload.js" %}"></script>
 <!-- The File Upload processing plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload-process.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-process.js" %}"></script>
 <!-- The File Upload image preview & resize plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload-image.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-image.js" %}"></script>
 <!-- The File Upload audio preview plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload-audio.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-audio.js" %}"></script>
 <!-- The File Upload video preview plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload-video.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-video.js" %}"></script>
 <!-- The File Upload validation plugin -->
-<script src="{% static "js/fileupload/js/jquery.fileupload-validate.js" %}"></script>
+<script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-validate.js" %}"></script>
 <!-- The File Upload user interface plugin -->
-<script  src="{% static "js/fileupload/js/jquery.fileupload-ui.js" %}"></script>
+<script  src="{% static "ui/contrib/fileupload/js/jquery.fileupload-ui.js" %}"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script> 
 <!-- The main application script -->
-<!--<script  src="{% static "js/fileupload/js/main.js" %}"></script>-->
+<!--<script  src="{% static "ui/contrib/fileupload/js/main.js" %}"></script>-->
 
 {% verbatim %}
 <!-- The template to display files available for upload -->
