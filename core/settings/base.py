@@ -57,12 +57,6 @@ STATIC_ROOT = ABS_PATH('static')
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/comap/static/'
 
-STATICFILES_DIRS = (
-    'ui/static/routes/',
-    'ui/static/waypoints/'
-    'ui/static/ui/'
-)
-
 # enable cached storage
 STATICFILES_STORAGE = (
     'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
