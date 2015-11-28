@@ -70,7 +70,7 @@ class WaypointViewSet(viewsets.ModelViewSet):
     Handles api operations on Waypoints.
     Use query param 'group_id=:id' to filter by group.
     """
-    queryset = Waypoint.objects.filter(visible=True)
+    queryset = Waypoint.objects.filter()
     serializer_class = WaypointSerializer
     parser_classes = (FormParser, MultiPartParser)
     permission_classes = (permissions.IsAuthenticatedOrReadOnly),
@@ -78,14 +78,14 @@ class WaypointViewSet(viewsets.ModelViewSet):
     ordering = ('-created',)
 
     def list(self, request, pk=None, *args, **kwargs):
-        route_id = self.request.QUERY_PARAMS.get('route_id', -1)
-        queryset = Waypoint.objects.filter(route_id=route_id, visible=True)
+        route_id = self.request.query_params.get('route_id', -1)
+        queryset = Waypoint.objects.filter(route_id=route_id)
         serializer = WaypointSerializer(
             queryset,  many=True, context={'request': request})
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        queryset = Waypoint.objects.filter(visible=True)
+        queryset = Waypoint.objects.all()
         waypoint = get_object_or_404(queryset, pk=pk)
         serializer = WaypointSerializer(waypoint, context={'request': request})
         return Response(serializer.data)
@@ -128,7 +128,10 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
                 image_generator = self.ResizedImage(source=original_file)
                 rf = image_generator.generate()
                 sf = SimpleUploadedFile(
-                    name=name, content=rf.getvalue(), content_type=content_type)
+                    name=name,
+                    content=rf.getvalue(),
+                    content_type=content_type
+                )
                 data['file'] = sf
             else:
                 data['file'] = original_file
@@ -139,9 +142,13 @@ class WaypointMediaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         if not serializer.is_valid():
             logger.error(serializer.errors)
-            return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JSONResponse(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         self.object = serializer.save()
-        return Response({'files': [serializer.data]}, status=status.HTTP_200_OK)
+        return Response(
+            {'files': [serializer.data]}, status=status.HTTP_200_OK
+        )
 
 
 class RouteViewSet(viewsets.ModelViewSet):
@@ -233,7 +240,7 @@ class RouteViewSet(viewsets.ModelViewSet):
             with open(path, 'wb+') as destination:
                 for chunk in filedata.chunks():
                     destination.write(chunk)
-                
+
         except Exception as e:
             #don't force image upload but use existing one if none provided
             logger.error(e)
@@ -355,7 +362,7 @@ class TrackPointViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        route_id = self.request.QUERY_PARAMS.get('route_id', '')
+        route_id = self.request.query_params.get('route_id', '')
         if (route_id == ''):
             return TrackPoint.objects.none()
         else:
@@ -372,7 +379,7 @@ class PublicRouteViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
-        group_id = self.request.QUERY_PARAMS.get('group_id', -1)
+        group_id = self.request.query_params.get('group_id', -1)
         if (group_id == -1):
             return Route.objects.all()
         else:

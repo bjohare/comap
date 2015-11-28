@@ -442,6 +442,3 @@ var EditWaypointApp = OpenLayers.Class({
     }
 	
 });
-
-
-
