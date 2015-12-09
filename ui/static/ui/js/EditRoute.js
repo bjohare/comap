@@ -16,40 +16,42 @@
 
 */
 
-var EditRoute = OpenLayers.Class({
-    
-    initialize: function(){
-        
-        var url = document.URL;
-        var parts = url.split('/');
-        var id = parts[6];
-        console.log('Loading track with id: ' + id);
-        var jsonUrl = Config.TRACK_API_URL + '/' + id + '.json';
-        console.log(jsonUrl);
-        var that = this;
-        $.getJSON(jsonUrl, function(data){
-            var props = data.properties;
-            var groupId = props.group.id;
-            if (props.length === 0) {
-                alert('No features found');
-            }
-            else {
-                $('#fid').val(id);
-                $('#name').val(props.name);
-                $('#description').val(props.description);
-                $('#editGpxForm').css('display','block');
-                $('option[value="' + props.group.id +'"]').prop('selected','true');
-            }
-            that.buildGroupSelect(groupId);
-        }).fail(function(data){
-            alert('Failed.. do something here..');
-        });
-        
-        this.initForm();
-    },
-    
-    initForm: function(){
-        
+var route = {};
+
+route.edit = (function(){
+
+    return {
+        init: init
+    };
+
+    function init(){
+            var url = document.URL;
+            var parts = url.split('/');
+            var id = parts[6];
+            console.log('Loading track with id: ' + id);
+            var jsonUrl = Config.TRACK_API_URL + '/' + id + '.json';
+            $.getJSON(jsonUrl, function(data){
+                var props = data.properties;
+                var groupId = props.group.id;
+                if (props.length === 0) {
+                    alert('No features found');
+                }
+                else {
+                    $('#fid').val(id);
+                    $('#name').val(props.name);
+                    $('#description').val(props.description);
+                    $('#editGpxForm').css('display','block');
+                    $('option[value="' + props.group.id +'"]').prop('selected','true');
+                }
+                _buildGroupSelect(groupId);
+            }).fail(function(data){
+                alert('Failed.. do something here..');
+            });
+
+            _initializeForm();
+    }
+
+    function _initializeForm(){
         $('#editGpxForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
@@ -135,9 +137,9 @@ var EditRoute = OpenLayers.Class({
                 $('#info').append('<h3>Please correct these errors:</h3>');
             },
         });
-    },
-    
-    buildGroupSelect: function(groupId){
+    }
+
+    function _buildGroupSelect(groupId){
         this.groupId = groupId;
         var that = this;
         $.getJSON(Config.USER_API_URL, function(data){
@@ -164,4 +166,10 @@ var EditRoute = OpenLayers.Class({
             $('#create-route-panel').css('display','block');
         }); 
     }
+
+}());
+
+
+$(document).ready(function() {
+    route.edit.init();
 });

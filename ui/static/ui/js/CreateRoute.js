@@ -18,16 +18,10 @@
 
 var route = {};
 
-route.app = (function() {
-
-    var map = null;
-    var routes = null;
-    var select = null;
+route.create = (function() {
 
     return {
-        init: function() {
-            initForm();
-        }
+        init: initForm
     }
 
     function initForm(){
@@ -75,7 +69,7 @@ route.app = (function() {
             }
         });
 
-        buildGroupSelect();
+        _buildGroupSelect();
 
         var progressbar = $('#progressbar').progressbar();
         $('#progressbar').css("display","none");
@@ -120,7 +114,7 @@ route.app = (function() {
         });
     }
 
-    function buildGroupSelect(){
+    function _buildGroupSelect(){
         $.getJSON(Config.USER_API_URL, function(data){
             var groups = data[0].groups;
             if (groups.length > 1) {
@@ -145,5 +139,5 @@ route.app = (function() {
 }());
 
 $(document).ready(function() {
-    route.app.init();
+    route.create.init();
 });

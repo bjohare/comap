@@ -18,7 +18,7 @@
 
 var route = {};
 
-route.app = (function() {
+route.list = (function() {
 
     var map = null;
     var routes = null;
@@ -26,12 +26,12 @@ route.app = (function() {
 
     return {
         init: function() {
-            initMap();
-            buildDeleteDialog();
+            _initMap();
+            _buildDeleteDialog();
         }
     }
 
-    function initMap() {
+    function _initMap() {
 
         /* Styles */
         var default_styles = [
@@ -92,63 +92,14 @@ route.app = (function() {
                 }
             }).extend([scaleline]),
             interactions: ol.interaction.defaults().extend([select]),
-        });
-
-
-
-        /*
-        style: (function() {
-            var stroke = new ol.style.Stroke({
-                color: 'black'
-            });
-            var textStroke = new ol.style.Stroke({
-                color: '#fff',
-                width: 3
-            });
-            var textFill = new ol.style.Fill({
-                color: '#000'
-            });
-            return function(feature, resolution) {
-                return [new ol.style.Style({
-                    stroke: stroke,
-                    text: new ol.style.Text({
-                        font: '12px Calibri,sans-serif',
-                        text: feature.get('name'),
-                        fill: textFill,
-                        stroke: textStroke
-                    })
-                })];
-            };
-        })()
-        */
-
-        /*
-        var selectStyle = new OpenLayers.Style({
-            strokeColor: "#6B9430",
-            strokeWidth: 3.5,
-            strokeDashstyle: "dash",
-            label: '${name}',
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
-        });
-
-        var lineStyles = new OpenLayers.StyleMap({
-            "default": defaultStyle,
-            "select": selectStyle
-        });
-        */
-        
+        });       
 
         $('#reset-map').bind('click', function(e) {
             map.getView().fit(routes.getSource().getExtent(), map.getSize());
         });
 
         /* Build the route list. */
-        buildRouteList(routes);
+        _buildRouteList(routes);
 
         /* Handle feature selection events */
         select.getFeatures().on('add', function(e) {
@@ -181,8 +132,7 @@ route.app = (function() {
     }
 
 
-    function buildRouteList(routes) {
-        var that = this;
+    function _buildRouteList(routes) {
         // get the routes from the tracks api and build the page..
         $.getJSON(Config.TRACK_API_URL, function(data) {
             var feats = data.features;
@@ -237,7 +187,6 @@ route.app = (function() {
                 var feature = routes.getSource().getFeatureById(fid);
                 select.getFeatures().clear();
                 select.getFeatures().push(feature);
-                //select.dispatchEvent('select');
             });
 
         }).fail(function(data) {
@@ -264,8 +213,7 @@ route.app = (function() {
         });
     }
 
-    function buildDeleteDialog() {
-        var that = this;
+    function _buildDeleteDialog() {
         var options = {
             dataType: 'json',
             beforeSubmit: function(arr, $form, options) {
@@ -276,7 +224,7 @@ route.app = (function() {
                 if (status == 'nocontent') {
                     routes = map.getLayersByName('Routes')[0]
                     routes.destroyFeatures();
-                    that.buildRouteList(routes);
+                    _buildRouteList(routes);
                 }
             },
             error: function(xhr, status, error) {
@@ -305,5 +253,5 @@ route.app = (function() {
 }());
 
 $(document).ready(function() {
-    route.app.init();
+    route.list.init();
 });
