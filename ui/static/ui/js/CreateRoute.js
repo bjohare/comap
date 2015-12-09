@@ -16,14 +16,22 @@
 
 */
 
-var CreateRoute = OpenLayers.Class({
-    
-    initialize: function(){
-        this.initForm();    
-    },
-    
-    initForm: function(){
-        
+var route = {};
+
+route.app = (function() {
+
+    var map = null;
+    var routes = null;
+    var select = null;
+
+    return {
+        init: function() {
+            initForm();
+        }
+    }
+
+    function initForm(){
+
         $('#gpxForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
@@ -66,9 +74,9 @@ var CreateRoute = OpenLayers.Class({
                 
             }
         });
-        
-        this.buildGroupSelect();
-        
+
+        buildGroupSelect();
+
         var progressbar = $('#progressbar').progressbar();
         $('#progressbar').css("display","none");
         $('#gpxForm').ajaxForm({
@@ -110,9 +118,9 @@ var CreateRoute = OpenLayers.Class({
     
             },
         });
-    },
-    
-    buildGroupSelect: function(){
+    }
+
+    function buildGroupSelect(){
         $.getJSON(Config.USER_API_URL, function(data){
             var groups = data[0].groups;
             if (groups.length > 1) {
@@ -132,4 +140,10 @@ var CreateRoute = OpenLayers.Class({
             $('#create-route-panel').css('display','block');
         }); 
     }
+
+
+}());
+
+$(document).ready(function() {
+    route.app.init();
 });

@@ -16,44 +16,113 @@
 
 */
 
-var RouteApp = OpenLayers.Class({
-    
-    initialize: function(){  
-    },
-    
-    main: function() {
-        this.map = this.initMap();
-    },
-    
-    initMap: function() {
-        
-        var mapOptions = {
-                displayProjection: new OpenLayers.Projection("EPSG:4326"),
-                controls: [new OpenLayers.Control.Attribution(),
-                           new OpenLayers.Control.ScaleLine()],
-                maxExtent: new OpenLayers.Bounds(10.5,51.5,5.5,55.5).transform("EPSG:4326", "EPSG:3857"),
-                scales:[500000,350000,250000,100000,25000,20000,15000,10000,5000,2500],   
-                units: 'm',
-        }
+var route = {};
 
-        map = new OpenLayers.Map('map', {options: mapOptions});
-        
-        var bing_aerial = Layers.BING_AERIAL;
-        var tf_outdoors = Layers.OUTDOORS;
-        var townlands = Layers.OSM_TOWNLANDS;
-        
-        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([tf_outdoors, bing_aerial]);
-        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([tf_outdoors, bing_aerial, townlands]);
-        
+route.app = (function() {
+
+    var map = null;
+    var routes = null;
+    var select = null;
+
+    return {
+        init: function() {
+            initMap();
+            buildDeleteDialog();
+        }
+    }
+
+    function initMap() {
+
         /* Styles */
-        var defaultStyle = new OpenLayers.Style({
-            strokeColor: "#db337b",
-            strokeWidth: 2.5,
-            strokeDashstyle: "dash"
+        var default_styles = [
+            new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: "#db337b",
+                    width: 2.5,
+                })
+            })
+        ];
+
+        var select_styles = [
+            new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: "#6B9430",
+                    width: 3.5,
+                })
+            })
+        ];
+
+        /* Layers */
+
+        // osm
+        var osm = new ol.layer.Tile({
+            title: 'OpenStreetMap',
+            source: new ol.source.OSM()
         });
-        
+
+        // routes
+        routes = new ol.layer.Vector({
+            title: 'Routes',
+            style: default_styles,
+            projection: 'EPSG:3857'
+        })
+
+        // controls
+        var scaleline = new ol.control.ScaleLine();
+
+        // interactions
+        select = new ol.interaction.Select({
+            //style: select_styles,
+        })
+
+        // view
+        var view = new ol.View({
+            center: [0, 0],
+            zoom: 2
+        });
+
+        // map
+        map = new ol.Map({
+            layers: [osm, routes],
+            target: 'map',
+            view: view,
+            controls: ol.control.defaults({
+                attributionOptions: {
+                    collapsible: false
+                }
+            }).extend([scaleline]),
+            interactions: ol.interaction.defaults().extend([select]),
+        });
+
+
+
+        /*
+        style: (function() {
+            var stroke = new ol.style.Stroke({
+                color: 'black'
+            });
+            var textStroke = new ol.style.Stroke({
+                color: '#fff',
+                width: 3
+            });
+            var textFill = new ol.style.Fill({
+                color: '#000'
+            });
+            return function(feature, resolution) {
+                return [new ol.style.Style({
+                    stroke: stroke,
+                    text: new ol.style.Text({
+                        font: '12px Calibri,sans-serif',
+                        text: feature.get('name'),
+                        fill: textFill,
+                        stroke: textStroke
+                    })
+                })];
+            };
+        })()
+        */
+
+        /*
         var selectStyle = new OpenLayers.Style({
             strokeColor: "#6B9430",
             strokeWidth: 3.5,
@@ -66,148 +135,120 @@ var RouteApp = OpenLayers.Class({
             fontSize: 16,
             graphicZIndex: 10,
         });
-        
-        var lineStyles = new OpenLayers.StyleMap(
-            {
-                "default": defaultStyle,
-                "select": selectStyle
+
+        var lineStyles = new OpenLayers.StyleMap({
+            "default": defaultStyle,
+            "select": selectStyle
         });
+        */
         
-        /* Add the routes for the current group */
-        var routes = new OpenLayers.Layer.Vector('Routes', {
-            styleMap: lineStyles
+
+        $('#reset-map').bind('click', function(e) {
+            map.getView().fit(routes.getSource().getExtent(), map.getSize());
         });
-        map.addLayers([routes]);
-        
-        /* required to fire selection events on routes */
-        var selectControl = new OpenLayers.Control.SelectFeature(routes,{
-            id: 'selectControl'
+
+        /* Build the route list. */
+        buildRouteList(routes);
+
+        /* Handle feature selection events */
+        select.getFeatures().on('add', function(e) {
+            var feature = this.getArray()[0];
+            var fid = feature.getId();
+            var feat = feature.clone();
+            var attrs = feat.getProperties();
+            map.getView().fit(feature.getGeometry().getExtent(), map.getSize());
+            $('#detail-panel-body').css('display', 'block');
+            $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
+            if (!attrs.image_path == 'none_provided') {
+                $('.panel-body').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
+            }
+            $('.panel-body').find('span.description').html(attrs.description);
+            $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
+            $('.panel-body').find('a.editlink').prop('href', '/comap/routes/edit/' + fid);
+            $('.panel-body').find('a.download').prop('href', attrs.gpx_url);
+            $('.panel-body').find('a.waypointlink').prop('href', '/comap/waypoints/list/' + fid);
+            $('li[id=' + fid + ']').css('background-color', '#6B9430').css('color', 'white');
+            $('li[id=' + fid + '] a').css('color', 'white');
+            $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
         });
-        map.addControl(selectControl);
-        selectControl.activate();
-        
-        this.buildRouteList(routes, selectControl);
-        
-        this.buildDeleteDialog();
-        
-        /* feature selection event handling */
-        routes.events.register("featureselected", this, function(e) {
-                var feature = e.feature;
-                var fid = feature.fid;
-                var feat = feature.clone();
-                var attrs = feat.attributes;
-                var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
-                map.zoomToExtent(feature.geometry.bounds, false);
-                $('#detail-panel-body').css('display','block');
-                $('#detail-heading').html('<h5>' + attrs.name + '</h5>');
-                if (!attrs.image_path == 'none_provided') {
-                    $('.panel-body').find('span.image').html('<img id="info" src="/comap/media/' + attrs.image_path + '"/>');
-                }
-                $('.panel-body').find('span.description').html(attrs.description);
-                $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
-                $('.panel-body').find('a.editlink').prop('href','/comap/routes/edit/' + fid);
-                $('.panel-body').find('a.download').prop('href',attrs.gpx_url);
-                $('.panel-body').find('a.waypointlink').prop('href','/comap/waypoints/list/' + fid);
-                $('li[id=' + fid + ']').css('background-color','#6B9430').css('color', 'white');
-                $('li[id=' + fid + '] a').css('color', 'white');
-                $('#deleteForm').prop('action', Config.TRACK_API_URL + '/' + fid);
-                
-        });
-        
-        /* feature unselection event handling */
-        routes.events.register("featureunselected", this, function(e){
+
+        select.getFeatures().on('remove', function(e) {
             $('#detail-heading').html('<h5>Select a route</h5>');
-            $('#detail-panel-body').css('display','none');
-            $('li.list-group-item').css('background-color','white');
-            $('li.list-group-item a').css('color','#526325');
+            $('#detail-panel-body').css('display', 'none');
+            $('li.list-group-item').css('background-color', 'white');
+            $('li.list-group-item a').css('color', '#526325');
         });
-        
-        $('#reset-map').bind('click', function(e){
-             map.zoomToExtent(routes.getDataExtent());
-        });
-        
-        /* Add map controls */
-        map.addControl(new OpenLayers.Control.ScaleLine());
-        map.addControl(new OpenLayers.Control.LayerSwitcher());
-        
-        return map;
-    },
-    
-    buildRouteList: function(routes){
+    }
+
+
+    function buildRouteList(routes) {
         var that = this;
-        var selectControl = map.getControlsBy('id','selectControl')[0];
         // get the routes from the tracks api and build the page..
-        $.getJSON(Config.TRACK_API_URL, function(data){
+        $.getJSON(Config.TRACK_API_URL, function(data) {
             var feats = data.features;
             var foundGroups = [];
-            $.each(feats, function(i){
+            $.each(feats, function(i) {
                 var group = feats[i].properties.group.name;
                 foundGroups.push(group);
             });
             var groups = _.uniq(foundGroups);
             $('#routes').empty();
-            $.each(groups, function(i){
+            $.each(groups, function(i) {
                 var group = groups[i];
                 var groupId = group.replace(' ', '-').toLowerCase();
-                var html =  '<div class="panel panel-default">' +
-                                '<div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>' +
-                                    '<div id="heading"><h5>' + group + '</h5></div></div>' +
-                                '<div id="panel" class="panel-body"><p>Here is a list of Routes for ' + group + '</div>' +
-                                '<ul id="' + groupId + '"' + 'class="list-group"></ul>' +
-                            '</div>';
+                var html = '<div class="panel panel-default">' +
+                    '<div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>' +
+                    '<div id="heading"><h5>' + group + '</h5></div></div>' +
+                    '<div id="panel" class="panel-body"><p>Here is a list of Routes for ' + group + '</div>' +
+                    '<ul id="' + groupId + '"' + 'class="list-group"></ul>' +
+                    '</div>';
                 $('#routes').append(html);
-                $.each(feats, function(j){
+                $.each(feats, function(j) {
                     var feature = feats[j];
                     var name = feature.properties.name;
                     var id = feature.id;
                     var featGroup = feature.properties.group.name;
                     if (group === featGroup) {
-                        $('ul#' + groupId).append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a><span class="glyphicon glyphicon-chevron-right pull-right"></span></li>'); 
+                        $('ul#' + groupId).append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a><span class="glyphicon glyphicon-chevron-right pull-right"></span></li>');
                     }
                 });
             });
             $('#routes').append('<div id="create-link" class="listlink"></div>');
             $('#create-link').html('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
-            $('#routes-map-panel').css('visibility','visible');
-            $('#detail-panel').css('visibility','visible');
-            $('#detail-panel-body').css('display','none');
-            //var group = feats[0].properties.group.name;
-            //var heading = '<h5>' + group + '</h5>';
-            //$('#heading').html(heading);
-            //$('#panel').html('<p>Here is a list of Routes for ' + group + '</p>');
-            
-            // add waypoints to the list..
-            /*
-            $('ul.list-group').empty();
-            $.each(feats, function(i){
-                var name = feats[i].properties.name;
-                var id = feats[i].id;
-                $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a></li>');
+            $('#routes-map-panel').css('visibility', 'visible');
+            $('#detail-panel').css('visibility', 'visible');
+            $('#detail-panel-body').css('display', 'none');
+
+            // add the features to the map
+            var geoJSONFormat = new ol.format.GeoJSON();
+            var source = new ol.source.Vector({
+                format: geoJSONFormat,
             });
-            */
-            var geojson = new OpenLayers.Format.GeoJSON({
-                    'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                    'externalProjection': new OpenLayers.Projection("EPSG:4326")
+            var features = geoJSONFormat.readFeatures(data, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
             });
-            var features = geojson.read(data);
-            routes.addFeatures(features);
-            map.zoomToExtent(routes.getDataExtent());
-            $( "a.route-link" ).bind( "click", function() {
+            source.addFeatures(features);
+            routes.setSource(source);
+            var extent = routes.getSource().getExtent();
+            map.getView().fit(extent, map.getSize());
+            $("a.route-link").bind("click", function() {
                 var fid = $(this).attr("id");
-                var feature = routes.getFeatureByFid(fid);
-                selectControl.unselectAll();
-                selectControl.select(feature);
+                var feature = routes.getSource().getFeatureById(fid);
+                select.getFeatures().clear();
+                select.getFeatures().push(feature);
+                //select.dispatchEvent('select');
             });
-            
-        }).fail(function(data){
+
+        }).fail(function(data) {
             if (data.status == 404) {
                 var message = data.responseJSON.detail;
                 console.log(message);
-                $('#routes-map-panel').css('display','none');
+                $('#routes-map-panel').css('display', 'none');
                 //$('#map').css('display','none');
-                $('ul.list-group').css('display','none');
-                $('#detail-panel').css('display','none');
-                $('#detail-panel-body').css('display','none');
+                $('ul.list-group').css('display', 'none');
+                $('#detail-panel').css('display', 'none');
+                $('#detail-panel-body').css('display', 'none');
                 $('#create-link').empty();
                 var heading = '<h5>No Routes Found</h5>';
                 var panelText = '<h5>' + message + '</h5>';
@@ -217,15 +258,13 @@ var RouteApp = OpenLayers.Class({
                 $('#panel').append('<p>');
                 $('#panel').append('<a class="listlink" href="/comap/routes/create/"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new Route</button></a>');
                 $('#panel').append('</p>');
-            }
-            else {
+            } else {
                 console.log('Crap.. something went wrong there...');
             }
         });
-    },
-    
-    
-    buildDeleteDialog: function(){
+    }
+
+    function buildDeleteDialog() {
         var that = this;
         var options = {
             dataType: 'json',
@@ -238,34 +277,33 @@ var RouteApp = OpenLayers.Class({
                     routes = map.getLayersByName('Routes')[0]
                     routes.destroyFeatures();
                     that.buildRouteList(routes);
-                } 
+                }
             },
-            error: function(xhr, status, error){
+            error: function(xhr, status, error) {
                 var json = xhr.responseJSON
                 errors = json.errors;
                 console.log(errors);
             },
         }
-        
+
         var modalOpts = {
             keyboard: true,
             backdrop: 'static',
         }
-        
-        $("#btnDelete").click(function(){
+
+        $("#btnDelete").click(function() {
             $("#deleteRouteModal").modal(modalOpts, 'show');
         });
-        
-        $("#deleteConfirm").click(function(){
+
+        $("#deleteConfirm").click(function() {
             $('#deleteForm').ajaxSubmit(options);
             $("#deleteRouteModal").modal('hide');
         });
-        
+
     }
-    
+
+}());
+
+$(document).ready(function() {
+    route.app.init();
 });
-
-
-
-
-
