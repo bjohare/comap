@@ -12,7 +12,7 @@ from .secret import SECRET_KEY  # NOQA  # isort:skip
 TIME_ZONE = 'UTC'
 
 # default DEBUG setting
-DEBUG = False
+DEBUG = True
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -58,6 +58,7 @@ STATIC_ROOT = ABS_PATH('static')
 STATIC_URL = '/comap/static/'
 
 # enable cached storage
+
 STATICFILES_STORAGE = (
     'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
 )

@@ -16,6 +16,12 @@
 
 */
 
+var waypoints = {};
+
+waypoints.list = (function(){
+
+}());
+
 var CreateWaypointApp = OpenLayers.Class({
     
     /* initial setup */

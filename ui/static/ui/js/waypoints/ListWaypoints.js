@@ -16,119 +16,96 @@
 
 */
 
-var ListWaypointsApp = OpenLayers.Class({
-    
-    initialize: function(){
-        this.buildDeleteDialog();
-        //$('.carousel').carousel('pause');
-    },
-    
-    main: function() {
-        this.map = this.initMap();
-    },
-    
-    initMap: function() {
-        
-        var mapOptions = {
-                displayProjection: new OpenLayers.Projection("EPSG:4326"),
-                controls: [new OpenLayers.Control.Attribution(),
-                           new OpenLayers.Control.ScaleLine()],
-                maxExtent: new OpenLayers.Bounds(10.5,51.5,5.5,55.5).transform("EPSG:4326", "EPSG:3857"),   
-                units: 'm',
-        }
+var waypoints = {};
 
-        map = new OpenLayers.Map('map', {options: mapOptions});
-        
-        var bing_aerial = Layers.BING_AERIAL;
-        var tf_outdoors = Layers.OUTDOORS;
-        var townlands = Layers.OSM_TOWNLANDS;
-        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([tf_outdoors, bing_aerial]);
-        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([tf_outdoors, bing_aerial, townlands]);
-               
-        /* Styles */
-        var defaultLineStyle = new OpenLayers.Style({
-            strokeColor: "#db337b",
-            strokeWidth: 2.5,
-            strokeDashstyle: "dash"
+waypoints.list = (function(){
+
+    // private
+    var map = null;
+    var route = null;
+    var waypoints = null;
+    var select = null;
+
+    function _initMap(){
+
+        /* Layers */
+
+        // osm
+        var osm = new ol.layer.Tile({
+            title: 'OpenStreetMap',
+            source: new ol.source.OSM()
         });
-        
-        var selectLineStyle = new OpenLayers.Style({
-            strokeColor: "#6B9430",
-            strokeWidth: 3.5,
-            strokeDashstyle: "dashdot",
-            label: " ${name}",
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
+
+        // routes
+        route = new ol.layer.Vector({
+            title: 'Route',
+            style: style.route.DEFAULT,
+            projection: 'EPSG:3857'
         });
-        
-        var lineStyles = new OpenLayers.StyleMap(
-        {
-                "default": defaultLineStyle,
-                "select": selectLineStyle
+
+        // waypoints
+        waypoints = new ol.layer.Vector({
+            title: 'Waypoints',
+            style: style.waypoint.DEFAULT,
+            projection: 'EPSG:3857'
+        })
+
+        // controls
+        var scaleline = new ol.control.ScaleLine();
+
+        // interactions
+        select = new ol.interaction.Select({
+            style: style.waypoint.SELECT,
+            layers: [waypoints]
+        })
+
+        // view
+        var view = new ol.View({
+            center: [0, 0],
+            zoom: 2,
+            maxZoom: 19
         });
-        
-        /* Styles */
-         
-        var defaultPointStyle = new OpenLayers.Style({
-            strokeColor: "#980000",
-            fillColor: "green",
-            pointRadius: 5,
-            graphicZIndex:0,
+
+        // map
+        map = new ol.Map({
+            layers: [osm, route, waypoints],
+            target: 'map',
+            view: view,
+            controls: ol.control.defaults({
+                attributionOptions: {
+                    collapsible: false
+                }
+            }).extend([scaleline]),
+            interactions: ol.interaction.defaults().extend([select]),
         });
-        
-        var selectPointStyle = new OpenLayers.Style({
-            pointRadius: 10,
-            fillColor: "#6B9430",
-            label: " ${name}",
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
+
+        $('#reset-map').bind('click', function(e) {
+            map.getView().fit(route.getSource().getExtent(), map.getSize());
         });
-        
-        var pointStyles = new OpenLayers.StyleMap(
-            {
-                "default": defaultPointStyle,
-                "select": selectPointStyle
-            });
-        
-        /* Add the waypoints for the current group */
-        var waypoints = new OpenLayers.Layer.Vector('Waypoints', {
-            styleMap: pointStyles
-        });
-        map.addLayers([waypoints]);
-        
-        /* required to fire selection events on waypoints */
-        var selectControl = new OpenLayers.Control.SelectFeature(waypoints,{
-            id: 'selectControl'
-        });
-        map.addControl(selectControl);
-        selectControl.activate();
-        
-        this.buildWaypointList(waypoints, selectControl);
-        
+
+
+        /* build list of waypoints */
+        _buildWaypointList();
+
         /* feature selection event handling */
-        waypoints.events.register("featureselected", this, function(e) {
-                var feature = e.feature;
-                var fid = feature.fid;
+        select.getFeatures().on('add', function(e) {
+                var feature = this.getArray()[0];
+                var fid = feature.getId();
                 var feat = feature.clone();
-                var attrs = feat.attributes;
+                var attrs = feat.getProperties();
                 var files = attrs.media.files;
-                var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
-                var group = feat.attributes.route.group.name;
-                map.zoomToExtent(feature.geometry.bounds, true);
+                //var geom = feat.geometry.transform('EPSG:3857','EPSG:4326');
+                var group = attrs.route.group.name;
+                var geom = feat.getGeometry();
+                var point = ol.proj.transform(
+                                geom.getCoordinates(), 'EPSG:3857', 'EPSG:4326'
+                            );
+                map.getView().fit(geom.getExtent(), map.getSize(),{
+                    maxZoom: 17
+                });
                 // irish grid ref
                 wgs84=new GT_WGS84();
-                wgs84.setDegrees(geom.y, geom.x);
+                wgs84.setDegrees(point[0], point[1]);
                 irish=wgs84.getIrish();
                 gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');
@@ -156,7 +133,7 @@ var ListWaypointsApp = OpenLayers.Class({
                                             '</div>'
                                 $('.carousel-inner').append(slide);
                                 $('.carousel-indicators').append(indicator);
-                                $('#carousel').carousel('cycle'); 
+                                $('#carousel').carousel('cycle');
                                 break;
                             case 'audio':
                                 var audio = $('audio');
@@ -173,15 +150,15 @@ var ListWaypointsApp = OpenLayers.Class({
                                 videojs(vid, {"width":"auto", "height":"auto"});
                                 break;
                         }
-                    });  
+                    });
                 }
                 else {
                     $('#carousel').carousel('pause');
                     $('#carousel').css('display','none');
                 }
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
-                $('.panel-body').find('span.latitude').html(geom.y.toFixed(4));
-                $('.panel-body').find('span.longitude').html(geom.x.toFixed(4));
+                $('.panel-body').find('span.latitude').html(point[0].toFixed(4));
+                $('.panel-body').find('span.longitude').html(point[1].toFixed(4));
                 $('.panel-body').find('span.irishgrid').html(gridref);
                 $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
                 $('.panel-body').find('a.editlink').prop('href','/comap/waypoints/edit/' + fid);
@@ -189,9 +166,9 @@ var ListWaypointsApp = OpenLayers.Class({
                 $('li[id=' + fid + '] a').css('color', 'white');
                 $('#deleteForm').prop('action', Config.WAYPOINT_API_URL + '/' + fid);
         });
-        
+
         /* feature unselection event handling */
-        waypoints.events.register("featureunselected", this, function(e){
+        select.getFeatures().on("remove", function(e){
             $('#detail-heading').html('<h5>Select a waypoint</h5>');
             $('#detail-panel-body').css('display','none');
             $('.carousel-inner').empty();
@@ -210,17 +187,9 @@ var ListWaypointsApp = OpenLayers.Class({
             });
             $('#video-panel').css('display','none').empty();
         });
-        
-        /* Add map controls */
-        map.addControl(new OpenLayers.Control.ScaleLine());
-        map.addControl(new OpenLayers.Control.LayerSwitcher());
-        
-        return map;
-    },
-    
-    buildWaypointList: function(waypoints){
-        var that = this;
-        var selectControl = map.getControlsBy('id','selectControl')[0];
+    }
+
+    function _buildWaypointList(){
         var url = document.URL;
         var parts = url.split('/');
         var routeId = parts[6];
@@ -228,35 +197,34 @@ var ListWaypointsApp = OpenLayers.Class({
         //var waypointUrl = Config.WAYPOINT_API_URL + '.json?route_id=' + routeId;
         var routeName = '';
         var numWaypoints = 0;
-        
+
         /* Get the Routes geojson */
         $.getJSON(Config.TRACK_API_URL + '/' + routeId + '.json', function(data, status, jqXHR) {
             var routeId = data.id;
             var props = data.properties;
             var waypts = data.properties.waypoints;
             routeName = data.properties.name;
-            if (jqXHR.status == 200) { 
-                var geojson = new OpenLayers.Format.GeoJSON({
-                        'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                        'externalProjection': new OpenLayers.Projection("EPSG:4326")
+            if (jqXHR.status == 200) {
+
+                // add the route to the map
+                var geoJSONFormat = new ol.format.GeoJSON();
+                var source = new ol.source.Vector({
+                    format: geoJSONFormat,
                 });
-                var features = geojson.read(data);
-                var route = new OpenLayers.Layer.Vector(routeName,{
-                    style: {
-                        'strokeWidth': 2.5,
-                        'strokeColor': '#6e0004',
-                        'strokeDashstyle': 'dash'
-                    }
+                var features = geoJSONFormat.readFeatures(data, {
+                    dataProjection: 'EPSG:4326',
+                    featureProjection: 'EPSG:3857'
                 });
-                map.addLayers([route]);
-                route.addFeatures(features);
-                map.zoomToExtent(route.getDataExtent());
-                
-                $('#reset-map').bind('click', function(e){
-                    map.zoomToExtent(route.getDataExtent());
+                source.addFeatures(features);
+                route.setSource(source);
+                var extent = route.getSource().getExtent();
+                map.getView().fit(extent, map.getSize());
+
+                $('#reset-map').bind('click', function(e) {
+                    map.getView().fit(route.getSource().getExtent(), map.getSize());
                 });
             }
-            
+
             if (waypts.features.length == 0) {
                 $('#waypoints-map-panel').css('display','none');
                 $('ul.list-group').css('display','none');
@@ -289,21 +257,25 @@ var ListWaypointsApp = OpenLayers.Class({
                     var id = features[i].id;
                     $('ul.list-group').append('<li class="list-group-item" id="' + id + '"><a class="route-link" id="' + id + '" href="#">' + name + '</a><span class="glyphicon glyphicon-chevron-right pull-right"></span></li>');
                 });
-                var geojson = new OpenLayers.Format.GeoJSON({
-                        'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                        'externalProjection': new OpenLayers.Projection("EPSG:4326")
+
+                // add the waypoints to the map
+                var geoJSONFormat = new ol.format.GeoJSON();
+                var source = new ol.source.Vector({
+                    format: geoJSONFormat,
                 });
-                var features = geojson.read(waypts);
-                waypoints.addFeatures(features);
-                selectControl.unselectAll();
-                waypoints.events.triggerEvent('featureunselected');
-                
+                var features = geoJSONFormat.readFeatures(waypts, {
+                    dataProjection: 'EPSG:4326',
+                    featureProjection: 'EPSG:3857'
+                });
+                source.addFeatures(features);
+                waypoints.setSource(source);
+
             }
             $( "#list a" ).bind( "click", function() {
                 var fid = $(this).attr("id");
-                var feature = waypoints.getFeatureByFid(fid);
-                selectControl.unselectAll();
-                selectControl.select(feature);
+                var feature = waypoints.getSource().getFeatureById(fid);
+                select.getFeatures().clear();
+                select.getFeatures().push(feature);
             });
         }).fail(function() {
             console.log( "failed to get route..." );
@@ -317,11 +289,10 @@ var ListWaypointsApp = OpenLayers.Class({
             $('#heading').html(heading);
             $('#panel').html(panelText);
         });
-    },
-    
-    buildDeleteDialog: function(){
-        
-        var that = this;
+    }
+
+    function _buildDeleteDialog(){
+
         var options = {
             dataType: 'json',
             beforeSubmit: function(arr, $form, options) {
@@ -333,29 +304,44 @@ var ListWaypointsApp = OpenLayers.Class({
                     waypoints = map.getLayersByName('Waypoints')[0]
                     waypoints.destroyFeatures();
                     that.buildWaypointList(waypoints);
-                } 
+                }
             },
             error: function(xhr, status, error){
                 var json = xhr.responseJSON
                 console.log(error);
             },
         }
-        
-       var modalOpts = {
+
+        var modalOpts = {
             keyboard: true,
             backdrop: 'static',
         }
-        
+
         $("#btnDelete").click(function(){
             $("#deleteWaypointModal").modal(modalOpts, 'show');
         });
-        
+
         $("#deleteConfirm").click(function(){
             $('#deleteForm').ajaxSubmit(options);
             $("#deleteWaypointModal").modal('hide');
         });
     }
+
+    // public
+    return {
+        init: function(){
+            _initMap();
+            _buildDeleteDialog();
+        }
+
+    };
+
+}());
+
+$(document).ready(function() {
+    waypoints.list.init();
 });
+
 
 
 

@@ -33,25 +33,6 @@ route.list = (function() {
 
     function _initMap() {
 
-        /* Styles */
-        var default_styles = [
-            new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: "#db337b",
-                    width: 2.5,
-                })
-            })
-        ];
-
-        var select_styles = [
-            new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: "#6B9430",
-                    width: 3.5,
-                })
-            })
-        ];
-
         /* Layers */
 
         // osm
@@ -63,16 +44,16 @@ route.list = (function() {
         // routes
         routes = new ol.layer.Vector({
             title: 'Routes',
-            style: default_styles,
+            style: style.route.DEFAULT,
             projection: 'EPSG:3857'
-        })
+        });
 
         // controls
         var scaleline = new ol.control.ScaleLine();
 
         // interactions
         select = new ol.interaction.Select({
-            //style: select_styles,
+            style: style.route.SELECT
         })
 
         // view
@@ -92,7 +73,7 @@ route.list = (function() {
                 }
             }).extend([scaleline]),
             interactions: ol.interaction.defaults().extend([select]),
-        });       
+        });
 
         $('#reset-map').bind('click', function(e) {
             map.getView().fit(routes.getSource().getExtent(), map.getSize());

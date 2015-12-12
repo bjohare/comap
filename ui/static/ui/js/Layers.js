@@ -1,7 +1,22 @@
-var Layers = {};
+var Layers = (function(){
 
-Layers.OSM = new OpenLayers.Layer.OSM("OpenStreetMap");
+    return {
+        OSM: _getOSM
 
+    };
+
+    function _getOSM(){
+        return 
+            new ol.layer.Tile({
+                title: 'OpenStreetMap',
+                source: new ol.source.OSM()
+            });
+    }
+
+}());
+
+
+/*
 // http://www.thunderforest.com/opencyclemap/
 Layers.OCM = new OpenLayers.Layer.OSM("OpenCycleMap",
                 ["http://a.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
@@ -70,9 +85,11 @@ Layers.BING_AERIAL = new OpenLayers.Layer.Bing({
                 key: apiKey,
                 type: "Aerial"
             });
+*/
 
 /* Townland Layer and Style */
 
+/*
 var context =
             {
                 getColor: function(feature) {
@@ -111,3 +128,4 @@ Layers.OSM_TOWNLANDS = new OpenLayers.Layer.Vector("Townlands", {
                 format: new OpenLayers.Format.GeoJSON()
             })
         });
+*/
