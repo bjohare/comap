@@ -29,15 +29,15 @@ logger = logging.getLogger(__name__)
 gdal.UseExceptions()
 
 class GPXProc:
-    
+
     def __init__(self, gpx_path):
         self.gpx_path = gpx_path
         self.driver = ogr.GetDriverByName('GPX')
         self.ds = self.driver.Open(self.gpx_path)
-       
+
         logger.debug('Opening GPX file for reading: %s' % self.ds.name)
-        
-    
+
+
     def get_track(self):
         """ Gets the track layer as a GEOSGeometry"""
         tracks_layer = self.ds.GetLayerByName('tracks')
@@ -45,7 +45,7 @@ class GPXProc:
         geom = track_feature.GetGeometryRef().ExportToWkt()
         line = GEOSGeometry(geom)
         return line
-    
+
     def update_trackpoints(self, route_id):
         logger.debug('Updating trackpoints for route with id: {0}'.format(route_id))
         # delete existing trackpoints for this route..
@@ -67,7 +67,7 @@ class GPXProc:
             tp.save()
             logging.debug("Saved TP: %s" % tp)
             count = count + 1
-        self.driver = None     
+        self.driver = None
         logging.debug('Saved %d track_points' % count)
 
     def save_trackpoints(self, route_id):
@@ -89,6 +89,6 @@ class GPXProc:
             tp.save()
             logging.debug("Saved TP: %s" % tp)
             count = count + 1
-        self.driver = None     
+        self.driver = None
         logging.debug('Saved %d track_points' % count)
-          
+

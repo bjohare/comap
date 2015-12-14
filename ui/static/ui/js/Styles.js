@@ -18,8 +18,6 @@
 
 var style = {};
 
-/* Route styles */
-
 style.route = (function() {
 
     var default_styles = [
@@ -27,6 +25,7 @@ style.route = (function() {
             stroke: new ol.style.Stroke({
                 color: "#db337b",
                 width: 2.5,
+                lineCap: "round"
             })
         })
     ];
@@ -34,9 +33,17 @@ style.route = (function() {
     var select_styles = [
         new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: "#6B9430",
-                width: 3.5,
-            })
+                color: [82, 174, 255, 0.3],
+                width: 8,
+            }),
+            zIndex: 1
+        }),
+        new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: [61, 131, 192, 1],
+                width: 2.5,
+            }),
+            zIndex: 2
         })
     ];
 
@@ -54,20 +61,20 @@ style.waypoint = (function() {
     var default_styles = [
         new ol.style.Style({
             image: new ol.style.Circle({
-                radius: 7,
+                radius: 8,
                 fill: new ol.style.Fill({
-                    color: 'green'
+                    color: [53, 57, 176, 1],
                 }),
                 stroke: new ol.style.Stroke({
-                    color: "#980000",
-                    width: 2.5,
+                    color: [82, 174, 255, 0.3],
+                    width: 4,
                 }),
             })
         })
     ];
 
 
-    function selectWaypoint(feature, resolution) {
+    function selectWaypoint(feature) {
         var geom = feature.getGeometry();
         if (geom.getType() == 'Point') {
             var text = feature.get('name');
@@ -77,14 +84,14 @@ style.waypoint = (function() {
                 new ol.style.Style({
                     text: label,
                     image: new ol.style.Circle({
-                        radius: 10,
-                        fill: new ol.style.Fill({
-                            color: 'yellow'
-                        }),
+                        radius: 12,
                         stroke: new ol.style.Stroke({
-                            color: "#980000",
-                            width: 2.5,
-                        })
+                            color: [82, 174, 255, 0.3],
+                            width: 16
+                        }),
+                        fill: new ol.style.Fill({
+                            color: [53, 57, 176, 1],
+                        }),
                     })
                 })
             ];
@@ -107,7 +114,7 @@ style.text = (function() {
     textStyle = new ol.style.Text({
         font: '14px Ubuntu,sans-serif',
         textAlign: 'center',
-        offsetY: -20,
+        offsetY: -22,
         fill: new ol.style.Fill({
             color: [0, 0, 0, 1]
         }),

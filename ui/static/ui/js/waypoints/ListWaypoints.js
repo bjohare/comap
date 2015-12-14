@@ -39,7 +39,7 @@ waypoints.list = (function(){
         // routes
         route = new ol.layer.Vector({
             title: 'Route',
-            style: style.route.DEFAULT,
+            style: style.route.SELECT,
             projection: 'EPSG:3857'
         });
 
@@ -101,11 +101,11 @@ waypoints.list = (function(){
                                 geom.getCoordinates(), 'EPSG:3857', 'EPSG:4326'
                             );
                 map.getView().fit(geom.getExtent(), map.getSize(),{
-                    maxZoom: 17
+                    maxZoom: 15
                 });
                 // irish grid ref
                 wgs84=new GT_WGS84();
-                wgs84.setDegrees(point[0], point[1]);
+                wgs84.setDegrees(point[1], point[0]);
                 irish=wgs84.getIrish();
                 gridref = irish.getGridRef(3);
                 $('#detail-panel-body').css('display','block');

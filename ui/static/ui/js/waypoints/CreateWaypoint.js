@@ -18,33 +18,32 @@
 
 var waypoints = {};
 
-waypoints.list = (function(){
+waypoints.create = (function() {
 
-}());
+    // private vars
+    var routeId = null;
+    var route = null;
+    var waypoints = null;
+    var map = null;
 
-var CreateWaypointApp = OpenLayers.Class({
-    
-    /* initial setup */
-    initialize: function() {
-        
+    function _init() {
+
         var url = document.URL;
         var parts = url.split('/');
         var id = parts[6];
         console.log('Route id is ' + id);
-        this.routeId = id;
+        routeId = id;
         // add the route id to the form.
         $('#route').val(this.routeId);
-        this.initForm();
-        this.map = this.initMap();
         $('[data-toggle="popover"]').popover();
 
-	},
+    }
 
     /* Initialize the form */
-    initForm: function() {
+    function _initForm() {
         console.log('Initializing form...');
-        
-         // Initialize the jQuery File Upload widget:
+
+        // Initialize the jQuery File Upload widget:
         var fileUpload = $('#fileupload').fileupload({
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCredentials: true},
@@ -57,7 +56,7 @@ var CreateWaypointApp = OpenLayers.Class({
             maxNumberOfFiles: 5,
             maxFileSize: 10000000,
         });
-        
+
         /*
         $('#fileupload').bind('fileuploadadded', function (e, data) {
             //$('#dz-message').css('display','none');
@@ -66,35 +65,35 @@ var CreateWaypointApp = OpenLayers.Class({
         */
         var that = this;
         that.cancelled = 0;
-        $('#fileupload').bind('fileuploadfail', function (e, data) {
+        $('#fileupload').bind('fileuploadfail', function(e, data) {
             that.cancelled += 1;
             var numFiles = data.originalFiles.length;
             if (numFiles == that.cancelled) {
                 that.cancelled = 0;
                 console.log('All uploads cancelled');
-                $('#dz-message').css('display','block');
+                $('#dz-message').css('display', 'block');
             }
         });
-        
-        
+
+
         var that = this;
         that.submitted = 0;
-        $('#fileupload').bind('fileuploadcompleted', function (e, data) {
+        $('#fileupload').bind('fileuploadcompleted', function(e, data) {
             that.submitted += 1;
             var numFiles = data.getNumberOfFiles();
             if (numFiles == that.submitted) {
                 that.submitted = 0;
                 console.log('All files submitted.');
-                $('#create-form-panel').css('display','none');
+                $('#create-form-panel').css('display', 'none');
                 $('#create-info').css('display', 'block');
             }
         });
-        
-        $('#fileupload').bind('fileuploadchange', function(e, data){
+
+        $('#fileupload').bind('fileuploadchange', function(e, data) {
             console.log('changed...')
         });
-        
-        $('#dropzone').bind('dragover', function (e) {
+
+        $('#dropzone').bind('dragover', function(e) {
             var dropZone = $('#dropzone');
             dropZone.addClass('in');
             var found = false,
@@ -112,12 +111,12 @@ var CreateWaypointApp = OpenLayers.Class({
                 dropZone.removeClass('hover');
             }
         });
-        
-        $('#dropzone').bind('drop dragleave', function(e){
-           $('#dropzone').removeClass('in hover');
+
+        $('#dropzone').bind('drop dragleave', function(e) {
+            $('#dropzone').removeClass('in hover');
         });
-    
-            
+
+
         $('#waypointForm').formValidation({
             framework: 'bootstrap',
             // Feedback icons
@@ -151,15 +150,15 @@ var CreateWaypointApp = OpenLayers.Class({
                 },
             }
         }).on('success.field.fv', function(e, data) {
-            if (data.fv.getInvalidFields().length > 0) {    // There is invalid field
+            if (data.fv.getInvalidFields().length > 0) { // There is invalid field
                 data.fv.disableSubmitButtons(true);
             }
         });
-       
+
         $('#waypointForm').ajaxForm({
             url: Config.WAYPOINT_API_URL + ".json",
             beforeSubmit: function(arr, $form, options) {
-                $('#progressbar').css("display","block");
+                $('#progressbar').css("display", "block");
                 var now = new Date();
                 // update the post values
                 arr[1].value = now.toISOString();
@@ -183,243 +182,200 @@ var CreateWaypointApp = OpenLayers.Class({
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
                 $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#create-info-panel').append('</p>');
-                
+
                 // get new waypoint id and post the media
                 var template = $('.template-upload');
                 var media = template.data('data');
                 if (media) {
                     var waypointId = data.id;
                     var csrftoken = $("input[name='csrfmiddlewaretoken']").val();
-                    var formData = {waypoint_id: waypointId, csrfmiddlewaretoken: csrftoken};
+                    var formData = {
+                        waypoint_id: waypointId,
+                        csrfmiddlewaretoken: csrftoken
+                    };
                     $('#fileupload').fileupload({
                         formData: formData
                     });
                     $('.fileupload-buttonbar').find('.start').click();
-                }
-                else {
-                    $('#create-form-panel').css('display','none');
+                } else {
+                    $('#create-form-panel').css('display', 'none');
                     $('#create-info').css('display', 'block');
                 }
-                
+
             },
-            error: function(xhr, status, error){
+            error: function(xhr, status, error) {
                 $('#progressbar').css("display", "none");
                 console.log(error);
             },
         });
-        
-    },
-    
-    /* map creation */
-    initMap: function() {
-		
-        var mapOptions = {
-                displayProjection: new OpenLayers.Projection("EPSG:4326"),
-                controls: [new OpenLayers.Control.Attribution(),
-                           new OpenLayers.Control.ScaleLine()],
-                maxExtent: new OpenLayers.Bounds(10.5,51.5,5.5,55.5).transform("EPSG:4326", "EPSG:3857"),
-                units: 'm',
-        }
-    
-        var map = new OpenLayers.Map('edit-waypoint-map',  {options: mapOptions});
-		
-		/* add layers */
-        var bing_aerial = Layers.BING_AERIAL;
-        var tf_outdoors = Layers.OUTDOORS;
-        tf_outdoors.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        bing_aerial.options = {layers: "basic", isBaseLayer: true, visibility: true, displayInLayerSwitcher: true};
-        map.addLayers([tf_outdoors, bing_aerial]);
-        
-        /*
-		var ocm = Layers.OCM;
-		ocm.options = {layers: "basic", isBaseLayer: false, visibility: false, displayInLayerSwitcher: true};
-        map.addLayers([Layers.OCM]);
-        */
-        
-        // add the route layer to the map
-        this.loadRouteVector();
-        
-        var waypoints = new OpenLayers.Layer.Vector("Waypoints", {
-            styleMap: this.getPointStyleMap(),
-            eventListeners: {
-					"vertexmodified": function(evt){
-						// update the long/lat values on the form
-						var lonlat = map.getLonLatFromPixel(evt.pixel);
-						lonlat.transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"));
-						var lat = lonlat.lat.toPrecision(8);
-						var lon = lonlat.lon.toPrecision(8);
-						// irish grid ref
-                        wgs84=new GT_WGS84();
-                        wgs84.setDegrees(lat, lon);
-                        irish=wgs84.getIrish();
-                        gridref = irish.getGridRef(3);
-						$('#lat').html('&nbsp;' + lat);
-						$('#lng').html('&nbsp;' + lon);
-                        $('#gridref').html('&nbsp;' + gridref);
-						$('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
-					},
-					
-                },
+    }
+
+    function _initMap() {
+
+        /* Layers */
+
+        // osm
+        var osm = new ol.layer.Tile({
+            title: 'OpenStreetMap',
+            source: new ol.source.OSM()
         });
-        map.addLayers([waypoints]);
-		
-		var selectControl = new OpenLayers.Control.SelectFeature([waypoints]);
-		map.addControl(selectControl);
-		selectControl.activate();
-        
-        var pointControl = new OpenLayers.Control.DrawFeature(waypoints,
-                                OpenLayers.Handler.Point);
-        map.addControl(pointControl);
-        pointControl.activate();
-        
-		// TODO: map zoom and pan causes this to fire.. so bit buggy.. as map gets reset
-		waypoints.events.register("featureadded", selectControl, function(e){
-			console.log('featureadded event fired..');
-			var geom = e.feature.geometry.clone();
-            geom.transform('EPSG:3857', 'EPSG:4326');
-            // update the geom on the form and trigger validation
-            $('#the_geom').val('POINT(' + geom.x + ' ' + geom.y + ')');
-            $('#the_geom').trigger("input");
-            var lat = geom.y.toPrecision(8);
-            var lon = geom.x.toPrecision(8);
-            wgs84=new GT_WGS84();
-            wgs84.setDegrees(lat, lon);
-            irish=wgs84.getIrish();
-            gridref = irish.getGridRef(3);
-            $('#lat').html('&nbsp;' + lat);
-            $('#lng').html('&nbsp;' + lon);
-            $('#gridref').html('&nbsp;' + gridref);
-            $.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY+ '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
-                  function(data){
-                    var elevation = data.elevationProfile[0].height;
-                    $('#elevation').val(elevation);
-                    $('#elev').html('&nbsp;' + elevation + ' metres');
+
+        // routes
+        route = new ol.layer.Vector({
+            title: 'Route',
+            style: style.route.SELECT,
+            projection: 'EPSG:3857'
+        });
+
+        // waypoints
+        var features = new ol.Collection();
+        waypoints = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: features
+            }),
+            title: 'Waypoints',
+            style: style.waypoint.SELECT,
+            projection: 'EPSG:3857'
+        });
+
+        // controls
+        var scaleline = new ol.control.ScaleLine();
+
+        // interactions
+        select = new ol.interaction.Select({
+            style: style.waypoint.SELECT,
+            layers: [waypoints]
+        });
+
+        draw = new ol.interaction.Draw({
+            features: features,
+            type: 'Point'
+        });
+
+        var modify = new ol.interaction.Modify({
+            features: features,
+            // the SHIFT key must be pressed to delete vertices, so
+            // that new vertices can be drawn at the same position
+            // of existing vertices
+            /*
+            deleteCondition: function(event) {
+                return ol.events.condition.shiftKeyOnly(event) &&
+                    ol.events.condition.singleClick(event);
+            }
+            */
+        });
+
+        // view
+        var view = new ol.View({
+            center: [0, 0],
+            zoom: 2,
+            maxZoom: 19
+        });
+
+        // map
+        map = new ol.Map({
+            layers: [osm, route, waypoints],
+            target: 'edit-waypoint-map',
+            view: view,
+            controls: ol.control.defaults({
+                attributionOptions: {
+                    collapsible: false
+                }
+            }).extend([scaleline]),
+            interactions: ol.interaction.defaults().extend([select, draw, modify]),
+        });
+
+        $('#reset-map').bind('click', function(e) {
+            map.getView().fit(route.getSource().getExtent(), map.getSize());
+        });
+
+        // add the route to the map
+        _loadRoute();
+
+        // handle feature addition
+        features.on('add', function(e) {
+            // only allow one feature
+            // to be added to the map
+            map.removeInteraction(draw);
+            var feature = this.getArray()[0];
+            var feat = feature.clone();
+            _updateFeatureAttributes(feat);
+        });
+
+        // handle feature modification
+        modify.on('modifyend', function(e) {
+            var feature = e.features.getArray()[0];
+            var feat = feature.clone();
+            _updateFeatureAttributes(feat);
+        });
+    }
+
+    // update the ui with feature attributes
+    function _updateFeatureAttributes(feature){
+        var feat = feature.clone();
+        var attrs = feat.getProperties();
+        var geom = feat.getGeometry();
+        var point = ol.proj.transform(
+            geom.getCoordinates(), 'EPSG:3857', 'EPSG:4326'
+        );
+        // irish grid ref
+        wgs84 = new GT_WGS84();
+        wgs84.setDegrees(point[1], point[0]);
+        irish = wgs84.getIrish();
+        gridref = irish.getGridRef(3);
+        var lat = wgs84.latitude.toFixed(5)
+        var lon = wgs84.longitude.toFixed(5);
+        $('#lat').html('&nbsp;' + lat);
+        $('#lng').html('&nbsp;' + lon);
+        $('#gridref').html('&nbsp;' + gridref);
+        $.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY + '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
+            function(data) {
+                var elevation = data.elevationProfile[0].height;
+                $('#elevation').val(elevation);
+                $('#elev').html('&nbsp;' + elevation + ' metres');
             });
-            // only allow one feature to be added.
-            pointControl.deactivate();
-		});
-		
-		
-		// add modify feature control to allow feature editing..
-		var modifyControl = new OpenLayers.Control.ModifyFeature(waypoints, {
-			selectControl: selectControl,
-			dragComplete: function(feature){
-				// get the elevation for the updated feature and update the form.
-                var feat = feature.clone();
-                var geom = feat.geometry.transform('EPSG:3857', 'EPSG:4326');
-				var lat = geom.y;
-				var lon = geom.x;
-				$.get(Config.ELEVATION_API_URL + Config.MAPQUEST_KEY+ '&shapeFormat=raw&latLngCollection=' + lat + ',' + lon,
-					  function(data){
-						var elevation = data.elevationProfile[0].height;
-						$('#elevation').val(elevation);
-						$('#elev').html('&nbsp;' + elevation + ' metres');
-				});
-				var bounds = waypoints.getDataExtent();
-				var lonlat = new OpenLayers.LonLat(bounds.left, bounds.bottom);
-                //map.setCenter(lonlat);
-			},
-			mode: OpenLayers.Control.ModifyFeature.DRAG,
-		});
-		map.addControl(modifyControl);
-		modifyControl.activate();
-		
-		map.addControl(new OpenLayers.Control.LayerSwitcher());
-        map.zoomToExtent(new OpenLayers.Bounds(-8.06,52.94,-7.92,53.01).transform("EPSG:4326", "EPSG:3857"));       
-        
-        return map;
-    },
-    
-    loadRouteVector: function() {
+    }
+
+    // load the route
+    function _loadRoute() {
         /* Add the routes for the current group */
-        var that = this;
-        var jsonUrl = Config.TRACK_API_URL + '/' + this.routeId + '.json';
+        var jsonUrl = Config.TRACK_API_URL + '/' + routeId + '.json';
         console.log(jsonUrl);
-        $.getJSON(jsonUrl, function(data){
-            var geojson = new OpenLayers.Format.GeoJSON({
-                        'internalProjection': new OpenLayers.Projection("EPSG:3857"),
-                        'externalProjection': new OpenLayers.Projection("EPSG:4326")
-                });
-                var routeName = data.properties.name;
-                $('#create-form-heading').html('<h5>Add a waypoint to the ' + routeName + ' route</h5>');
-                var route = new OpenLayers.Layer.Vector(routeName, {
-                styleMap: that.getLineStyleMap()
-                });
-                that.map.addLayers([route]);
-                var features = geojson.read(data);
-                route.addFeatures(features);
-                that.map.zoomToExtent(route.getDataExtent());
-        }).fail(function(data){
+        $.getJSON(jsonUrl, function(data) {
+            // add the route to the map
+            var geoJSONFormat = new ol.format.GeoJSON();
+            var source = new ol.source.Vector({
+                format: geoJSONFormat,
+            });
+            var features = geoJSONFormat.readFeatures(data, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857'
+            });
+            source.addFeatures(features);
+            route.setSource(source);
+            var extent = route.getSource().getExtent();
+            map.getView().fit(extent, map.getSize());
+
+            $('#reset-map').bind('click', function(e) {
+                map.getView().fit(route.getSource().getExtent(), map.getSize());
+            });
+        }).fail(function(data) {
             console.log('Failed to load route features..');
         });
-    },
-    
-    getLineStyleMap: function(){
-        /* Styles */
-        var defaultStyle = new OpenLayers.Style({
-            strokeColor: "#db337b",
-            strokeWidth: 2.5,
-            strokeDashstyle: "dash",
-            label: " ${name}",
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
-        });
-        
-        var selectStyle = new OpenLayers.Style({
-            strokeColor: "yellow",
-            strokeWidth: 3.5,
-            strokeDashstyle: "dashdot",
-            label: " ${name}",
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
-        });
-        
-        var lineStyles = new OpenLayers.StyleMap(
-            {
-                "default": defaultStyle,
-                "select": selectStyle
-        });
-        
-        return lineStyles;
-    },
-    
-    getPointStyleMap: function(){
-        var defaultStyle = new OpenLayers.Style({
-            strokeColor: "#980000",
-            fillColor: "green",
-            pointRadius: 5,
-            graphicZIndex:0,
-        });
-        
-        var selectStyle = new OpenLayers.Style({
-            pointRadius: 10,
-            fillColor: "yellow",
-            labelAlign: "lm",
-            labelXOffset: "20",
-            labelOutlineColor: "white",
-            labelOutlineWidth: 3,
-            fontSize: 16,
-            graphicZIndex: 10,
-        });
-        
-        var pointStyles = new OpenLayers.StyleMap(
-        {
-            "default": defaultStyle,
-            "select": selectStyle
-        });
-        
-        return pointStyles;
     }
-	
+
+    // public
+    return {
+        init: function() {
+            _init();
+            _initForm();
+            _initMap();
+        }
+    };
+
+}());
+
+
+$(document).ready(function() {
+    waypoints.create.init();
 });
-
-
-
