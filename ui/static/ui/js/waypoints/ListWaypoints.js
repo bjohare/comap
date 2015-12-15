@@ -157,8 +157,8 @@ waypoints.list = (function(){
                     $('#carousel').css('display','none');
                 }
                 $('.panel-body').find('span.elevation').html(attrs.elevation + ' metres');
-                $('.panel-body').find('span.latitude').html(point[0].toFixed(4));
-                $('.panel-body').find('span.longitude').html(point[1].toFixed(4));
+                $('.panel-body').find('span.latitude').html(point[1].toFixed(4));
+                $('.panel-body').find('span.longitude').html(point[0].toFixed(4));
                 $('.panel-body').find('span.irishgrid').html(gridref);
                 $('.panel-body').find('span.created').html(moment(attrs.created).format('Do MMMM YYYY hh:mm a'));
                 $('.panel-body').find('a.editlink').prop('href','/comap/waypoints/edit/' + fid);

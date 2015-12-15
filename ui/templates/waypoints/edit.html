@@ -10,7 +10,7 @@
         <div id="update-info-heading" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-ok-circle pull-left">&nbsp</span></div>
         <div id="update-info-panel" class="panel-body"></div>
     </div>
-    
+
     <div id="update-form-panel" class="panel panel-default">
         <div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-globe pull-left">&nbsp</span>
             <div id="update-form-heading"><h5>&nbsp;</h5></div>
@@ -37,7 +37,7 @@
                                         <div>
                                             <strong><label class="control-label" for="description">Waypoint Description: </label></strong>
                                             <textarea name="description" id="description" class="form-control" rows="20"></textarea>
-                                        </div> 
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -51,7 +51,7 @@
                                           <span><strong>Elevation:</strong><span id="elev">&nbsp; metres</span>
                                         </div>
                                         <input type="text" id="elevation" name="elevation" value="" style="visibility: hidden;"/>
-                                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/> 
+                                        <input type="text" id="the_geom" name="the_geom" value="" style="visibility: hidden;"/>
                                     </div>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         </form>
                     </div>
                     <div id="fileupload" class="col-md-4">
@@ -77,7 +77,7 @@
                                     <span id="dz-message" class="oi oi-data-transfer-upload"> Drag media files here..</span>
                                 </div>
                             </div>
-                            
+
                             <div class="col-lg-5 fileupload-progress fade">
                                 <!-- The global progress bar -->
                                 <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
@@ -99,7 +99,7 @@
             </div>
         </div>
       </div>
-       
+
     </div>
 </div>
 <!-- bootstrap modal -->
@@ -111,7 +111,7 @@
               <h4 class="modal-title" id="myModalLabel">Really delete this waypoint media file?</h4>
             </div>
             <div class="modal-body">
-             <p><span class="glyphicon glyphicon-exclamation-sign" style="float:left; font-size: 2.0em; color: red; margin:0 7px 25px 0;"> 
+             <p><span class="glyphicon glyphicon-exclamation-sign" style="float:left; font-size: 2.0em; color: red; margin:0 7px 25px 0;">
              </span>This file will be permanently deleted and cannot be recovered. Are you sure?</p>
             </div>
             <div class="modal-footer">
@@ -124,6 +124,7 @@
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
+<script src="{% static "ui/js/Styles.js" %}" type="text/javascript"></script>
 <script src="{% static "ui/js/waypoints/EditWaypoint.js" %}" type="text/javascript" defer></script>
 <script src="{% static "ui/js/Layers.js" %}" type="text/javascript" defer></script>
 <script src="{% static "ui/js/Config.js" %}" type="text/javascript" defer></script>
@@ -149,7 +150,6 @@
 <script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-validate.js" %}"></script>
 <!-- The File Upload user interface plugin -->
 <script  src="{% static "ui/contrib/fileupload/js/jquery.fileupload-ui.js" %}"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script> 
 <script src="http://malsup.github.com/jquery.form.js"></script>
 
 {% verbatim %}
@@ -169,11 +169,11 @@
         </td>
         -->
         <td>
-           
+
             {% if (!i && !o.options.autoUpload) { %}
                 <button class="start" enabled/>
             {% } %}
-            
+
             {% if (!i) { %}
                 <button class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
@@ -227,7 +227,7 @@
                     <i class="glyphicon glyphicon-trash"></i>
                     <span>Delete</span>
                 </button>
-                
+
         <!--
                 <input type="checkbox" name="delete" value="1" class="toggle">
             {% } else { %}
@@ -242,12 +242,4 @@
 {% } %}
 </script>
 {% endverbatim %}
-
-<!-- load map -->
-<script type="text/javascript">
-    var editMap;
-    $(document).ready(function() {
-        editApp = new EditWaypointApp();
-    });
-</script>
 {% endblock %}
