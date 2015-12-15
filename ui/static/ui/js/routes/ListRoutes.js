@@ -203,8 +203,7 @@ route.list = (function() {
             success: function(data, status, xhr) {
                 console.log(status);
                 if (status == 'nocontent') {
-                    routes = map.getLayersByName('Routes')[0]
-                    routes.destroyFeatures();
+                    routes.getSource().clear();
                     _buildRouteList(routes);
                 }
             },
