@@ -25,7 +25,7 @@ class ComapGeoFeatureModelSerializer(geo_serializers.GeoFeatureModelSerializer):
     A very slightly customized GeoFeatureModelSerializer
     which only returns fields in the properties node..
     """
-    
+
     def to_representation(self, instance):
         """
         Serialize objects -> primitives.
@@ -60,58 +60,58 @@ class ComapGeoFeatureModelSerializer(geo_serializers.GeoFeatureModelSerializer):
 class GroupSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
-    
-    
+
+
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
-    
+
 
 class UserGroupSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
     groups = GroupSerializer(many=True)
-    
+
 
 class SimpleRouteSerializer(serializers.Serializer):
     """ Simple serializer to provide a subset of Route fields"""
-    
+
     fid = serializers.IntegerField()
     name = serializers.CharField()
     url = serializers.HyperlinkedIdentityField(
         view_name="api:tracks-detail",
     )
     group = GroupSerializer()
-    
+
 
 class SimpleWaypointSerializer(serializers.Serializer):
     """ Simple serializer to provide a subset of Waypoint fields"""
-    
+
     fid = serializers.IntegerField()
     name = serializers.CharField()
     url = serializers.HyperlinkedIdentityField(
         view_name="api:waypoints-detail",
     )
-    
+
 
 class WaypointSerializer(ComapGeoFeatureModelSerializer):
     """
     Serializes Waypoints. Uses SimpleRouteSerializer to return nested parent Route properties.
     """
-    
+
     route = serializers.SerializerMethodField()
     media = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Waypoint
         geo_field = 'the_geom'
         fields = ('fid','name','description','elevation','created','the_geom','media','route')
-    
+
     def create(self, validated_data):
         route_data = validated_data.pop('route')
         route = Route.objects.get(fid=route_data['fid'])
         return Waypoint.objects.create(route=route, **validated_data)
-    
+
     def update(self, instance, validated_data):
         logger.debug(validated_data)
         route_data = validated_data.pop('route')
@@ -124,7 +124,7 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
         instance.created = validated_data.get('created', instance.created)
         instance.save()
         return instance
-    
+
     def to_internal_value(self, data):
         #TODO: might want to do more validation here but ok for now..
         route_id = data['route']
@@ -136,39 +136,39 @@ class WaypointSerializer(ComapGeoFeatureModelSerializer):
         elevation = data['elevation']
         the_geom = data['the_geom']
         return {'name': name, 'description': description, 'created': created,'the_geom': the_geom, 'route': route_data, 'elevation': elevation}
-    
+
     def get_media(self, obj):
         media = WaypointMedia.objects.filter(waypoint_id=obj.fid)
         serializer = WaypointMediaSerializer(media, many=True, context=self.context)
         return {'files': serializer.data}
-    
+
     def get_route(self, obj):
         route = obj.route
         serializer = SimpleRouteSerializer(route, context=self.context)
         return serializer.data
-    
+
 
 class RouteSerializer(ComapGeoFeatureModelSerializer):
-    
+
     user = UserSerializer()
     group = GroupSerializer()
     waypoints = serializers.SerializerMethodField('get_visible_waypoints')
     gpx_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Route
         geo_field = 'the_geom'
         id_field = 'fid'
         fields = ('fid','name','description','created','image_file', 'gpx_file', 'gpx_url', 'user', 'group', 'waypoints')
         read_only_fields = ('media_url')
-    
+
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         group_data = validated_data.pop('group')
         user = User.objects.get(id=user_data['id'])
         group = Group.objects.get(id=group_data['id'])
         return Route.objects.create(user=user, group=group, **validated_data)
-    
+
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user')
         group_data = validated_data.pop('group')
@@ -184,26 +184,26 @@ class RouteSerializer(ComapGeoFeatureModelSerializer):
         instance.created = validated_data.get('created', instance.created)
         instance.save()
         return instance
-    
+
     def get_visible_waypoints(self, obj):
         waypoints = Waypoint.objects.filter(route_id=obj.fid)
         serializer = WaypointSerializer(waypoints, many=True, context=self.context)
         logger.debug(serializer.data)
         return serializer.data
-    
+
     def get_gpx_url(self, obj):
         group = obj.group
         group_name = group.name.replace(" ", "_").lower()
         return '{0}/{1}/{2}/{3}'.format(settings.MEDIA_URL + str(group.id), obj.fid, 'gpx', obj.gpx_file)
-    
-    
+
+
 class PublicRouteSerializer(ComapGeoFeatureModelSerializer):
-    
+
     user = UserSerializer()
     group = GroupSerializer()
     waypoints = serializers.SerializerMethodField('get_visible_waypoints')
     gpx_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Route
         geo_field = 'the_geom'
@@ -211,45 +211,45 @@ class PublicRouteSerializer(ComapGeoFeatureModelSerializer):
         fields = ('fid','name','description','created','image_file', 'gpx_file', 'gpx_url', 'user', 'group', 'waypoints')
         read_only_fields = ('media_url')
 
-    
+
     def get_visible_waypoints(self, obj):
         waypoints = Waypoint.objects.filter(route_id=obj.fid, visible=True)
         serializer = WaypointSerializer(waypoints, many=True, context=self.context)
         logger.debug(serializer.data)
         return serializer.data
-    
+
     def get_gpx_url(self, obj):
         group = obj.group
         group_name = group.name.replace(" ", "_").lower()
         return '{0}/{1}/{2}/{3}'.format(settings.MEDIA_URL + str(group.id), obj.fid, 'gpx', obj.gpx_file)
-    
+
 
 class TrackPointSerializer(ComapGeoFeatureModelSerializer):
-    
+
     class Meta:
         model = TrackPoint
         geo_field = 'the_geom'
         fields = ('fid','time','ele','route')
-        
-    
+
+
 class WaypointMediaSerializer(serializers.ModelSerializer):
-    
+
     waypoint = SimpleWaypointSerializer()
     media_url = serializers.SerializerMethodField()
     url = serializers.HyperlinkedIdentityField(
         view_name="api:waypointmedia-detail",
     )
-    
+
     class Meta:
         model = WaypointMedia
         fields = ('fid','filename','content_type','size','created','updated','media_url','url','waypoint')
-    
+
     def create(self, validated_data):
         waypoint_data = validated_data.pop('waypoint_data')
         waypoint_id = waypoint_data['fid']
         waypoint = Waypoint.objects.get(fid=waypoint_id)
         return WaypointMedia.objects.create(waypoint=waypoint, **validated_data)
-    
+
     def to_internal_value(self, data):
         waypoint_id = data['waypoint_id']
         logger.debug(waypoint_id)
@@ -260,8 +260,7 @@ class WaypointMediaSerializer(serializers.ModelSerializer):
         file = data['file']
         content_type = data['content_type']
         return {'filename': filename, 'size': size, 'waypoint_data': waypoint_data, 'content_type': content_type, 'file': file}
-    
+
     def get_media_url(self, obj):
         return obj.file.url
-    
-    
+

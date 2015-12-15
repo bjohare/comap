@@ -27,16 +27,14 @@ waypoints.create = (function() {
     var map = null;
 
     function _init() {
-
         var url = document.URL;
         var parts = url.split('/');
         var id = parts[6];
         console.log('Route id is ' + id);
         routeId = id;
         // add the route id to the form.
-        $('#route').val(this.routeId);
+        $('#route').val(routeId);
         $('[data-toggle="popover"]').popover();
-
     }
 
     /* Initialize the form */
@@ -63,26 +61,23 @@ waypoints.create = (function() {
             $('#dropzone').css('border','2px solid lightgrey');
         });
         */
-        var that = this;
-        that.cancelled = 0;
+        cancelled = 0;
         $('#fileupload').bind('fileuploadfail', function(e, data) {
-            that.cancelled += 1;
+            cancelled += 1;
             var numFiles = data.originalFiles.length;
-            if (numFiles == that.cancelled) {
-                that.cancelled = 0;
+            if (numFiles == cancelled) {
+                cancelled = 0;
                 console.log('All uploads cancelled');
                 $('#dz-message').css('display', 'block');
             }
         });
 
-
-        var that = this;
-        that.submitted = 0;
+        submitted = 0;
         $('#fileupload').bind('fileuploadcompleted', function(e, data) {
-            that.submitted += 1;
+            submitted += 1;
             var numFiles = data.getNumberOfFiles();
-            if (numFiles == that.submitted) {
-                that.submitted = 0;
+            if (numFiles == submitted) {
+                submitted = 0;
                 console.log('All files submitted.');
                 $('#create-form-panel').css('display', 'none');
                 $('#create-info').css('display', 'block');
@@ -179,8 +174,8 @@ waypoints.create = (function() {
                 $('#create-info-panel').append('<p><span><strong><hr/></p>');
                 $('#create-info-panel').append('<p>');
                 $('#create-info-panel').append('<a class="editlink" href="/comap/waypoint/edit/' + id + '/"><button><span class="glyphicon glyphicon-edit"></span> Edit this Waypoint..</button></a> &nbsp;');
-                $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + that.routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
-                $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + that.routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
+                $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/list/' + routeId + '/"><button><span class="glyphicon glyphicon-list"></span> List Waypoints for this route..</button></a> &nbsp;');
+                $('#create-info-panel').append('<a class="listlink" href="/comap/waypoints/create/' + routeId + '/"><button><span class="glyphicon glyphicon-asterisk"></span> Create a new Waypoint..</button></a>');
                 $('#create-info-panel').append('</p>');
 
                 // get new waypoint id and post the media
@@ -334,6 +329,7 @@ waypoints.create = (function() {
                 $('#elevation').val(elevation);
                 $('#elev').html('&nbsp;' + elevation + ' metres');
             });
+        $('#the_geom').val('POINT(' + lon + ' ' + lat + ')');
     }
 
     // load the route

@@ -301,9 +301,9 @@ waypoints.list = (function(){
             success: function(data, status, xhr) {
                 console.log(status);
                 if (status == 'nocontent') {
-                    waypoints = map.getLayersByName('Waypoints')[0]
-                    waypoints.destroyFeatures();
-                    that.buildWaypointList(waypoints);
+                    // remove features and readd them
+                    waypoints.getSource().clear();
+                    _buildWaypointList(waypoints);
                 }
             },
             error: function(xhr, status, error){

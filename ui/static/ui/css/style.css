@@ -11,7 +11,7 @@ html, body {
   font-family: Lato;
   width: 100%;
   height: 100%;
-  
+
 }
 
 .container {
@@ -175,7 +175,7 @@ div#edit {
 }
 
 div#edit-waypoint {
-   
+
 }
 
 /*
@@ -244,7 +244,7 @@ div#create-header {
     font-weight: bold;
     padding: 1px;
  }
- 
+
 
 
 .olControlAttribution {
@@ -347,7 +347,7 @@ div#heading, div#detail-heading {
 }
 
 #save {
-    
+
 }
 
 #fileupload {
@@ -400,7 +400,7 @@ button.start {
 button[data-toggle=popover] {
     background:transparent;
     border: none;
-    
+
 }
 
 #carousel {
@@ -411,6 +411,7 @@ button[data-toggle=popover] {
 
 #audio-panel, #video-panel {
     margin: 10px 0 20px 0;
+    display: none;
 }
 
 span.preview audio {
