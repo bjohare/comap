@@ -283,11 +283,16 @@ waypoints.edit = (function(){
         // add the route and waypoint to the map
         _loadVectors();
 
+        // handle feature addition
+        features.on('add', function(e) {
+            var feature = this.getArray()[0];
+            _updateFeatureAttributes(feature);
+        });
+
         // handle feature modification
         modify.on('modifyend', function(e) {
             var feature = e.features.getArray()[0];
-            var feat = feature.clone();
-            _updateFeatureAttributes(feat);
+            _updateFeatureAttributes(feature);
         });
     }
 
