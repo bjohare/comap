@@ -69,3 +69,5 @@ secret.py
 # sublimetext
 *.sublime-*
 
+# runserver
+nohup.out
