@@ -126,7 +126,7 @@ route.list = (function() {
             $('#routes').empty();
             $.each(groups, function(i) {
                 var group = groups[i];
-                var groupId = group.replace(' ', '-').toLowerCase();
+                var groupId = group.replace(/ /g, '-').toLowerCase();
                 var html = '<div class="panel panel-default">' +
                     '<div id="heading-wrap" class="panel-heading"><span class="glyphicon-heading glyphicon glyphicon-list pull-left">&nbsp</span>' +
                     '<div id="heading"><h5>' + group + '</h5></div></div>' +
