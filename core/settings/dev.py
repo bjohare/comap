@@ -15,9 +15,9 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'cloughjordan',
+        'NAME': 'waymarkers',
         'OPTIONS': {
-            'options': '-c search_path=comap,public'
+            'options': '-c search_path=waymarkers,public'
         },
         'CONN_MAX_AGE': None,
         'USER': 'gis',
@@ -95,6 +95,6 @@ LOGGING = {
 }
 
 MEDIA_URL = '/comap/media/'
-MEDIA_ROOT = ABS_PATH('media')
+MEDIA_ROOT = '/home/waymarkers/media/' 
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
