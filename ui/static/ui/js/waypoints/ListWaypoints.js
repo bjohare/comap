@@ -136,6 +136,7 @@ waypoints.list = (function(){
                                 $('#carousel').carousel('cycle');
                                 break;
                             case 'audio':
+                                $('#audio-panel').css('display','block');
                                 var audio = $('audio');
                                 audio.css('display','block');
                                 audio.append('<source src="' + file.media_url + '" type="' + file.content_type + '"/>');
