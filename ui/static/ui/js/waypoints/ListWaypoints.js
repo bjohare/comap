@@ -248,7 +248,9 @@ waypoints.list = (function(){
                 $('#detail-panel-body').css('display','none');
                 var heading = '<h5>' + routeName + '</h5>';
                 $('#heading').html(heading);
+                /*
                 $('#panel').html('<p>Here is a list of waypoints for the ' + routeName + ' route.</p>');
+                */
                 $('#create-link').html('<a class="listlink" href="/comap/waypoints/create/' + routeId +'"><button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add a new waypoint</button></a>');
                 // add waypoints to the list..
                 $('ul.list-group').empty();
