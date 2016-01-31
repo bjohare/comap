@@ -227,6 +227,7 @@ waypoints.list = (function(){
             }
 
             if (waypts.features.length == 0) {
+		$('#panel').css('display','block');
                 $('#waypoints-map-panel').css('display','none');
                 $('ul.list-group').css('display','none');
                 $('#detail-panel').css('display','none');
@@ -242,6 +243,7 @@ waypoints.list = (function(){
                 $('#panel').append('</p>');
             }
             else {
+		$('#panel').css('display', 'none');
                 $('#waypoints-map-panel').css('visibility','visible');
                 //$('#map').css('visibility','visible');
                 $('#detail-panel').css('visibility','visible');
