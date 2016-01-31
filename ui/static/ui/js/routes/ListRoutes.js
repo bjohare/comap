@@ -116,6 +116,7 @@ route.list = (function() {
     function _buildRouteList(routes) {
         // get the routes from the tracks api and build the page..
         $.getJSON(Config.TRACK_API_URL, function(data) {
+            $('#panel').css('display', 'none');
             var feats = data.features;
             var foundGroups = [];
             $.each(feats, function(i) {
@@ -173,6 +174,7 @@ route.list = (function() {
             if (data.status == 404) {
                 var message = data.responseJSON.detail;
                 console.log(message);
+                $('#panel').css('display', 'block');
                 $('#routes-map-panel').css('display', 'none');
                 //$('#map').css('display','none');
                 $('ul.list-group').css('display', 'none');
