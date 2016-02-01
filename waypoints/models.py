@@ -32,7 +32,7 @@ def get_upload_path(instance, filename):
 class Waypoint(models.Model):
     fid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=True)
-    description = models.CharField(max_length=1000, blank=True)
+    description = models.CharField(max_length=65000, blank=True)
     elevation = models.FloatField(blank=True, null=True)
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(null=True)
