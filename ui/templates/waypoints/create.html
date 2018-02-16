@@ -104,7 +104,7 @@
 {% block corejs %}
 {{ block.super }}
 <script src="{% static "ui/js/Styles.js" %}" type="text/javascript"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="{% static "ui/contrib/jquery.form.js" %}" type="text/javascript"></script>
 <script src="{% static "ui/js/waypoints/CreateWaypoint.js" %}" type="text/javascript" defer></script>
 <script src="{% static "ui/js/Layers.js" %}" type="text/javascript" defer></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
@@ -133,7 +133,6 @@
 <script src="{% static "ui/contrib/fileupload/js/jquery.fileupload-validate.js" %}"></script>
 <!-- The File Upload user interface plugin -->
 <script  src="{% static "ui/contrib/fileupload/js/jquery.fileupload-ui.js" %}"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script>
 <!-- The main application script -->
 <!--<script  src="{% static "ui/contrib/fileupload/js/main.js" %}"></script>-->
 

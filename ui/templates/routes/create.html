@@ -73,6 +73,6 @@
 {% endblock %}
 {% block corejs %}
 {{ block.super }}
-<script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="{% static "ui/contrib/jquery.form.js" %}" type="text/javascript"></script>
 <script src="{% static "ui/js/routes/CreateRoute.js" %}" type="text/javascript" defer></script>
 {% endblock %}

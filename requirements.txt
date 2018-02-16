@@ -1,6 +1,6 @@
 Django==1.8.6
 Fiona==1.4.8
-GDAL==1.11.2
+GDAL==2.2.2
 Pillow==2.7.0
 argparse==1.2.1
 click==3.3
